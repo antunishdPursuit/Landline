@@ -19,6 +19,18 @@
 jest.mock("server-only", () => ({}), { virtual: true });
 
 // ---------------------------------------------------------------------------
+// RAG mock — prevents real HTTP calls to the Python service in tests
+// ---------------------------------------------------------------------------
+jest.mock("@/lib/rag", () => ({
+  getRagAnswer: jest.fn().mockResolvedValue({
+    answered: true,
+    answer: "Checkout is at 11am.",
+    sources: [],
+    query_used: "What time is checkout?",
+  }),
+}));
+
+// ---------------------------------------------------------------------------
 // Supabase mock — controls insert outcomes without touching a real database
 // ---------------------------------------------------------------------------
 const mockSingle = jest.fn();
@@ -73,7 +85,7 @@ describe("AC-5: answerable_qa → 200 and no database write", () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body).toEqual({ status: "ok", intent: "answerable_qa" });
+    expect(body).toMatchObject({ status: "ok", intent: "answerable_qa", answered: true });
   });
 
   it("does not call supabaseAdmin at all for answerable_qa", async () => {

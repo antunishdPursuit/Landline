@@ -9,6 +9,16 @@
 
 jest.mock("server-only", () => ({}), { virtual: true });
 
+// ---------- RAG mock ----------
+jest.mock("@/lib/rag", () => ({
+  getRagAnswer: jest.fn().mockResolvedValue({
+    answered: true,
+    answer: "Checkout is at 11am.",
+    sources: [],
+    query_used: "What time is checkout?",
+  }),
+}));
+
 // ---------- supabase mock setup ----------
 const mockSingle = jest.fn();
 const mockSelect = jest.fn(() => ({ single: mockSingle }));
@@ -60,7 +70,7 @@ describe("POST /api/requests", () => {
       const body = await response.json();
 
       expect(response.status).toBe(200);
-      expect(body).toEqual({ status: "ok", intent: "answerable_qa" });
+      expect(body).toMatchObject({ status: "ok", intent: "answerable_qa", answered: true });
       expect(mockFrom).not.toHaveBeenCalled();
     });
 
@@ -75,7 +85,7 @@ describe("POST /api/requests", () => {
       const body = await response.json();
 
       expect(response.status).toBe(200);
-      expect(body.status).toBe("ok");
+      expect(body).toMatchObject({ status: "ok" });
       expect(mockFrom).not.toHaveBeenCalled();
     });
   });

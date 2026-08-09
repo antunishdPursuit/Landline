@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     rag_service_api_key: str
 
     rag_rewrite_model: str = "claude-haiku-4-5-20251001"
-    rag_generation_model: str = "claude-sonnet-5"
+    rag_generation_model: str = "claude-sonnet-4-6"
     rag_context_summary_model: str = "claude-haiku-4-5-20251001"
 
     embedding_model_name: str = "all-MiniLM-L6-v2"

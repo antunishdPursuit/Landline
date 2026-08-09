@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { classifyRequest } from "@/lib/classifier";
 import { supabaseAdmin } from "@/lib/supabase.server";
+import { getRagAnswer } from "@/lib/rag";
 
 type RequestBody = {
   intent?: unknown;
@@ -66,9 +67,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Classify — always server-side; requires_human from body is discarded
   const { requires_human, department } = classifyRequest(intent, summary);
 
-  // answerable_qa: respond immediately, zero DB writes
+  // answerable_qa: forward to RAG service, respond immediately, zero DB writes
   if (intent === "answerable_qa") {
-    return NextResponse.json({ status: "ok", intent }, { status: 200 });
+    try {
+      const rag = await getRagAnswer(summary);
+      return NextResponse.json(
+        {
+          status: "ok",
+          intent,
+          answered: rag.answered,
+          answer: rag.answer,
+          sources: rag.sources,
+        },
+        { status: 200 }
+      );
+    } catch {
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 }
+      );
+    }
   }
 
   const urgency =
