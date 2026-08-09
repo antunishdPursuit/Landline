@@ -16,7 +16,7 @@ const STATUS_COLUMN_LABEL = {
 export default function DashboardPage() {
   const session = useStaffSession()
   const signOut = useStaffSignOut()
-  const { requests, connected, justArrivedId, updateStatus } = useRequests()
+  const { requests, justArrivedId, updateStatus } = useRequests()
 
   if (session === undefined) {
     return (
@@ -66,7 +66,6 @@ export default function DashboardPage() {
       <Header
         staffName={session.name}
         role={session.role}
-        connected={connected}
         onSignOut={signOut}
       />
       <DashboardNav role={session.role} />

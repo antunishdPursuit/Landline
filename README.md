@@ -1,199 +1,117 @@
 # Landline
 
-A hotel voice-agent platform. Guests call in through a browser widget,
-[ElevenLabs](https://elevenlabs.io) Conversational AI handles the live
-conversation, a backend classifier routes the resulting intent, and a
-grounded RAG pipeline answers questions the agent can't answer from memory
-alone. Anything that can't be answered — or that needs a person — becomes a
-ticket on a live staff dashboard.
+A single-browser hotel voice-agent demo. Guests speak with an ElevenLabs agent
+or submit a manual request, the app routes the request, and Clerk-authenticated
+staff pick it up on a local dashboard. Tavily concierge search and Stay22
+accommodation links are the next planned integrations.
 
-For the full architecture, file-by-file breakdown, and data flow, see
-[`docs/overview.md`](docs/overview.md). This README covers getting the whole
-system running locally.
+Landline is intentionally a demo, not a live multi-user service. It uses
+same-browser state instead of a shared database. See
+[`docs/architecture.md`](docs/architecture.md) for the system boundaries and
+[`docs/Implementation.md`](docs/Implementation.md) for the implementation
+sequence.
 
-## Architecture at a glance
+## Current architecture
 
 ```
-Guest browser ──WebRTC──▶ ElevenLabs Conversational AI
-                                  │ client tool: log_request { intent, room_number, summary }
-                                  ▼
-                     POST /api/requests (Next.js)
-                                  │
-                classifyRequest() routes on intent
-                                  │
-        ┌─────────────────────────┼─────────────────────────┐
-        ▼                         ▼                         ▼
-  answerable_qa           physical_request           defer_to_operator
-        │                         │                         │
-        ▼                         ▼                         ▼
-  POST /rag/answer         Supabase `requests`        Supabase `requests`
-  (rag-service, Python)    (department-routed)         (requires_human)
-        │                         │                         │
-        ▼                         └───────────┬─────────────┘
-  answered ? speak it                          ▼
-  : defer to operator              Realtime → staff dashboard (Clerk-gated)
+Guest browser ──WebRTC──▶ ElevenLabs agent
+      │                         │
+      │                         └── client tool: log_request
+      ▼
+manual demo request      POST /api/requests
+      │                         │ validate + classify
+      └──────────────┬──────────┘
+                     ▼
+             browser demo state
+                     │
+                     ▼
+       Clerk-gated staff dashboard
 ```
 
-Three things run together, sharing one Supabase project:
+Responsibilities:
 
-| Service | Stack | Default port |
-|---|---|---|
-| Next.js app (guest widget + staff dashboard) | Node.js 18+, Next.js 14 App Router | 3000 |
-| RAG service | Python 3.11+, FastAPI | 8000 |
-| Database | Supabase (Postgres + Realtime + pgvector) | managed |
+| System | Responsibility |
+|---|---|
+| Clerk | Staff sign-in, name, and role |
+| ElevenLabs | Voice conversation and tool selection |
+| Browser | Same-browser tickets, assignments, statuses, and demo data |
+| Next.js routes | Secret handling, validation, classification, and vendor adapters |
+| Tavily | Planned source-backed current concierge information |
+| Stay22 | Planned accommodation destinations and tracked links |
 
-## Prerequisites
+There is no Supabase database, Python service, pgvector store, or production
+realtime backend.
 
-- Node.js 18+ and npm
-- Python 3.11+
-- A [Supabase](https://supabase.com) project
-- A [Clerk](https://clerk.com) application
-- An [ElevenLabs](https://elevenlabs.io) Conversational AI agent
-- An [Anthropic](https://console.anthropic.com) API key
+## Requirements
 
-## 1. Clone and install the Next.js app
+- Node.js 18+
+- A Clerk application
+- An ElevenLabs account and agent
+
+Planned feature credentials:
+
+- Tavily API key
+- Stay22 affiliate ID (`aid`)
+
+## Setup
 
 ```bash
-git clone <this repo>
-cd landline
 npm install
-```
-
-## 2. Set up Supabase
-
-Two independent SQL files need to be run against your Supabase project's SQL
-editor, in either order — copy each file's contents in directly:
-
-- [`sql/002_create_requests_table.sql`](sql/002_create_requests_table.sql) — the staff dashboard's ticket table, plus enabling the Realtime publication it subscribes to.
-- [`rag-service/sql/001_create_rag_tables.sql`](rag-service/sql/001_create_rag_tables.sql) — enables the `pgvector` extension and creates the RAG service's vector store tables.
-
-Both are one-time, manual steps — neither the Next.js app nor the RAG
-service runs migrations automatically. Grab the direct Postgres connection
-string too (Project Settings → Database) — the RAG service needs it
-separately from the `SUPABASE_URL`/anon-key pair the Next.js app uses.
-
-> **Heads up:** `sql/002_create_requests_table.sql`'s `status` column allows
-> `'open' | 'in_progress' | 'resolved'`, but the dashboard code
-> (`lib/types.ts`, `app/dashboard/page.tsx`) expects `'new' | 'in_progress' |
-> 'done'`. As shipped, new tickets land with `status = 'open'` and won't
-> match the dashboard's "Waiting for Pickup" column. This predates this
-> README update and hasn't been reconciled yet — worth fixing one way or the
-> other before relying on the dashboard.
-
-## 3. Set up Clerk
-
-The staff dashboard (`/dashboard`) is Clerk-gated; the guest widget (`/`) is
-fully public and needs no Clerk session.
-
-1. Create a Clerk application, grab the publishable + secret keys.
-2. Staff **roles are admin-assigned, not self-service**: for each staff
-   member's Clerk user, set `publicMetadata.role` (via the Clerk dashboard or
-   Backend API) to one of `front_desk`, `housekeeping`, `room_service`,
-   `maintenance`, or `manager`. `manager` sees every department; the rest see
-   only their own. A signed-in user with no `role` set sees a "contact an
-   admin" message instead of the dashboard — that's expected until you
-   assign one.
-3. Background on why Clerk was chosen for this: [`docs/clerk-setup.md`](docs/clerk-setup.md).
-
-## 4. Set up ElevenLabs
-
-1. Create a Conversational AI agent in the ElevenLabs dashboard.
-2. Give it a `log_request` client tool with the JSON schema described in
-   [`docs/Implementation.md`](docs/Implementation.md) (`intent`,
-   `room_number`, `summary`, `urgency`, `language_detected`,
-   `requires_human`) — this is what `hooks/usePhoneSession.ts` wires up to
-   `POST /api/requests`.
-3. Grab the API key and agent ID.
-
-## 5. Environment variables
-
-```bash
 cp .env.example .env.local
+npm run dev
 ```
 
-Fill in:
+Fill in the core values in `.env.local`:
 
-| Variable | Where it's from |
+| Variable | Purpose |
 |---|---|
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | ElevenLabs dashboard |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | same page, client-safe pair |
-| `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`, `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard` | already set correctly in `.env.example` |
-| `RAG_SERVICE_URL` | `http://localhost:8000` for local dev |
-| `RAG_SERVICE_API_KEY` | any random string — must match the RAG service's own `.env` (step 6) |
+| `ELEVENLABS_API_KEY` | Requests a short-lived conversation token server-side |
+| `ELEVENLABS_AGENT_ID` | Selects the configured voice agent |
+| `CLERK_SECRET_KEY` | Clerk server authentication |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser configuration |
 
-## 6. Set up the RAG service
+Optional future features use `TAVILY_API_KEY` and `STAY22_AID`.
 
-```bash
-cd rag-service
-python -m venv .venv
-.venv\Scripts\activate        # Windows; use `source .venv/bin/activate` on macOS/Linux
-pip install -r requirements.txt
-cp .env.example .env
-```
+Guest page: `http://localhost:3000/`
 
-Fill in `rag-service/.env`:
+Staff dashboard: `http://localhost:3000/dashboard`
 
-| Variable | Where it's from |
-|---|---|
-| `ANTHROPIC_API_KEY` | Anthropic console |
-| `SUPABASE_DB_URL` | Supabase → Project Settings → Database → connection string (direct Postgres, not the REST URL) |
-| `RAG_SERVICE_API_KEY` | must match the root `.env.local`'s value from step 5 |
+Assign each Clerk staff user a `publicMetadata.role` value:
 
-Then seed the placeholder knowledge base (breakfast hours, checkout, wifi,
-amenities, policies — replace with real property content before production):
+- `front_desk`
+- `housekeeping`
+- `room_service`
+- `maintenance`
+- `manager`
+
+Managers see all dashboard views. Department staff see only their assigned
+department. A signed-in user without a supported role sees the contact-admin
+state.
+
+## Commands
 
 ```bash
-python -m app.ingestion.seed
+npm run dev
+npm test
+npm run build
 ```
 
-Full API contract and pipeline details: [`rag-service/README.md`](rag-service/README.md).
+## Current limitations
 
-## Running everything
-
-Two processes, run in separate terminals:
-
-```bash
-# Terminal 1 — Next.js app (guest widget + staff dashboard)
-npm run dev              # http://localhost:3000
-
-# Terminal 2 — RAG service
-cd rag-service
-.venv\Scripts\activate
-uvicorn app.main:app --reload --port 8000
-```
-
-Guest widget: `http://localhost:3000/`
-Staff dashboard: `http://localhost:3000/dashboard` (requires Clerk sign-in + an assigned role)
-
-## Tests
-
-```bash
-npm test                 # Jest — 115 tests: classifier, API routes, components, acceptance
-
-cd rag-service
-pytest                   # 26 tests: chunking, retrieval/rerank, grounding, API auth/validation
-```
+- Demo state does not synchronize between browsers or devices.
+- Ticket persistence is being consolidated into one versioned browser store.
+- Tavily and Stay22 adapters are planned but not implemented.
+- Call history and staff presence are representative demo content.
+- The manual request remains the reliable fallback when voice configuration is unavailable.
 
 ## Repository layout
 
 ```
-landline/
-├── app/                  # Next.js App Router: guest page, staff dashboard, API routes
-├── components/           # React UI components
-├── hooks/                # Custom React hooks
-├── lib/                  # Server/shared utilities (classifier, Clerk auth, Supabase clients, RAG client)
-├── types/                # Shared TypeScript interfaces
-├── middleware.ts         # Clerk route protection (/dashboard only)
-├── __tests__/            # Jest test suites
-├── docs/                 # Architecture, planning docs, contributor overview
-├── sql/                  # Staff dashboard schema migration
-├── rag-service/          # Standalone Python RAG service (own README, own tests)
-└── .env.example
+app/          Next.js pages and route handlers
+components/   Guest and staff UI
+hooks/        Browser configuration and ElevenLabs session lifecycle
+lib/          Classification, Clerk helpers, types, and demo read models
+__tests__/    Jest unit and acceptance tests
+docs/         Architecture and implementation guidance
 ```
 
-More docs: [`docs/architecture.md`](docs/architecture.md) ·
-[`docs/Implementation.md`](docs/Implementation.md) ·
-[`docs/clerk-setup.md`](docs/clerk-setup.md) ·
-[`docs/overview.md`](docs/overview.md) (deep file-by-file reference).

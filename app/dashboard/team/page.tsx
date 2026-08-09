@@ -52,7 +52,7 @@ export default function TeamPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header staffName={session.name} role={session.role} connected onSignOut={signOut} />
+      <Header staffName={session.name} role={session.role} onSignOut={signOut} />
       <DashboardNav role={session.role} />
 
       <div className="flex-1 overflow-y-auto p-4">

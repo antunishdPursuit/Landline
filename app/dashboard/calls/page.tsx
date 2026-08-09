@@ -12,7 +12,7 @@ export default function AgentCallsPage() {
   const router = useRouter()
   const session = useStaffSession()
   const signOut = useStaffSignOut()
-  const { calls, justArrivedId } = useCallLogs()
+  const { calls } = useCallLogs()
 
   useEffect(() => {
     if (session && session.role !== 'manager') {
@@ -44,7 +44,7 @@ export default function AgentCallsPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header staffName={session.name} role={session.role} connected onSignOut={signOut} />
+      <Header staffName={session.name} role={session.role} onSignOut={signOut} />
       <DashboardNav role={session.role} />
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -61,7 +61,7 @@ export default function AgentCallsPage() {
 
         <div className="space-y-2.5">
           {calls.map((call) => (
-            <CallLogCard key={call.id} call={call} justArrived={call.id === justArrivedId} />
+            <CallLogCard key={call.id} call={call} justArrived={false} />
           ))}
         </div>
       </div>

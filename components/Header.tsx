@@ -3,7 +3,6 @@
 interface HeaderProps {
   staffName: string
   role: string
-  connected: boolean
   onSignOut: () => void
 }
 
@@ -15,7 +14,7 @@ const ROLE_LABEL: Record<string, string> = {
   manager: 'Manager',
 }
 
-export function Header({ staffName, role, connected, onSignOut }: HeaderProps) {
+export function Header({ staffName, role, onSignOut }: HeaderProps) {
   return (
     <header className="flex items-center justify-between border-b border-base-border px-6 py-4">
       <div className="flex items-center gap-3">
@@ -29,17 +28,6 @@ export function Header({ staffName, role, connected, onSignOut }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5 text-xs text-slate-400">
-          <span
-            className={`h-2 w-2 rounded-full ${
-              connected ? 'animate-pulse-ring bg-emerald-400' : 'bg-slate-500'
-            }`}
-          />
-          {connected ? 'Live' : 'Connecting…'}
-        </div>
-
-        <div className="h-4 w-px bg-base-border" />
-
         <div className="text-right">
           <p className="text-xs font-medium text-white">{staffName}</p>
           <p className="text-xs text-slate-500">{ROLE_LABEL[role] ?? role}</p>
