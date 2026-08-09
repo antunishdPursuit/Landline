@@ -6,12 +6,11 @@ ending?"). Retrieval-augmented, grounded in real hotel content, with source
 citations — if it can't find a supported answer, it says so instead of
 guessing, so the caller can defer to a human operator.
 
-**This service does not call anything else in this repo, and nothing else in
-this repo calls it yet.** Wiring it into the ElevenLabs/classifier flow
-(`lib/classifier.ts`, `lib/elevenlabs.ts`, `app/api/requests/route.ts`) is
-explicitly out of scope here — that integration is owned by a different,
-separately in-progress piece of work. This README documents the contract so
-that integration is a drop-in call once it happens.
+**Wired in:** `app/api/requests/route.ts` calls this service (via
+`lib/rag.ts`) as the first step whenever the classifier tags an intent as
+`answerable_qa`, before anything falls back to `defer_to_operator`. This
+service still runs as its own independent process — see root `README.md` for
+how the two are run together.
 
 ## How it works
 
@@ -56,8 +55,10 @@ python -m app.ingestion.seed
 Run the service:
 
 ```bash
-uvicorn app.main:app --reload --port 8001
+uvicorn app.main:app --reload --port 8000
 ```
+
+Port `8000` matches `RAG_SERVICE_URL` in the root `.env.example` — change both together if you use a different port.
 
 Run tests:
 
@@ -114,21 +115,17 @@ forward compatibility with callers that always send it.
 
 `{"status": "ok"}` — no auth required.
 
-## Suggested integration point (for whoever wires this in)
+## Integration point
 
-Per the product flow, this should be called as the first step immediately
-after the backend classifier tags an intent as `answerable_qa`, before
-falling back to `defer_to_operator`:
+`app/api/requests/route.ts` (Next.js) calls `getRagAnswer()` from `lib/rag.ts`
+as soon as the classifier tags an intent as `answerable_qa`:
 
 ```
 guest question -> classifier: intent = "answerable_qa"
                 -> POST /rag/answer { question }
-                     -> answered: true  -> speak `answer` back to guest, call ends
-                     -> answered: false -> treat as defer_to_operator, transfer to human
+                     -> answered: true  -> answer + sources returned to the caller
+                     -> answered: false -> caller treats this as defer_to_operator
 ```
-
-That call site does not exist yet in this repo as of this writing — this
-service is additive and self-contained until that wiring happens.
 
 ## Known assumptions (flagged for override)
 
