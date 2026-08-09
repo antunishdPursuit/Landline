@@ -1,7 +1,6 @@
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { classifyRequest } from "@/lib/classifier";
-import { supabaseAdmin } from "@/lib/supabase.server";
-import { getRagAnswer } from "@/lib/rag";
 
 type RequestBody = {
   intent?: unknown;
@@ -17,6 +16,7 @@ const VALID_INTENTS = new Set([
   "defer_to_operator",
   "physical_request",
 ]);
+const VALID_URGENCIES = new Set(["low", "medium", "high"]);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   let body: RequestBody;
@@ -29,7 +29,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // Validate required fields — empty strings count as missing
   const missing: string[] = [];
   if (!body.intent || typeof body.intent !== "string" || body.intent.trim() === "") {
     missing.push("intent");
@@ -57,72 +56,59 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const intent = (body.intent as string).trim();
-  const room_number = (body.room_number as string).trim();
+  const roomNumber = (body.room_number as string).trim();
   const summary = (body.summary as string).trim();
 
   if (!VALID_INTENTS.has(intent)) {
     return NextResponse.json({ error: "Unknown intent" }, { status: 422 });
   }
 
-  // Classify — always server-side; requires_human from body is discarded
+  // Classification is authoritative. Tool-supplied routing flags are ignored.
   const { requires_human, department } = classifyRequest(intent, summary);
 
-  // answerable_qa: forward to RAG service, respond immediately, zero DB writes
+  // Current-information answers will be handled by the planned Tavily adapter.
+  // They do not create staff tickets in the local demo store.
   if (intent === "answerable_qa") {
-    try {
-      const rag = await getRagAnswer(summary);
-      return NextResponse.json(
-        {
-          status: "ok",
-          intent,
-          answered: rag.answered,
-          answer: rag.answer,
-          sources: rag.sources,
-        },
-        { status: 200 }
-      );
-    } catch {
-      return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(
+      {
+        status: "no_ticket",
+        intent,
+        department,
+        requires_human,
+      },
+      { status: 200 }
+    );
   }
 
-  const urgency =
-    typeof body.urgency === "string" && body.urgency.trim()
-      ? body.urgency.trim()
-      : "medium";
-
-  const language_detected =
+  const requestedUrgency =
+    typeof body.urgency === "string" ? body.urgency.trim() : "";
+  const urgency = VALID_URGENCIES.has(requestedUrgency)
+    ? requestedUrgency
+    : "medium";
+  const languageDetected =
     typeof body.language_detected === "string" && body.language_detected.trim()
       ? body.language_detected.trim()
       : "en";
+  const now = new Date().toISOString();
 
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("requests")
-      .insert({
-        room_number,
+  return NextResponse.json(
+    {
+      status: "ready",
+      ticket: {
+        id: `req_${randomUUID()}`,
+        room_number: roomNumber,
         intent,
         department,
         summary,
         urgency,
-        language_detected,
+        language_detected: languageDetected,
+        status: "new",
         requires_human,
-      })
-      .select("id")
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return NextResponse.json({ status: "created", id: data.id }, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+        assigned_to: null,
+        created_at: now,
+        updated_at: now,
+      },
+    },
+    { status: 200 }
+  );
 }

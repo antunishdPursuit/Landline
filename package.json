@@ -14,7 +14,6 @@
     "react": "^18",
     "react-dom": "^18",
     "@clerk/nextjs": "^5",
-    "@supabase/supabase-js": "^2",
     "@elevenlabs/client": "^0.1.0",
     "server-only": "^0.0.1"
   },
