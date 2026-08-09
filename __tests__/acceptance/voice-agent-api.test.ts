@@ -17,7 +17,8 @@ describe("voice-agent request normalization", () => {
   it.each([
     ["Extra towels please", "housekeeping"],
     ["The AC is broken", "maintenance"],
-    ["I would like room service", "food_beverage"],
+    ["I would like room service", "room_service"],
+    ["I need help booking a restaurant", "front_desk"],
     ["Something unrelated", "front_desk"],
   ])("routes %s to %s", async (summary, expectedDepartment) => {
     const response = await POST(

@@ -67,53 +67,41 @@ describe("classifyRequest", () => {
     });
   });
 
-  describe("physical_request — food_beverage keywords", () => {
-    it("routes 'room service' to food_beverage", () => {
+  describe("physical_request — room_service keywords", () => {
+    it("routes 'room service' to room_service", () => {
       const result = classifyRequest("physical_request", "I want room service");
-      expect(result).toEqual({ requires_human: false, department: "food_beverage" });
+      expect(result).toEqual({ requires_human: false, department: "room_service" });
     });
 
-    it("routes 'food' to food_beverage", () => {
+    it("routes 'food' to room_service", () => {
       const result = classifyRequest("physical_request", "I need some food");
-      expect(result).toEqual({ requires_human: false, department: "food_beverage" });
+      expect(result).toEqual({ requires_human: false, department: "room_service" });
     });
 
-    it("routes 'drink' to food_beverage", () => {
+    it("routes 'drink' to room_service", () => {
       const result = classifyRequest("physical_request", "Bring me a drink");
-      expect(result).toEqual({ requires_human: false, department: "food_beverage" });
+      expect(result).toEqual({ requires_human: false, department: "room_service" });
     });
 
-    it("routes 'meal' to food_beverage", () => {
+    it("routes 'meal' to room_service", () => {
       const result = classifyRequest("physical_request", "I would like a meal delivered");
-      expect(result).toEqual({ requires_human: false, department: "food_beverage" });
+      expect(result).toEqual({ requires_human: false, department: "room_service" });
     });
 
-    it("routes 'breakfast' to food_beverage", () => {
+    it("routes 'breakfast' to room_service", () => {
       const result = classifyRequest("physical_request", "Breakfast in bed please");
-      expect(result).toEqual({ requires_human: false, department: "food_beverage" });
+      expect(result).toEqual({ requires_human: false, department: "room_service" });
     });
   });
 
-  describe("physical_request — concierge keywords", () => {
-    it("routes 'directions' to concierge", () => {
-      const result = classifyRequest("physical_request", "I need directions to downtown");
-      expect(result).toEqual({ requires_human: false, department: "concierge" });
-    });
-
-    it("routes 'recommendation' to concierge", () => {
-      const result = classifyRequest("physical_request", "Can you give me a recommendation?");
-      expect(result).toEqual({ requires_human: false, department: "concierge" });
-    });
-
-    it("routes 'booking' to concierge", () => {
-      const result = classifyRequest("physical_request", "I need help with a booking");
-      expect(result).toEqual({ requires_human: false, department: "concierge" });
-    });
-
-    it("routes 'concierge' to concierge", () => {
-      const result = classifyRequest("physical_request", "Concierge assistance needed");
-      expect(result).toEqual({ requires_human: false, department: "concierge" });
-    });
+  describe("physical_request — concierge fallback", () => {
+    it.each(["directions", "recommendation", "booking", "concierge"])(
+      "routes '%s' work to front_desk",
+      (summary) => {
+        const result = classifyRequest("physical_request", summary);
+        expect(result).toEqual({ requires_human: false, department: "front_desk" });
+      }
+    );
   });
 
   describe("physical_request — fallback to front_desk", () => {

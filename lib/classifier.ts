@@ -1,9 +1,4 @@
-type Department =
-  | "front_desk"
-  | "housekeeping"
-  | "maintenance"
-  | "food_beverage"
-  | "concierge";
+import type { Department } from "@/lib/types";
 
 export type ClassifierResult = {
   requires_human: boolean;
@@ -18,20 +13,13 @@ const MAINTENANCE_KEYWORDS = [
   "broken",
   "leak",
 ];
-const FOOD_BEVERAGE_KEYWORDS = [
+const ROOM_SERVICE_KEYWORDS = [
   "room service",
   "food",
   "drink",
   "meal",
   "breakfast",
 ];
-const CONCIERGE_KEYWORDS = [
-  "directions",
-  "recommendation",
-  "booking",
-  "concierge",
-];
-
 function departmentFromSummary(summary: string): Department {
   const lower = summary.toLowerCase();
 
@@ -41,12 +29,12 @@ function departmentFromSummary(summary: string): Department {
   if (MAINTENANCE_KEYWORDS.some((kw) => lower.includes(kw))) {
     return "maintenance";
   }
-  if (FOOD_BEVERAGE_KEYWORDS.some((kw) => lower.includes(kw))) {
-    return "food_beverage";
+  if (ROOM_SERVICE_KEYWORDS.some((kw) => lower.includes(kw))) {
+    return "room_service";
   }
-  if (CONCIERGE_KEYWORDS.some((kw) => lower.includes(kw))) {
-    return "concierge";
-  }
+
+  // Concierge questions will use Tavily when that adapter is available.
+  // Any physical or unsupported work falls back to the staffed front desk.
   return "front_desk";
 }
 
