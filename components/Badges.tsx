@@ -1,4 +1,4 @@
-import type { Urgency, RequestStatus } from '@/lib/types'
+import type { Urgency, RequestStatus, Intent } from '@/lib/types'
 import { LANGUAGE_NAMES } from '@/lib/format'
 
 const URGENCY_STYLES: Record<Urgency, string> = {
@@ -51,6 +51,28 @@ export function LanguageBadge({ code }: { code: string }) {
   return (
     <span className="inline-flex items-center rounded-full bg-violet-500/15 px-2 py-0.5 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30">
       {LANGUAGE_NAMES[code] ?? code.toUpperCase()}
+    </span>
+  )
+}
+
+const OUTCOME_STYLES: Record<Intent, string> = {
+  answerable_qa: 'bg-slate-500/15 text-slate-300 ring-slate-500/30',
+  physical_request: 'bg-blue-500/15 text-blue-300 ring-blue-500/30',
+  defer_to_operator: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
+}
+
+const OUTCOME_LABEL: Record<Intent, string> = {
+  answerable_qa: 'Answered by agent',
+  physical_request: 'Ticket created',
+  defer_to_operator: 'Deferred to human',
+}
+
+export function CallOutcomeBadge({ intent }: { intent: Intent }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${OUTCOME_STYLES[intent]}`}
+    >
+      {OUTCOME_LABEL[intent]}
     </span>
   )
 }

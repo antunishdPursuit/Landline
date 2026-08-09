@@ -1,26 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { clearStaffSession, getStaffSession, type StaffSession } from '@/lib/auth'
+import { clearStaffSession, useStaffSession } from '@/lib/auth'
 import { useRequests } from '@/lib/useRequests'
 import { DEPARTMENTS } from '@/lib/types'
 import { Header } from '@/components/Header'
+import { DashboardNav } from '@/components/DashboardNav'
 import { DepartmentColumn } from '@/components/DepartmentColumn'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [session, setSession] = useState<StaffSession | null | undefined>(undefined)
+  const session = useStaffSession()
   const { requests, connected, justArrivedId, updateStatus } = useRequests()
-
-  useEffect(() => {
-    const existing = getStaffSession()
-    if (!existing) {
-      router.replace('/sign-in')
-      return
-    }
-    setSession(existing)
-  }, [router])
 
   if (!session) {
     return (
@@ -48,6 +39,7 @@ export default function DashboardPage() {
         connected={connected}
         onSignOut={handleSignOut}
       />
+      <DashboardNav role={session.role} />
 
       {urgentHuman.length > 0 && (
         <div className="flex items-center gap-3 border-b border-rose-500/30 bg-rose-500/10 px-6 py-2.5">

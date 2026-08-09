@@ -28,3 +28,21 @@ export const DEPARTMENTS: { key: Department; label: string }[] = [
   { key: 'room_service', label: 'Room Service' },
   { key: 'maintenance', label: 'Maintenance' },
 ]
+
+export interface ConversationTurn {
+  speaker: 'guest' | 'agent'
+  text: string
+}
+
+export interface CallLog {
+  id: string
+  room_number: string
+  language_detected: string
+  duration_seconds: number
+  transcript: ConversationTurn[]
+  intent: Intent
+  department: Department | null
+  request_summary: string | null
+  requires_human: boolean
+  created_at: string
+}
