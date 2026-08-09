@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { AgentConfigCard } from "@/components/AgentConfigCard";
-import { PhoneButton } from "@/components/PhoneButton";
+import { DemoRequestButton } from "@/components/DemoRequestButton";
 import { useAgentConfig } from "@/hooks/useAgentConfig";
 
 export default function GuestPage() {
   const agentConfig = useAgentConfig();
+  const [propertyVisible, setPropertyVisible] = useState(false);
 
   if (!agentConfig.isLoaded) {
     return (
@@ -19,19 +20,35 @@ export default function GuestPage() {
   }
 
   return (
-    <main className="min-h-screen bg-espresso flex flex-col items-center justify-center gap-10 p-6">
-      <AgentConfigCard
-        config={agentConfig.config}
-        draft={agentConfig.draft}
-        isEditing={agentConfig.isEditing}
-        startEditing={agentConfig.startEditing}
-        cancelEditing={agentConfig.cancelEditing}
-        save={agentConfig.save}
-        updateDraft={agentConfig.updateDraft}
-      />
+    <main className="relative min-h-screen bg-espresso flex flex-col items-center justify-center gap-10 p-6 pt-32">
+      <h1 className="absolute top-10 font-display text-5xl font-semibold tracking-tight text-ivory sm:text-6xl">
+        Landline
+      </h1>
 
-      {!agentConfig.isEditing && (
-        <PhoneButton config={agentConfig.config} />
+      {!propertyVisible ? (
+        <button
+          type="button"
+          onClick={() => setPropertyVisible(true)}
+          className="rounded-xl border border-gold bg-white px-8 py-3 font-body text-sm font-semibold uppercase tracking-widest text-gold shadow-lg shadow-slate-900/5 transition-all hover:-translate-y-0.5 hover:bg-gold hover:text-white"
+        >
+          Property
+        </button>
+      ) : (
+        <>
+          <AgentConfigCard
+            config={agentConfig.config}
+            draft={agentConfig.draft}
+            isEditing={agentConfig.isEditing}
+            startEditing={agentConfig.startEditing}
+            cancelEditing={agentConfig.cancelEditing}
+            save={agentConfig.save}
+            updateDraft={agentConfig.updateDraft}
+          />
+
+          {!agentConfig.isEditing && (
+            <DemoRequestButton config={agentConfig.config} />
+          )}
+        </>
       )}
     </main>
   );
