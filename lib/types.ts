@@ -6,6 +6,9 @@ export type Urgency = 'low' | 'medium' | 'high'
 
 export type RequestStatus = 'new' | 'in_progress' | 'done'
 
+export const DEMO_STORE_STORAGE_KEY = 'landline_demo_state'
+export const DEMO_STORE_VERSION = 1 as const
+
 export type StaffRole = 'front_desk' | 'housekeeping' | 'room_service' | 'maintenance' | 'manager'
 
 export interface GuestRequest {
@@ -53,4 +56,19 @@ export interface CallLog {
   request_summary: string | null
   requires_human: boolean
   created_at: string
+}
+
+export interface TravelRecommendation {
+  id: string
+  title: string
+  url: string
+  source: 'tavily' | 'stay22'
+  created_at: string
+}
+
+export interface DemoState {
+  version: typeof DEMO_STORE_VERSION
+  tickets: GuestRequest[]
+  call_logs: CallLog[]
+  travel_recommendations: TravelRecommendation[]
 }
