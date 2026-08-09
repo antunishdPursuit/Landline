@@ -30,6 +30,13 @@ export const DEPARTMENTS: { key: Department; label: string }[] = [
   { key: 'maintenance', label: 'Maintenance' },
 ]
 
+export interface StaffMember {
+  id: string
+  name: string
+  department: Department
+  active: boolean
+}
+
 export interface ConversationTurn {
   speaker: 'guest' | 'agent'
   text: string

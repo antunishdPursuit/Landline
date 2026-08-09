@@ -7,6 +7,7 @@ import type { StaffRole } from '@/lib/types'
 const TABS = [
   { href: '/dashboard', label: 'Requests', managerOnly: false },
   { href: '/dashboard/calls', label: 'Agent Calls', managerOnly: true },
+  { href: '/dashboard/team', label: 'Team', managerOnly: true },
 ]
 
 export function DashboardNav({ role }: { role: StaffRole }) {

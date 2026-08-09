@@ -1,4 +1,12 @@
-import type { CallLog, ConversationTurn, Department, GuestRequest, Intent, Urgency } from './types'
+import type {
+  CallLog,
+  ConversationTurn,
+  Department,
+  GuestRequest,
+  Intent,
+  StaffMember,
+  Urgency,
+} from './types'
 
 const ROOMS = ['214', '308', '412', '119', '506', '227', '331', '150', '418', '602']
 
@@ -150,6 +158,23 @@ export function seedRequests(): GuestRequest[] {
       updated_at: minutesAgo(5),
     }),
   ]
+}
+
+const STAFF_ROSTER: StaffMember[] = [
+  { id: 'stf_1', name: 'Alex Chen', department: 'front_desk', active: true },
+  { id: 'stf_2', name: 'Priya Nair', department: 'front_desk', active: true },
+  { id: 'stf_3', name: 'Sam Patel', department: 'front_desk', active: false },
+  { id: 'stf_4', name: 'Maria Lopez', department: 'housekeeping', active: true },
+  { id: 'stf_5', name: 'Tunde Okafor', department: 'housekeeping', active: true },
+  { id: 'stf_6', name: 'Grace Kim', department: 'housekeeping', active: false },
+  { id: 'stf_7', name: "Liam O'Connor", department: 'room_service', active: true },
+  { id: 'stf_8', name: 'Yuki Tanaka', department: 'room_service', active: false },
+  { id: 'stf_9', name: 'Diego Ramirez', department: 'maintenance', active: true },
+  { id: 'stf_10', name: 'Ben Carter', department: 'maintenance', active: false },
+]
+
+export function seedStaffRoster(): StaffMember[] {
+  return STAFF_ROSTER.map((member) => ({ ...member }))
 }
 
 const CALL_TEMPLATES: {
