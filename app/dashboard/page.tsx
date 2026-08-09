@@ -65,6 +65,7 @@ export default function DashboardPage() {
             label={dept.label}
             requests={requests.filter((r) => r.department === dept.key)}
             justArrivedId={justArrivedId}
+            currentStaffName={session.name}
             onAdvanceStatus={updateStatus}
           />
         ))}

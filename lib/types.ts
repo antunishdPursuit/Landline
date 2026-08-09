@@ -18,6 +18,7 @@ export interface GuestRequest {
   language_detected: string
   status: RequestStatus
   requires_human: boolean
+  assigned_to: string | null
   created_at: string
   updated_at: string
 }

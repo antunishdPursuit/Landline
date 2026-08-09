@@ -20,10 +20,11 @@ const NEXT_LABEL: Record<RequestStatus, string> = {
 interface TicketCardProps {
   request: GuestRequest
   justArrived: boolean
-  onAdvanceStatus: (id: string, status: RequestStatus) => void
+  currentStaffName: string
+  onAdvanceStatus: (id: string, status: RequestStatus, assignedTo?: string) => void
 }
 
-export function TicketCard({ request, justArrived, onAdvanceStatus }: TicketCardProps) {
+export function TicketCard({ request, justArrived, currentStaffName, onAdvanceStatus }: TicketCardProps) {
   const [, forceTick] = useState(0)
 
   useEffect(() => {
@@ -60,9 +61,21 @@ export function TicketCard({ request, justArrived, onAdvanceStatus }: TicketCard
         {request.requires_human && <NeedsHumanBadge />}
       </div>
 
+      {request.assigned_to && (
+        <p className="mt-2 text-xs text-slate-400">
+          Picked up by <span className="font-medium text-slate-200">{request.assigned_to}</span>
+        </p>
+      )}
+
       {nextStatus && (
         <button
-          onClick={() => onAdvanceStatus(request.id, nextStatus)}
+          onClick={() =>
+            onAdvanceStatus(
+              request.id,
+              nextStatus,
+              request.status === 'new' ? currentStaffName : undefined
+            )
+          }
           className="mt-3 w-full rounded-lg border border-base-border bg-white/[0.03] py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-white/[0.08] active:bg-white/[0.12]"
         >
           {NEXT_LABEL[request.status]}

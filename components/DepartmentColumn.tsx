@@ -10,13 +10,15 @@ interface DepartmentColumnProps {
   label: string
   requests: GuestRequest[]
   justArrivedId: string | null
-  onAdvanceStatus: (id: string, status: RequestStatus) => void
+  currentStaffName: string
+  onAdvanceStatus: (id: string, status: RequestStatus, assignedTo?: string) => void
 }
 
 export function DepartmentColumn({
   label,
   requests,
   justArrivedId,
+  currentStaffName,
   onAdvanceStatus,
 }: DepartmentColumnProps) {
   const open = requests.filter((r) => r.status !== 'done')
@@ -55,6 +57,7 @@ export function DepartmentColumn({
             key={request.id}
             request={request}
             justArrived={request.id === justArrivedId}
+            currentStaffName={currentStaffName}
             onAdvanceStatus={onAdvanceStatus}
           />
         ))}

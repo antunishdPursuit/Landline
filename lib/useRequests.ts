@@ -31,9 +31,18 @@ export function useRequests() {
     setJustArrivedId((current) => (current === id ? null : current))
   }, [])
 
-  const updateStatus = useCallback((id: string, status: RequestStatus) => {
+  const updateStatus = useCallback((id: string, status: RequestStatus, assignedTo?: string) => {
     setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status, updated_at: new Date().toISOString() } : r))
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              status,
+              assigned_to: assignedTo ?? r.assigned_to,
+              updated_at: new Date().toISOString(),
+            }
+          : r
+      )
     )
   }, [])
 
