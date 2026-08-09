@@ -1,7 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { clearStaffSession, useStaffSession } from '@/lib/auth'
+import { useStaffSession, useStaffSignOut } from '@/lib/auth'
 import { useRequests } from '@/lib/useRequests'
 import { DEPARTMENTS } from '@/lib/types'
 import { Header } from '@/components/Header'
@@ -15,14 +14,24 @@ const STATUS_COLUMN_LABEL = {
 } as const
 
 export default function DashboardPage() {
-  const router = useRouter()
   const session = useStaffSession()
+  const signOut = useStaffSignOut()
   const { requests, connected, justArrivedId, updateStatus } = useRequests()
 
-  if (!session) {
+  if (session === undefined) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <p className="text-sm text-slate-500">Loading…</p>
+      </main>
+    )
+  }
+
+  if (session === null) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-4 text-center">
+        <p className="text-sm text-slate-500">
+          Your account hasn&apos;t been assigned a department yet. Contact an admin to get set up.
+        </p>
       </main>
     )
   }
@@ -52,18 +61,13 @@ export default function DashboardPage() {
 
   const urgentHuman = requests.filter((r) => r.requires_human && r.status !== 'done')
 
-  function handleSignOut() {
-    clearStaffSession()
-    router.push('/sign-in')
-  }
-
   return (
     <div className="flex h-screen flex-col">
       <Header
         staffName={session.name}
         role={session.role}
         connected={connected}
-        onSignOut={handleSignOut}
+        onSignOut={signOut}
       />
       <DashboardNav role={session.role} />
 

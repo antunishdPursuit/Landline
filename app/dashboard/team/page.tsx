@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { clearStaffSession, useStaffSession } from '@/lib/auth'
+import { useStaffSession, useStaffSignOut } from '@/lib/auth'
 import { useRequests } from '@/lib/useRequests'
 import { useStaffRoster } from '@/lib/useStaffRoster'
 import { DEPARTMENTS } from '@/lib/types'
@@ -13,6 +13,7 @@ import { StaffRosterPanel } from '@/components/StaffRosterPanel'
 export default function TeamPage() {
   const router = useRouter()
   const session = useStaffSession()
+  const signOut = useStaffSignOut()
   const { requests } = useRequests()
   const { roster } = useStaffRoster()
 
@@ -22,17 +23,22 @@ export default function TeamPage() {
     }
   }, [session, router])
 
+  if (session === null) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-4 text-center">
+        <p className="text-sm text-slate-500">
+          Your account hasn&apos;t been assigned a department yet. Contact an admin to get set up.
+        </p>
+      </main>
+    )
+  }
+
   if (!session || session.role !== 'manager') {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <p className="text-sm text-slate-500">Loading…</p>
       </main>
     )
-  }
-
-  function handleSignOut() {
-    clearStaffSession()
-    router.push('/sign-in')
   }
 
   const assignedCounts: Record<string, number> = {}
@@ -46,7 +52,7 @@ export default function TeamPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header staffName={session.name} role={session.role} connected onSignOut={handleSignOut} />
+      <Header staffName={session.name} role={session.role} connected onSignOut={signOut} />
       <DashboardNav role={session.role} />
 
       <div className="flex-1 overflow-y-auto p-4">

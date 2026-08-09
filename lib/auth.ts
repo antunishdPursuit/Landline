@@ -1,47 +1,50 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useClerk, useUser } from '@clerk/nextjs'
 import type { StaffRole } from './types'
-
-const STORAGE_KEY = 'landline_staff_session'
 
 export interface StaffSession {
   name: string
   role: StaffRole
 }
 
-export function getStaffSession(): StaffSession | null {
-  if (typeof window === 'undefined') return null
-  const raw = window.localStorage.getItem(STORAGE_KEY)
-  if (!raw) return null
-  try {
-    return JSON.parse(raw) as StaffSession
-  } catch {
-    return null
-  }
+const VALID_ROLES: StaffRole[] = [
+  'front_desk',
+  'housekeeping',
+  'room_service',
+  'maintenance',
+  'manager',
+]
+
+function isStaffRole(value: unknown): value is StaffRole {
+  return typeof value === 'string' && (VALID_ROLES as string[]).includes(value)
 }
 
-export function setStaffSession(session: StaffSession): void {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-}
-
-export function clearStaffSession(): void {
-  window.localStorage.removeItem(STORAGE_KEY)
-}
-
+/**
+ * Staff identity comes from Clerk; department/role comes from
+ * publicMetadata.role, set per-user by an admin (Clerk dashboard or Backend
+ * API) — there is no self-service department picker.
+ *
+ * Returns:
+ *   - undefined     Clerk is still resolving the session
+ *   - null          signed in, but no role has been assigned yet
+ *   - StaffSession  signed in with an assigned role
+ */
 export function useStaffSession(): StaffSession | null | undefined {
-  const router = useRouter()
-  const [session, setSession] = useState<StaffSession | null | undefined>(undefined)
+  const { user, isLoaded } = useUser()
 
-  useEffect(() => {
-    const existing = getStaffSession()
-    if (!existing) {
-      router.replace('/sign-in')
-      return
-    }
-    setSession(existing)
-  }, [router])
+  if (!isLoaded || !user) return undefined
 
-  return session
+  const role = user.publicMetadata.role
+  if (!isStaffRole(role)) return null
+
+  const name = user.fullName ?? user.firstName ?? user.username ?? 'Staff'
+  return { name, role }
+}
+
+export function useStaffSignOut(): () => void {
+  const { signOut } = useClerk()
+  return () => {
+    void signOut({ redirectUrl: '/sign-in' })
+  }
 }
