@@ -1,27 +1,27 @@
 'use client'
 
-import type { Department, GuestRequest, RequestStatus } from '@/lib/types'
+import type { GuestRequest, RequestStatus } from '@/lib/types'
 import { TicketCard } from './TicketCard'
 
 const URGENCY_WEIGHT = { high: 0, medium: 1, low: 2 } as const
 
-interface DepartmentColumnProps {
-  department: Department
+interface RequestColumnProps {
   label: string
   requests: GuestRequest[]
+  count: number
   justArrivedId: string | null
   currentStaffName: string
   onAdvanceStatus: (id: string, status: RequestStatus, assignedTo?: string) => void
 }
 
-export function DepartmentColumn({
+export function RequestColumn({
   label,
   requests,
+  count,
   justArrivedId,
   currentStaffName,
   onAdvanceStatus,
-}: DepartmentColumnProps) {
-  const open = requests.filter((r) => r.status !== 'done')
+}: RequestColumnProps) {
   const sorted = [...requests].sort((a, b) => {
     if (a.status === 'done' && b.status !== 'done') return 1
     if (b.status === 'done' && a.status !== 'done') return -1
@@ -30,7 +30,7 @@ export function DepartmentColumn({
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
-  const needsHumanCount = open.filter((r) => r.requires_human).length
+  const needsHumanCount = requests.filter((r) => r.requires_human && r.status !== 'done').length
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-border bg-base-panel">
@@ -38,7 +38,7 @@ export function DepartmentColumn({
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-white">{label}</h2>
           <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-xs text-slate-400">
-            {open.length}
+            {count}
           </span>
         </div>
         {needsHumanCount > 0 && (

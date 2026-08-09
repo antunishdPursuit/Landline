@@ -6,7 +6,13 @@ import { useRequests } from '@/lib/useRequests'
 import { DEPARTMENTS } from '@/lib/types'
 import { Header } from '@/components/Header'
 import { DashboardNav } from '@/components/DashboardNav'
-import { DepartmentColumn } from '@/components/DepartmentColumn'
+import { RequestColumn } from '@/components/RequestColumn'
+
+const STATUS_COLUMN_LABEL = {
+  new: 'Waiting for Pickup',
+  in_progress: 'Picked Up',
+  done: 'Completed',
+} as const
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -21,8 +27,28 @@ export default function DashboardPage() {
     )
   }
 
-  const visibleDepartments =
-    session.role === 'manager' ? DEPARTMENTS : DEPARTMENTS.filter((d) => d.key === session.role)
+  const columns =
+    session.role === 'manager'
+      ? (['new', 'in_progress', 'done'] as const).map((status) => {
+          const columnRequests = requests.filter((r) => r.status === status)
+          return {
+            key: status,
+            label: STATUS_COLUMN_LABEL[status],
+            requests: columnRequests,
+            // every request here already shares this status, so the total is the count
+            count: columnRequests.length,
+          }
+        })
+      : DEPARTMENTS.filter((d) => d.key === session.role).map((d) => {
+          const columnRequests = requests.filter((r) => r.department === d.key)
+          return {
+            key: d.key,
+            label: d.label,
+            requests: columnRequests,
+            // done tickets stay visible (grayed out) but shouldn't inflate the "open work" count
+            count: columnRequests.filter((r) => r.status !== 'done').length,
+          }
+        })
 
   const urgentHuman = requests.filter((r) => r.requires_human && r.status !== 'done')
 
@@ -56,14 +82,14 @@ export default function DashboardPage() {
 
       <div
         className="grid flex-1 gap-4 overflow-hidden p-4"
-        style={{ gridTemplateColumns: `repeat(${visibleDepartments.length}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}
       >
-        {visibleDepartments.map((dept) => (
-          <DepartmentColumn
-            key={dept.key}
-            department={dept.key}
-            label={dept.label}
-            requests={requests.filter((r) => r.department === dept.key)}
+        {columns.map((col) => (
+          <RequestColumn
+            key={col.key}
+            label={col.label}
+            requests={col.requests}
+            count={col.count}
             justArrivedId={justArrivedId}
             currentStaffName={session.name}
             onAdvanceStatus={updateStatus}

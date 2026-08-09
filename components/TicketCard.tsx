@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { GuestRequest, RequestStatus } from '@/lib/types'
 import { timeAgo } from '@/lib/format'
-import { LanguageBadge, NeedsHumanBadge, UrgencyBadge } from './Badges'
+import { DepartmentBadge, LanguageBadge, NeedsHumanBadge, UrgencyBadge } from './Badges'
 
 const NEXT_STATUS: Record<RequestStatus, RequestStatus | null> = {
   new: 'in_progress',
@@ -56,6 +56,7 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
       <p className="mt-1.5 text-sm leading-snug text-slate-300">{request.summary}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <DepartmentBadge department={request.department} />
         <UrgencyBadge urgency={request.urgency} />
         <LanguageBadge code={request.language_detected} />
         {request.requires_human && <NeedsHumanBadge />}

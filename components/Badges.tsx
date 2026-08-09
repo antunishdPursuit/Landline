@@ -1,5 +1,6 @@
-import type { Urgency, RequestStatus, Intent } from '@/lib/types'
+import type { Urgency, RequestStatus, Intent, Department } from '@/lib/types'
 import { LANGUAGE_NAMES } from '@/lib/format'
+import { DEPARTMENTS } from '@/lib/types'
 
 const URGENCY_STYLES: Record<Urgency, string> = {
   low: 'bg-slate-500/15 text-slate-300 ring-slate-500/30',
@@ -42,6 +43,18 @@ export function StatusBadge({ status }: { status: RequestStatus }) {
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[status]}`}
     >
       {STATUS_LABEL[status]}
+    </span>
+  )
+}
+
+const DEPARTMENT_LABEL: Record<Department, string> = Object.fromEntries(
+  DEPARTMENTS.map((d) => [d.key, d.label])
+) as Record<Department, string>
+
+export function DepartmentBadge({ department }: { department: Department }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-slate-300 ring-1 ring-inset ring-white/10">
+      {DEPARTMENT_LABEL[department]}
     </span>
   )
 }
