@@ -17,7 +17,7 @@ tree after removal of the production database and Python retrieval service.
 | Authentication | Clerk | Staff sign-in, display name, and role |
 | Voice | ElevenLabs Agents | WebRTC conversation and browser client tools |
 | Demo state | React state and browser storage | Same-browser tickets and presentation data |
-| Current information | Tavily, planned | Source-backed concierge web search |
+| Current information | Tavily | Source-backed concierge web search through a server-only route |
 | Accommodation links | Stay22, planned | Tracked destinations for viewing stays |
 
 There is no shared database, realtime server, Python service, or production
@@ -38,6 +38,8 @@ call-log store.
 - `app/api/elevenlabs/signed-url/route.ts` returns a short-lived conversation URL.
 - `app/api/requests/route.ts` validates, classifies, and normalizes tool payloads.
   It does not persist tickets.
+- `app/api/concierge/search/route.ts` validates current-information questions
+  and returns source-backed Tavily answers without exposing the API key.
 
 ### Staff experience
 
@@ -59,7 +61,7 @@ call-log store.
 
 - The manual request and ticket status flows do not yet share one persistent store.
 - The voice button is not currently the primary guest-page action.
-- Tavily and Stay22 adapters are not implemented yet.
+- The Stay22 adapter and ElevenLabs concierge tool connection are not implemented yet.
 - Call logs and staff presence are representative demo content.
 - State does not synchronize across browsers or devices.
 
