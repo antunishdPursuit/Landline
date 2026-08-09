@@ -16,7 +16,9 @@ export interface UsePhoneSessionReturn {
   endSession: () => Promise<void>;
 }
 
-export function usePhoneSession(): UsePhoneSessionReturn {
+export function usePhoneSession(
+  dynamicVariables?: Record<string, string | number | boolean>
+): UsePhoneSessionReturn {
   const [state, setState] = useState<PhoneSessionState>("idle");
   const conversationRef = useRef<Conversation | null>(null);
 
@@ -40,6 +42,7 @@ export function usePhoneSession(): UsePhoneSessionReturn {
     try {
       const conversation = await Conversation.startSession({
         signedUrl,
+        dynamicVariables,
         onStatusChange: ({ status }) => {
           if (status === "disconnected") {
             setState("ended");
@@ -70,7 +73,7 @@ export function usePhoneSession(): UsePhoneSessionReturn {
     } catch {
       setState("error");
     }
-  }, []);
+  }, [dynamicVariables]);
 
   const endSession = useCallback(async () => {
     if (conversationRef.current) {

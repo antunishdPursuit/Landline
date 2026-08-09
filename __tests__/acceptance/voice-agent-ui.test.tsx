@@ -31,6 +31,7 @@ jest.mock("@elevenlabs/client", () => ({
 }));
 
 import { PhoneButton } from "@/components/PhoneButton";
+import { EMPTY_CONFIG } from "@/types/agent";
 
 const SIGNED_URL = "wss://signed.example.com/token-abc123";
 
@@ -60,19 +61,19 @@ beforeEach(() => {
 describe("AC-1: PhoneButton renders and is interactive on page load", () => {
   it("renders a button labelled 'Pick up phone'", () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     expect(screen.getByRole("button", { name: /pick up phone/i })).toBeInTheDocument();
   });
 
   it("button is enabled on initial render", () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     expect(screen.getByRole("button", { name: /pick up phone/i })).not.toBeDisabled();
   });
 
   it("button responds to click without throwing", () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     expect(() =>
       fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }))
     ).not.toThrow();
@@ -85,7 +86,7 @@ describe("AC-1: PhoneButton renders and is interactive on page load", () => {
 describe("AC-2: signed URL fetched before WebSocket session opens", () => {
   it("calls fetch before Conversation.startSession", async () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
@@ -97,7 +98,7 @@ describe("AC-2: signed URL fetched before WebSocket session opens", () => {
 
   it("fetches from the /api/elevenlabs/signed-url endpoint", async () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
@@ -113,7 +114,7 @@ describe("AC-2: signed URL fetched before WebSocket session opens", () => {
 describe("AC-4: Conversation.startSession uses signed URL only", () => {
   it("passes the signed URL token from the server response to Conversation.startSession", async () => {
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
@@ -131,7 +132,7 @@ describe("AC-4: Conversation.startSession uses signed URL only", () => {
     process.env.ELEVENLABS_AGENT_ID = "agent-secret-should-not-appear";
 
     setupHappyFetch();
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
@@ -151,7 +152,7 @@ describe("AC-4: Conversation.startSession uses signed URL only", () => {
 describe("AC-9 (client side): signed-url non-200 response → Conversation.startSession never called", () => {
   it("does not call Conversation.startSession when signed-url returns 500", async () => {
     setupFailFetch(500);
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await act(async () => {
@@ -163,7 +164,7 @@ describe("AC-9 (client side): signed-url non-200 response → Conversation.start
 
   it("shows error state when signed-url returns non-200", async () => {
     setupFailFetch(500);
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() =>
@@ -180,7 +181,7 @@ describe("I-1: Conversation.startSession rejection → error state", () => {
     setupHappyFetch();
     mockStartSession.mockRejectedValueOnce(new Error("WebSocket open failure"));
 
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() =>
@@ -198,7 +199,7 @@ describe("I-6: network-level fetch rejection → error state", () => {
   it("transitions to error state when fetch throws a network error", async () => {
     global.fetch = jest.fn().mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
-    render(<PhoneButton />);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
     fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
 
     await waitFor(() =>

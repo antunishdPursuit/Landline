@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { PhoneButton } from "@/components/PhoneButton";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
+import { EMPTY_CONFIG } from "@/types/agent";
 
 afterEach(cleanup);
 
@@ -21,7 +22,7 @@ jest.mock("@/hooks/usePhoneSession", () => ({
 
 function renderButton(state: PhoneSessionState) {
   mockState = state;
-  return render(<PhoneButton />);
+  return render(<PhoneButton config={EMPTY_CONFIG} />);
 }
 
 describe("PhoneButton", () => {
