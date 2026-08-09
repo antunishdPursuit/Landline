@@ -14,42 +14,36 @@ const TEMPLATES: {
   intent: Intent
   department: Department
   urgency: Urgency
-  requires_human: boolean
   summaries: string[]
 }[] = [
   {
     intent: 'physical_request',
     department: 'housekeeping',
     urgency: 'low',
-    requires_human: false,
     summaries: ['Extra towels requested', 'Needs fresh linens', 'Requesting extra pillows', 'Room needs a top-up clean'],
   },
   {
     intent: 'physical_request',
     department: 'room_service',
     urgency: 'medium',
-    requires_human: false,
     summaries: ['Ordered club sandwich and sparkling water', 'Breakfast tray for 2, 8am delivery', 'Bottle of house red requested'],
   },
   {
     intent: 'physical_request',
     department: 'maintenance',
     urgency: 'high',
-    requires_human: false,
     summaries: ['AC unit not cooling, room too warm', 'Bathroom sink leaking onto floor', 'TV won’t power on'],
   },
   {
     intent: 'defer_to_operator',
     department: 'front_desk',
     urgency: 'high',
-    requires_human: true,
     summaries: ['Guest disputing a charge on folio, wants to speak to someone', 'Guest locked out, ID not matching reservation', 'Guest requesting early check-in exception'],
   },
   {
     intent: 'physical_request',
     department: 'front_desk',
     urgency: 'medium',
-    requires_human: false,
     summaries: ['Requesting late checkout', 'Needs a taxi booked for 6am airport run', 'Asking for an extra room key'],
   },
 ]
@@ -72,6 +66,7 @@ function nextId(prefix: string): string {
 
 export function generateRequest(overrides?: Partial<GuestRequest>): GuestRequest {
   const template = pick(TEMPLATES)
+  const intent = overrides?.intent ?? template.intent
   const now = new Date().toISOString()
   return {
     id: nextId('req'),
@@ -82,7 +77,7 @@ export function generateRequest(overrides?: Partial<GuestRequest>): GuestRequest
     urgency: template.urgency,
     language_detected: Math.random() < 0.75 ? 'en' : pick(LANGUAGES),
     status: 'new',
-    requires_human: template.requires_human,
+    requires_human: intent === 'defer_to_operator',
     assigned_to: null,
     created_at: now,
     updated_at: now,
