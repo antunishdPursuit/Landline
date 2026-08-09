@@ -177,6 +177,10 @@ export function seedStaffRoster(): StaffMember[] {
   return STAFF_ROSTER.map((member) => ({ ...member }))
 }
 
+export function getStaffNamesForDepartment(department: Department): string[] {
+  return STAFF_ROSTER.filter((member) => member.department === department).map((member) => member.name)
+}
+
 const CALL_TEMPLATES: {
   intent: Intent
   department: Department | null

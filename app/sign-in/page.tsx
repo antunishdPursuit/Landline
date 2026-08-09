@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { setStaffSession } from '@/lib/auth'
-import type { StaffRole } from '@/lib/types'
+import { getStaffNamesForDepartment } from '@/lib/mock-data'
+import type { Department, StaffRole } from '@/lib/types'
 
 const ROLES: { value: StaffRole; label: string }[] = [
   { value: 'front_desk', label: 'Front Desk' },
@@ -13,14 +14,27 @@ const ROLES: { value: StaffRole; label: string }[] = [
   { value: 'manager', label: 'Manager (all departments)' },
 ]
 
+function isDepartment(role: StaffRole): role is Department {
+  return role !== 'manager'
+}
+
 export default function SignInPage() {
   const router = useRouter()
-  const [name, setName] = useState('')
   const [role, setRole] = useState<StaffRole>('manager')
+  const rosterNames = isDepartment(role) ? getStaffNamesForDepartment(role) : []
+  const [name, setName] = useState('')
+  const [managerName, setManagerName] = useState('')
+
+  function handleRoleChange(newRole: StaffRole) {
+    setRole(newRole)
+    const names = isDepartment(newRole) ? getStaffNamesForDepartment(newRole) : []
+    setName(names[0] ?? '')
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setStaffSession({ name: name.trim() || 'Staff member', role })
+    const staffName = role === 'manager' ? managerName.trim() || 'Manager' : name
+    setStaffSession({ name: staffName, role })
     router.push('/dashboard')
   }
 
@@ -40,19 +54,11 @@ export default function SignInPage() {
           </div>
         </div>
 
-        <label className="mb-1.5 block text-xs font-medium text-slate-400">Your name</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Jordan"
-          className="mb-4 w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-slate-500 focus:outline-none"
-        />
-
         <label className="mb-1.5 block text-xs font-medium text-slate-400">Department</label>
         <select
           value={role}
-          onChange={(e) => setRole(e.target.value as StaffRole)}
-          className="mb-6 w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white focus:border-slate-500 focus:outline-none"
+          onChange={(e) => handleRoleChange(e.target.value as StaffRole)}
+          className="mb-4 w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white focus:border-slate-500 focus:outline-none"
         >
           {ROLES.map((r) => (
             <option key={r.value} value={r.value}>
@@ -60,6 +66,28 @@ export default function SignInPage() {
             </option>
           ))}
         </select>
+
+        <label className="mb-1.5 block text-xs font-medium text-slate-400">Your name</label>
+        {role === 'manager' ? (
+          <input
+            value={managerName}
+            onChange={(e) => setManagerName(e.target.value)}
+            placeholder="e.g. Jordan"
+            className="mb-6 w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-slate-500 focus:outline-none"
+          />
+        ) : (
+          <select
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mb-6 w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white focus:border-slate-500 focus:outline-none"
+          >
+            {rosterNames.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        )}
 
         <button
           type="submit"
@@ -69,7 +97,8 @@ export default function SignInPage() {
         </button>
 
         <p className="mt-4 text-center text-xs text-slate-500">
-          Demo sign-in — swap for Clerk before launch.
+          Demo sign-in — swap for Clerk before launch. Names below are matched to the mock staff
+          roster so pickup attribution lines up.
         </p>
       </form>
     </main>
