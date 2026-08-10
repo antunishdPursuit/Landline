@@ -1,5 +1,6 @@
 import {
   addDemoTicket,
+  addDemoCallLog,
   addTravelRecommendation,
   createSeedDemoState,
   isDemoState,
@@ -95,6 +96,27 @@ describe('demo store', () => {
     expect(readDemoState().travel_recommendations).toEqual([
       { ...recommendation, title: 'Updated stay link' },
     ])
+  })
+
+  it('adds and deduplicates local voice call logs', () => {
+    const call = {
+      id: 'call_voice',
+      room_number: '1208',
+      language_detected: 'en',
+      duration_seconds: 42,
+      transcript: [{ speaker: 'guest' as const, text: 'I need towels' }],
+      intent: 'physical_request' as const,
+      department: 'housekeeping' as const,
+      request_summary: 'Towels requested',
+      requires_human: false,
+      created_at: new Date().toISOString(),
+    }
+
+    addDemoCallLog(call)
+    addDemoCallLog({ ...call, duration_seconds: 45 })
+
+    expect(readDemoState().call_logs.filter((item) => item.id === call.id)).toHaveLength(1)
+    expect(readDemoState().call_logs[0].duration_seconds).toBe(45)
   })
 
   it('resets local changes to fresh seed data', () => {

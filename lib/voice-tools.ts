@@ -11,6 +11,15 @@ interface VoiceToolDependencies {
   saveTicket?: (ticket: GuestRequest) => unknown
   saveRecommendation?: (recommendation: TravelRecommendation) => unknown
   now?: () => Date
+  onActivity?: (activity: VoiceToolActivity) => void
+}
+
+export interface VoiceToolActivity {
+  intent: 'answerable_qa' | 'defer_to_operator' | 'physical_request'
+  department: 'front_desk' | 'housekeeping' | 'room_service' | 'maintenance' | null
+  request_summary: string | null
+  requires_human: boolean
+  language_detected: string
 }
 
 function isRecord(value: unknown): value is JsonRecord {
@@ -51,6 +60,7 @@ export function createVoiceClientTools({
   saveTicket = addDemoTicket,
   saveRecommendation = addTravelRecommendation,
   now = () => new Date(),
+  onActivity = () => undefined,
 }: VoiceToolDependencies = {}) {
   async function saveRequest(payload: unknown, forceStaffDeferral: boolean) {
     const requestPayload = isRecord(payload) ? payload : {}
@@ -68,6 +78,13 @@ export function createVoiceClientTools({
         try {
           const ticket = result.body.ticket as unknown as GuestRequest
           saveTicket(ticket)
+          onActivity({
+            intent: ticket.intent,
+            department: ticket.department,
+            request_summary: ticket.summary,
+            requires_human: ticket.requires_human,
+            language_detected: ticket.language_detected,
+          })
           return toResult({
             status: 'logged',
             ticket_id: ticket.id,
@@ -116,8 +133,25 @@ export function createVoiceClientTools({
           }
         })
 
+        onActivity({
+          intent: 'answerable_qa',
+          department: null,
+          request_summary:
+            typeof result.body.answer === 'string' ? result.body.answer : null,
+          requires_human: false,
+          language_detected: 'en',
+        })
+
         return toResult(result.body)
       }
+
+      onActivity({
+        intent: 'defer_to_operator',
+        department: 'front_desk',
+        request_summary: 'Current information could not be verified',
+        requires_human: true,
+        language_detected: 'en',
+      })
 
       return toResult({
         status: 'needs_staff',
@@ -137,6 +171,13 @@ export function createVoiceClientTools({
           const recommendation =
             result.body.recommendation as unknown as TravelRecommendation
           saveRecommendation(recommendation)
+          onActivity({
+            intent: 'answerable_qa',
+            department: null,
+            request_summary: recommendation.title,
+            requires_human: false,
+            language_detected: 'en',
+          })
           return toResult({
             status: 'ready',
             message: 'This link lets the guest view stays. No reservation has been made.',
@@ -146,6 +187,14 @@ export function createVoiceClientTools({
           // Invalid API data is handled as an unavailable tool call below.
         }
       }
+
+      onActivity({
+        intent: 'defer_to_operator',
+        department: 'front_desk',
+        request_summary: 'Stay options were unavailable',
+        requires_human: true,
+        language_detected: 'en',
+      })
 
       return toResult({
         status: 'unavailable',

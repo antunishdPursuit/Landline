@@ -31,6 +31,7 @@ jest.mock("@elevenlabs/client", () => ({
 }));
 
 import { PhoneButton } from "@/components/PhoneButton";
+import { readDemoState } from "@/lib/demo-store";
 import { EMPTY_CONFIG } from "@/types/agent";
 
 const SIGNED_URL = "wss://signed.example.com/token-abc123";
@@ -52,7 +53,43 @@ function setupFailFetch(status = 500) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockStartSession.mockResolvedValue({ endSession: mockConversationEnd });
+  localStorage.clear();
+  mockStartSession.mockResolvedValue({
+    endSession: mockConversationEnd,
+    getId: () => "conv_test_123",
+  });
+});
+
+describe("local call history", () => {
+  it("stores final transcript messages when a voice session disconnects", async () => {
+    setupHappyFetch();
+    render(<PhoneButton config={EMPTY_CONFIG} />);
+    fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /end call/i })).toBeInTheDocument()
+    );
+
+    const options = mockStartSession.mock.calls[0][0] as {
+      onMessage: (message: { source: "user" | "ai"; message: string }) => void;
+      onStatusChange: (status: { status: string }) => void;
+    };
+
+    act(() => {
+      options.onMessage({ source: "user", message: "I need two towels." });
+      options.onMessage({ source: "ai", message: "I can help with that." });
+      options.onStatusChange({ status: "disconnected" });
+    });
+
+    expect(readDemoState().call_logs[0]).toMatchObject({
+      id: "conv_test_123",
+      room_number: "1208",
+      transcript: [
+        { speaker: "guest", text: "I need two towels." },
+        { speaker: "agent", text: "I can help with that." },
+      ],
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -71,12 +108,13 @@ describe("AC-1: PhoneButton renders and is interactive on page load", () => {
     expect(screen.getByRole("button", { name: /pick up phone/i })).not.toBeDisabled();
   });
 
-  it("button responds to click without throwing", () => {
+  it("button responds to click without throwing", async () => {
     setupHappyFetch();
     render(<PhoneButton config={EMPTY_CONFIG} />);
     expect(() =>
       fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }))
     ).not.toThrow();
+    await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
   });
 });
 

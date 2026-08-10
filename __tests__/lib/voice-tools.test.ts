@@ -24,7 +24,8 @@ describe('ElevenLabs client tools', () => {
       response(true, { status: 'ready', ticket })
     )
     const saveTicket = jest.fn()
-    const tools = createVoiceClientTools({ fetcher, saveTicket })
+    const onActivity = jest.fn()
+    const tools = createVoiceClientTools({ fetcher, saveTicket, onActivity })
 
     const result = JSON.parse(
       await tools.log_request({
@@ -39,6 +40,13 @@ describe('ElevenLabs client tools', () => {
       expect.objectContaining({ method: 'POST' })
     )
     expect(saveTicket).toHaveBeenCalledWith(ticket)
+    expect(onActivity).toHaveBeenCalledWith({
+      intent: 'physical_request',
+      department: 'housekeeping',
+      request_summary: 'Two towels requested',
+      requires_human: false,
+      language_detected: 'en',
+    })
     expect(result).toEqual({
       status: 'logged',
       ticket_id: 'req_voice',

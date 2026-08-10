@@ -180,6 +180,21 @@ export function addDemoTicket(
   )
 }
 
+export function addDemoCallLog(
+  call: CallLog,
+  storage: Storage | null = getBrowserStorage()
+): DemoState {
+  if (!isCallLog(call)) throw new Error('Invalid demo call log')
+
+  return updateDemoState(
+    (current) => ({
+      ...current,
+      call_logs: [call, ...current.call_logs.filter((item) => item.id !== call.id)],
+    }),
+    storage
+  )
+}
+
 export function addTravelRecommendation(
   recommendation: TravelRecommendation,
   storage: Storage | null = getBrowserStorage()

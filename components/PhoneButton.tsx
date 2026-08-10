@@ -16,6 +16,7 @@ function toDynamicVariables(
     property_address: config.address || "",
     property_lat: config.lat || "0",
     property_lng: config.lng || "0",
+    room_number: "1208",
   };
 }
 

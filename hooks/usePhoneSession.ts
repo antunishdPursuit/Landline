@@ -2,7 +2,12 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Conversation } from "@elevenlabs/client";
-import { createVoiceClientTools } from "@/lib/voice-tools";
+import { addDemoCallLog } from "@/lib/demo-store";
+import {
+  createVoiceClientTools,
+  type VoiceToolActivity,
+} from "@/lib/voice-tools";
+import type { ConversationTurn } from "@/lib/types";
 
 export type PhoneSessionState =
   | "idle"
@@ -22,6 +27,32 @@ export function usePhoneSession(
 ): UsePhoneSessionReturn {
   const [state, setState] = useState<PhoneSessionState>("idle");
   const conversationRef = useRef<Conversation | null>(null);
+  const transcriptRef = useRef<ConversationTurn[]>([]);
+  const activityRef = useRef<VoiceToolActivity | null>(null);
+  const sessionStartedAtRef = useRef<number | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const callSavedRef = useRef(false);
+
+  const finalizeCall = useCallback(() => {
+    const startedAt = sessionStartedAtRef.current;
+    if (startedAt === null || callSavedRef.current) return;
+
+    const activity = activityRef.current;
+    const roomNumber = String(dynamicVariables?.room_number ?? "1208");
+    addDemoCallLog({
+      id: sessionIdRef.current ?? `call_${startedAt}`,
+      room_number: roomNumber,
+      language_detected: activity?.language_detected ?? "en",
+      duration_seconds: Math.max(0, Math.round((Date.now() - startedAt) / 1000)),
+      transcript: transcriptRef.current,
+      intent: activity?.intent ?? "answerable_qa",
+      department: activity?.department ?? null,
+      request_summary: activity?.request_summary ?? null,
+      requires_human: activity?.requires_human ?? false,
+      created_at: new Date(startedAt).toISOString(),
+    });
+    callSavedRef.current = true;
+  }, [dynamicVariables]);
 
   const startSession = useCallback(async () => {
     setState("connecting");
@@ -40,37 +71,59 @@ export function usePhoneSession(
       return;
     }
 
+    transcriptRef.current = [];
+    activityRef.current = null;
+    sessionStartedAtRef.current = Date.now();
+    sessionIdRef.current = null;
+    callSavedRef.current = false;
+
     try {
       const conversation = await Conversation.startSession({
         signedUrl,
         dynamicVariables,
+        onMessage: ({ source, message }) => {
+          transcriptRef.current = [
+            ...transcriptRef.current,
+            { speaker: source === "user" ? "guest" : "agent", text: message },
+          ];
+        },
         onStatusChange: ({ status }) => {
           if (status === "disconnected") {
+            finalizeCall();
             setState("ended");
             conversationRef.current = null;
           }
         },
         onError: () => {
+          finalizeCall();
           setState("error");
           conversationRef.current = null;
         },
-        clientTools: createVoiceClientTools(),
+        clientTools: createVoiceClientTools({
+          onActivity: (activity) => {
+            activityRef.current = activity;
+          },
+        }),
       });
 
       conversationRef.current = conversation;
+      sessionIdRef.current =
+        typeof conversation.getId === "function" ? conversation.getId() : null;
       setState("in-call");
     } catch {
+      sessionStartedAtRef.current = null;
       setState("error");
     }
-  }, [dynamicVariables]);
+  }, [dynamicVariables, finalizeCall]);
 
   const endSession = useCallback(async () => {
     if (conversationRef.current) {
       await conversationRef.current.endSession();
       conversationRef.current = null;
     }
+    finalizeCall();
     setState("ended");
-  }, []);
+  }, [finalizeCall]);
 
   return { state, startSession, endSession };
 }
