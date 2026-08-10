@@ -8,7 +8,7 @@ describe("HotelRoomOverview", () => {
     render(<HotelRoomOverview />);
 
     expect(
-      screen.getByRole("img", { name: /warm hotel room with a bedside phone/i })
+      screen.getByRole("img", { name: /warm hotel room with a large bed/i })
     ).toBeInTheDocument();
   });
 
@@ -20,6 +20,12 @@ describe("HotelRoomOverview", () => {
     ).toBeInTheDocument();
     expect(
       container.querySelector('[data-scene-object="bedside-panel"]')
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-scene-object="mobile-hotel-phone"]')
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-scene-object="mobile-bedside-panel"]')
     ).toBeInTheDocument();
   });
 

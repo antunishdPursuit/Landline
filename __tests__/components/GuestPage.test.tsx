@@ -4,20 +4,16 @@ import "@testing-library/jest-dom";
 import GuestPage from "@/app/page";
 
 describe("GuestPage room overview", () => {
-  it("presents the in-room guest context", () => {
+  it("presents the room as the only guest context", () => {
     render(<GuestPage />);
 
     expect(screen.getByRole("heading", { name: "Landline" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /make yourself at home/i })
-    ).toBeInTheDocument();
-    expect(screen.getByText("Room 1208")).toBeInTheDocument();
-    expect(
-      screen.getByRole("img", { name: /warm hotel room with a bedside phone/i })
+      screen.getByRole("img", { name: /warm hotel room with a large bed/i })
     ).toBeInTheDocument();
   });
 
-  it("does not show the previous setup or voice controls", () => {
+  it("does not show setup controls or supporting copy", () => {
     render(<GuestPage />);
 
     expect(screen.queryByRole("button", { name: /property/i })).not.toBeInTheDocument();
@@ -25,5 +21,9 @@ describe("GuestPage room overview", () => {
       screen.queryByRole("button", { name: /pick up phone/i })
     ).not.toBeInTheDocument();
     expect(screen.queryByText(/manual fallback/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/in-room concierge/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/room 1208/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/make yourself at home/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your bedside phone/i)).not.toBeInTheDocument();
   });
 });
