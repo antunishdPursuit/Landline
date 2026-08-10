@@ -42,6 +42,11 @@ View 1 is the guest landing page. It contains:
 - a clearly recognizable hotel phone on the left nightstand; and
 - a compact bedside panel beside or behind the phone.
 
+The room fills the viewport. Landline is the only visible page label; welcome
+copy, room metadata, introductory headings, captions, and explanatory text do
+not compete with the scene. The phone and panel provide the visual invitation
+to approach.
+
 The bedside area is the future transition target for View 2. View 1 must not
 start ElevenLabs. Until View 2 exists, View 1 does not expose a dead or
 misleading interactive control.
@@ -89,9 +94,14 @@ fail.
 
 ## Responsive behavior
 
-- Preserve the bed and bedside context on wide screens.
-- Keep the phone and panel recognizable on narrow screens.
-- Recompose or crop decorative room details before hiding the primary objects.
+- Use the wide, symmetrical room composition on desktop screens.
+- Use a dedicated portrait composition on narrow screens instead of shrinking
+  the entire wide room.
+- In the portrait composition, keep the left nightstand, phone, and panel fully
+  visible beside a large partial view of the bed.
+- Crop the right nightstand and most decorative wall details before reducing the
+  size of the primary objects.
+- Fill the dynamic viewport height without horizontal scrolling.
 - Avoid text embedded in the SVG when equivalent HTML can remain legible and
   accessible.
 
@@ -109,4 +119,3 @@ This experience does not add a production phone system, PBX integration,
 cross-device state, or a second persistence layer. It does not redesign the
 staff dashboard. Tavily, Stay22, Clerk, the browser store, and the existing
 ElevenLabs adapter remain within the boundaries in `architecture.md`.
-
