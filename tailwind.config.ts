@@ -10,17 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         base: {
-          bg: "#0b0d12",
-          panel: "#12151c",
-          card: "#171b24",
-          border: "#242a36",
+          bg: "#F3F0E9",
+          panel: "#FBFAF7",
+          card: "#FFFFFF",
+          border: "#DDD5C8",
         },
-        espresso: "#0C0A08",
-        ivory: "#F6F1E9",
-        gold: "#C8914A",
-        taupe: "#6B5B4E",
-        "dark-card": "#1A1612",
-        "dark-input": "#2C2520",
+        espresso: "#F3F0E9",
+        ivory: "#1F2A37",
+        gold: "#A8752B",
+        taupe: "#74695E",
+        "dark-card": "#FFFFFF",
+        "dark-input": "#EFE9DF",
       },
       fontFamily: {
         display: ["var(--font-cormorant)", "Georgia", "serif"],
@@ -33,8 +33,8 @@ const config: Config = {
           "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
         "pulse-ring": {
-          "0%": { boxShadow: "0 0 0 0 rgba(52, 211, 153, 0.5)" },
-          "100%": { boxShadow: "0 0 0 6px rgba(52, 211, 153, 0)" },
+          "0%": { boxShadow: "0 0 0 0 rgba(16, 120, 87, 0.35)" },
+          "100%": { boxShadow: "0 0 0 6px rgba(16, 120, 87, 0)" },
         },
       },
       animation: {

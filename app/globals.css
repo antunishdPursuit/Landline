@@ -4,12 +4,13 @@
 
 html,
 body {
-  background-color: #0b0d12;
+  background-color: #F3F0E9;
+  color: #1F2A37;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #242a36 transparent;
+  scrollbar-color: #C9BFAF transparent;
 }
 
 @layer base {
@@ -20,7 +21,7 @@ body {
   }
 
   *:focus-visible {
-    outline: 2px solid #C8914A;
+    outline: 2px solid #A8752B;
     outline-offset: 2px;
   }
 }

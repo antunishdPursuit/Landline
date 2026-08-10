@@ -47,13 +47,13 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <span className="text-lg font-semibold tracking-tight text-white">Room {request.room_number}</span>
+          <span className="text-lg font-semibold tracking-tight text-slate-900">Room {request.room_number}</span>
           <span className="text-xs text-slate-500">{timeAgo(request.created_at)}</span>
         </div>
         <StatusDot status={request.status} />
       </div>
 
-      <p className="mt-1.5 text-sm leading-snug text-slate-300">{request.summary}</p>
+      <p className="mt-1.5 text-sm leading-snug text-slate-700">{request.summary}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <DepartmentBadge department={request.department} />
@@ -63,8 +63,8 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
       </div>
 
       {request.assigned_to && (
-        <p className="mt-2 text-xs text-slate-400">
-          Picked up by <span className="font-medium text-slate-200">{request.assigned_to}</span>
+        <p className="mt-2 text-xs text-slate-600">
+          Picked up by <span className="font-medium text-slate-800">{request.assigned_to}</span>
         </p>
       )}
 
@@ -77,7 +77,7 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
               request.status === 'new' ? currentStaffName : undefined
             )
           }
-          className="mt-3 w-full rounded-lg border border-base-border bg-white/[0.03] py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-white/[0.08] active:bg-white/[0.12]"
+          className="mt-3 w-full rounded-lg border border-base-border bg-slate-900/[0.03] py-1.5 text-xs font-medium text-slate-800 transition-colors hover:bg-slate-900/[0.08] active:bg-slate-900/[0.12]"
         >
           {NEXT_LABEL[request.status]}
         </button>

@@ -14,12 +14,12 @@ export function StaffRosterPanel({ label, members, assignedCounts }: StaffRoster
   return (
     <div className="rounded-2xl border border-base-border bg-base-panel">
       <div className="flex items-center justify-between border-b border-base-border px-4 py-3">
-        <h2 className="text-sm font-semibold text-white">{label}</h2>
+        <h2 className="text-sm font-semibold text-slate-900">{label}</h2>
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
             activeCount > 0
-              ? 'bg-emerald-500/15 text-emerald-300'
-              : 'bg-slate-500/15 text-slate-400'
+              ? 'bg-emerald-100 text-emerald-700'
+              : 'bg-slate-200 text-slate-600'
           }`}
         >
           {activeCount}/{members.length} active
@@ -32,16 +32,16 @@ export function StaffRosterPanel({ label, members, assignedCounts }: StaffRoster
           return (
             <div
               key={member.id}
-              className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2"
+              className="flex items-center justify-between rounded-lg bg-slate-900/[0.03] px-3 py-2"
             >
               <div className="flex items-center gap-2">
                 <span
                   className={`h-2 w-2 rounded-full ${member.active ? 'bg-emerald-400' : 'bg-slate-600'}`}
                 />
-                <span className="text-sm text-slate-200">{member.name}</span>
+                <span className="text-sm text-slate-800">{member.name}</span>
               </div>
               {handling > 0 && (
-                <span className="rounded-full bg-blue-500/15 px-2 py-0.5 text-xs font-medium text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                   handling {handling}
                 </span>
               )}

@@ -76,7 +76,7 @@ export default function DashboardPage() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-400" />
           </span>
-          <p className="text-xs font-medium text-rose-200">
+          <p className="text-xs font-medium text-rose-800">
             {urgentHuman.length} guest{urgentHuman.length > 1 ? 's' : ''} waiting for a human — Room
             {urgentHuman.length > 1 ? 's' : ''} {urgentHuman.map((r) => r.room_number).join(', ')}
           </p>

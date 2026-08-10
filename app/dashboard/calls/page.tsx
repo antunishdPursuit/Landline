@@ -50,9 +50,9 @@ export default function AgentCallsPage() {
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mb-4 grid grid-cols-4 gap-3">
           <StatTile label="Total calls" value={calls.length} />
-          <StatTile label="Answered by agent" value={answeredByAgent} accent="text-slate-300" />
-          <StatTile label="Tickets created" value={ticketsCreated} accent="text-blue-300" />
-          <StatTile label="Deferred to human" value={deferredToHuman} accent="text-rose-300" />
+          <StatTile label="Answered by agent" value={answeredByAgent} accent="text-slate-800" />
+          <StatTile label="Tickets created" value={ticketsCreated} accent="text-blue-700" />
+          <StatTile label="Deferred to human" value={deferredToHuman} accent="text-rose-700" />
         </div>
 
         <p className="mb-3 text-xs text-slate-500">
@@ -72,7 +72,7 @@ export default function AgentCallsPage() {
 function StatTile({
   label,
   value,
-  accent = 'text-white',
+  accent = 'text-slate-900',
 }: {
   label: string
   value: number

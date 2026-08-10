@@ -36,13 +36,13 @@ export function RequestColumn({
     <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-border bg-base-panel">
       <div className="flex items-center justify-between border-b border-base-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-white">{label}</h2>
-          <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-xs text-slate-400">
+          <h2 className="text-sm font-semibold text-slate-900">{label}</h2>
+          <span className="rounded-full bg-slate-900/5 px-1.5 py-0.5 text-xs text-slate-600">
             {count}
           </span>
         </div>
         {needsHumanCount > 0 && (
-          <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-xs font-semibold text-rose-300">
+          <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">
             {needsHumanCount} needs human
           </span>
         )}

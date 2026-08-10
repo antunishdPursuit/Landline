@@ -26,8 +26,8 @@ export function DashboardNav({ role }: { role: StaffRole }) {
             href={tab.href}
             className={`border-b-2 px-3 py-2.5 text-xs font-medium transition-colors ${
               active
-                ? 'border-white text-white'
-                : 'border-transparent text-slate-500 hover:text-slate-300'
+                ? 'border-gold text-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             {tab.label}

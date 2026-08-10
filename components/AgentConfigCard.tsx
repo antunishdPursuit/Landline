@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
+import Image from "next/image";
 import type { AgentConfig } from "@/types/agent";
 
 // Convert decimal degrees to DMS notation — the signature typographic element
@@ -34,21 +35,24 @@ function CardView({ config, onEdit }: CardViewProps) {
   const hasThumbnail = Boolean(config.thumbnailUrl);
 
   return (
-    <div className="w-full max-w-sm bg-dark-card rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
+    <div className="w-full max-w-sm bg-dark-card rounded-2xl overflow-hidden border border-base-border shadow-2xl shadow-slate-900/10">
       {/* Thumbnail */}
       <div className="relative h-48 bg-espresso overflow-hidden flex items-center justify-center">
         {hasThumbnail ? (
           <>
-            <img
+            <Image
               src={config.thumbnailUrl}
               alt={config.name}
-              className="w-full h-full object-cover"
+              fill
+              sizes="384px"
+              unoptimized
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-dark-card/70 via-transparent to-transparent" />
           </>
         ) : (
           <svg
-            className="w-16 h-16 text-taupe/20"
+            className="w-16 h-16 text-taupe/35"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -76,7 +80,7 @@ function CardView({ config, onEdit }: CardViewProps) {
 
         <h2 className="font-display text-2xl italic font-semibold text-ivory leading-tight pr-10">
           {config.name || (
-            <span className="text-taupe/50 not-italic font-normal">
+            <span className="text-taupe/80 not-italic font-normal">
               Property name
             </span>
           )}
@@ -149,14 +153,17 @@ function CardEdit({
       >
         {hasPreview ? (
           <>
-            <img
+            <Image
               src={draft.thumbnailUrl}
               alt="Property preview"
-              className="w-full h-full object-cover"
+              fill
+              sizes="384px"
+              unoptimized
+              className="object-cover"
             />
-            <div className="absolute inset-0 bg-espresso/60 flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
               <svg
-                className="w-5 h-5 text-ivory"
+                className="w-5 h-5 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -169,7 +176,7 @@ function CardEdit({
                   d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
                 />
               </svg>
-              <span className="font-body text-xs text-ivory tracking-widest uppercase">
+              <span className="font-body text-xs text-white tracking-widest uppercase">
                 Change image
               </span>
             </div>
