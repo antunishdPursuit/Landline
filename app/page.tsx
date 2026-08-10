@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { AgentConfigCard } from "@/components/AgentConfigCard";
 import { DemoRequestButton } from "@/components/DemoRequestButton";
 import { PhoneButton } from "@/components/PhoneButton";
+import { TravelRecommendations } from "@/components/TravelRecommendations";
 import { useAgentConfig } from "@/hooks/useAgentConfig";
 
 export default function GuestPage() {
@@ -64,6 +65,7 @@ export default function GuestPage() {
               </div>
 
               <DemoRequestButton config={agentConfig.config} />
+              <TravelRecommendations />
             </div>
           )}
         </>
