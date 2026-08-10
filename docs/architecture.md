@@ -71,9 +71,10 @@ those values from an ElevenLabs tool payload.
 
 ElevenLabs remains the voice runtime. The browser requests a short-lived signed
 conversation URL from a Next.js route so the API key stays server-only.
-Property name, address, and coordinates are passed as dynamic variables.
+Property name, address, coordinates, and the demo room number are passed as
+dynamic variables.
 
-Planned tools:
+Configured client tools:
 
 - `log_request`: validate, classify, normalize, and save a local ticket.
 - `search_concierge`: request current external information through Tavily.
@@ -101,7 +102,7 @@ changing ticket ownership.
 
 ## Local persistence
 
-The browser store will use one versioned `localStorage` record. It must:
+The browser store uses one versioned `localStorage` record. It:
 
 - initialize seed data once;
 - persist ticket status and assignment after refresh;

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Classification is authoritative. Tool-supplied routing flags are ignored.
   const { requires_human, department } = classifyRequest(intent, summary);
 
-  // Current-information answers will be handled by the planned Tavily adapter.
+  // Current-information answers are handled by the Tavily adapter.
   // They do not create staff tickets in the local demo store.
   if (intent === "answerable_qa") {
     return NextResponse.json(

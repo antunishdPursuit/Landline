@@ -33,7 +33,7 @@ function departmentFromSummary(summary: string): Department {
     return "room_service";
   }
 
-  // Concierge questions will use Tavily when that adapter is available.
+  // Current-information concierge questions use the Tavily adapter.
   // Any physical or unsupported work falls back to the staffed front desk.
   return "front_desk";
 }

@@ -1,56 +1,57 @@
 # Demo Implementation Sequence
 
-The project is intentionally not a production or multi-user system. Follow
-this sequence after the legacy backend cleanup.
+The local-only demo sequence is complete. Each step is implemented and covered
+by focused tests, the full Jest suite, TypeScript checking, and production builds.
 
-## 1. Normalize the domain
+## 1. Normalize the domain — complete
 
-- Use only `front_desk`, `housekeeping`, `room_service`, and `maintenance`.
-- Use only `new`, `in_progress`, and `done` for ticket status.
-- Keep department and human-escalation decisions in `lib/classifier.ts`.
-- Update tests before adding persistence or vendors.
+- Departments are limited to `front_desk`, `housekeeping`, `room_service`, and `maintenance`.
+- Ticket status is limited to `new`, `in_progress`, and `done`.
+- `lib/classifier.ts` owns department and human-escalation decisions.
 
-## 2. Create the browser demo store
+## 2. Create the browser demo store — complete
 
-Add one versioned local record that owns tickets, assignments, statuses, demo
-call logs, and displayed travel recommendations. It must seed once, validate
-stored data, recover safely, persist after refresh, and support an explicit
-reset.
+One versioned local record owns tickets, assignments, statuses, call logs, and
+displayed travel recommendations. It seeds once, validates stored data,
+recovers from invalid data, persists after refresh, and supports reset.
 
-## 3. Complete the manual ticket path
+## 3. Complete the manual ticket path — complete
 
-Connect the demo request and dashboard to the shared store. Verify that a Clerk
-staff member can pick up and complete a request and that the state survives a
-refresh.
+The manual fallback and staff dashboard share the browser store. Staff can pick
+up and complete a request, and the state survives refresh in the same browser.
 
-## 4. Add Tavily concierge search
+## 4. Add Tavily concierge search — complete
 
-Create a server-only adapter with bounded results and source URLs. Use it only
-for facts that can change. Missing configuration, weak evidence, and upstream
-failure must offer human escalation.
+The server-only adapter returns bounded answers with source URLs. Missing
+configuration, weak evidence, and upstream failures produce an explicit staff
+escalation result instead of a guess.
 
-## 5. Add Stay22 destinations
+## 5. Add Stay22 destinations — complete
 
-Begin with an Allez destination generated from a validated location and the
-configured partner identifier. Present it as a link to view stays; never claim
-that Landline made a reservation or persist live inventory.
+The server route creates Allez Roam destinations from a validated location and
+configured `aid`. The guest UI presents them as links to view stays and states
+that no reservation was made.
 
-## 6. Restore the complete ElevenLabs path
+## 6. Restore the complete ElevenLabs path — complete in code
 
-Make the voice control the primary guest action and keep the manual request as
-a fallback. Configure focused tools for request logging, concierge search,
-stay discovery, and staff deferral. Pass property context through dynamic
-variables and keep all vendor keys server-only.
+Voice is the primary guest action, with the manual request as fallback. The
+browser registers `log_request`, `search_concierge`, `find_stays`, and
+`defer_to_staff`, passes property context through dynamic variables, and keeps
+API keys server-only. The matching tool definitions must still be configured
+in each ElevenLabs account; see [`elevenlabs-tools.md`](elevenlabs-tools.md).
 
-## 7. Add representative call history
+## 7. Add representative call history — complete
 
-Store only the data needed for the demo. Do not build production recording,
-webhook persistence, or cross-device synchronization.
+The browser stores session ID, duration, transcript text, and the last verified
+tool outcome. It does not store audio or add recording webhooks, production
+persistence, or cross-device synchronization.
 
-## Verification after every step
+## Verification baseline
 
-- Run the focused tests.
-- Run the complete Jest suite.
-- Run a production build.
-- Confirm that no vendor secret is included in a browser response or bundle.
-- Confirm that the manual demo still works when optional vendor keys are absent.
+- The project installs, tests, and builds without Supabase, Python, pgvector, or Anthropic.
+- Clerk roles control staff identity and dashboard access.
+- Manual requests complete the same-browser ticket workflow after refresh.
+- ElevenLabs client tools use server routes and never receive raw API keys.
+- Tavily answers require sources and fail safely.
+- Stay22 returns tracked destinations and never claims to book directly.
+- Optional vendor failures leave the manual demo usable.
