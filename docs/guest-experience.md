@@ -42,10 +42,11 @@ View 1 is the guest landing page. It contains:
 - a clearly recognizable hotel phone on the left nightstand; and
 - a compact bedside panel beside or behind the phone.
 
-The room fills the viewport. Landline is the only visible page label; welcome
-copy, room metadata, introductory headings, captions, and explanatory text do
-not compete with the scene. The phone and panel provide the visual invitation
-to approach.
+The room fills the viewport. Landline is the only visible page label and is
+placed on the illustrated headboard so it stays anchored to the bed at both
+full-window and half-window widths. Welcome copy, room metadata, introductory
+headings, captions, and explanatory text do not compete with the scene. The
+phone and panel provide the visual invitation to approach.
 
 The bedside area is the future transition target for View 2. View 1 must not
 start ElevenLabs. Until View 2 exists, View 1 does not expose a dead or
@@ -95,6 +96,8 @@ fail.
 ## Responsive behavior
 
 - Use the wide, symmetrical room composition on desktop screens.
+- Keep the headboard wordmark visible when the browser occupies either the full
+  display or half of the display.
 - Use a dedicated portrait composition on narrow screens instead of shrinking
   the entire wide room.
 - In the portrait composition, keep the left nightstand, phone, and panel fully
