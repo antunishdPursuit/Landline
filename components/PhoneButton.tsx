@@ -2,22 +2,11 @@
 
 import React from "react";
 import { usePhoneSession, type PhoneSessionState } from "@/hooks/usePhoneSession";
+import { toAgentDynamicVariables } from "@/lib/agent-dynamic-variables";
 import type { AgentConfig } from "@/types/agent";
 
 interface PhoneButtonProps {
   config: AgentConfig;
-}
-
-function toDynamicVariables(
-  config: AgentConfig
-): Record<string, string | number | boolean> {
-  return {
-    property_name: config.name || "Unnamed property",
-    property_address: config.address || "",
-    property_lat: config.lat || "0",
-    property_lng: config.lng || "0",
-    room_number: "1208",
-  };
 }
 
 interface ButtonAppearance {
@@ -91,7 +80,7 @@ function PhoneHandsetIcon({ className }: { className?: string }) {
 }
 
 export function PhoneButton({ config }: PhoneButtonProps) {
-  const dynamicVariables = toDynamicVariables(config);
+  const dynamicVariables = toAgentDynamicVariables(config);
   const { state, startSession, endSession } = usePhoneSession(dynamicVariables);
   const appearance = STATE_APPEARANCE[state];
 
