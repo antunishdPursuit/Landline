@@ -7,7 +7,9 @@ destinations through server-owned routes.
 
 The authoritative system boundaries and failure rules are in
 [`architecture.md`](architecture.md). The completed implementation sequence is
-in [`Implementation.md`](Implementation.md).
+in [`Implementation.md`](Implementation.md). The approved in-room visual flow
+and interaction boundaries are in
+[`guest-experience.md`](guest-experience.md).
 
 ## Runtime
 
