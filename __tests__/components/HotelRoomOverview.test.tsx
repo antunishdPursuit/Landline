@@ -29,6 +29,17 @@ describe("HotelRoomOverview", () => {
     ).toBeInTheDocument();
   });
 
+  it("places the wordmark on both responsive headboards", () => {
+    const { container } = render(<HotelRoomOverview />);
+
+    expect(
+      container.querySelector('[data-scene-object="headboard-wordmark"]')
+    ).toHaveTextContent("Landline");
+    expect(
+      container.querySelector('[data-scene-object="mobile-headboard-wordmark"]')
+    ).toHaveTextContent("Landline");
+  });
+
   it("does not expose an inactive bedside control", () => {
     render(<HotelRoomOverview />);
 
