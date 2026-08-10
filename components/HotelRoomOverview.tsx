@@ -2,20 +2,113 @@ import React from "react";
 
 export function HotelRoomOverview() {
   return (
-    <figure className="relative w-full overflow-hidden rounded-[2rem] border border-[#d8cdbd] bg-[#e8dfd1] shadow-[0_30px_90px_rgba(66,48,32,0.16)]">
+    <figure
+      role="img"
+      aria-labelledby="room-scene-label"
+      className="relative h-full w-full overflow-hidden bg-[#e8dfd1]"
+    >
+      <span id="room-scene-label" hidden>
+        A warm hotel room with a large bed, a black hotel phone, and an amber
+        bedside control panel.
+      </span>
+
+      {/* Portrait composition keeps the devices useful instead of shrinking the wide room. */}
+      <svg
+        viewBox="0 0 430 844"
+        aria-hidden="true"
+        focusable="false"
+        className="block h-full w-full sm:hidden"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <linearGradient id="mobile-wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#f6f1e9" />
+            <stop offset="1" stopColor="#e4d7c5" />
+          </linearGradient>
+          <linearGradient id="mobile-headboard" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#8b6b50" />
+            <stop offset="1" stopColor="#5b4031" />
+          </linearGradient>
+          <linearGradient id="mobile-duvet" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fffdf8" />
+            <stop offset="1" stopColor="#ddd2c3" />
+          </linearGradient>
+          <linearGradient id="mobile-throw" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#b99c73" />
+            <stop offset="1" stopColor="#866746" />
+          </linearGradient>
+          <radialGradient id="mobile-glow">
+            <stop offset="0" stopColor="#f3c575" stopOpacity="0.52" />
+            <stop offset="1" stopColor="#f3c575" stopOpacity="0" />
+          </radialGradient>
+          <filter id="mobile-shadow" x="-35%" y="-35%" width="180%" height="190%">
+            <feDropShadow dx="0" dy="15" stdDeviation="14" floodColor="#443125" floodOpacity="0.22" />
+          </filter>
+          <filter id="mobile-device-shadow" x="-60%" y="-60%" width="220%" height="240%">
+            <feDropShadow dx="0" dy="8" stdDeviation="7" floodColor="#201a16" floodOpacity="0.38" />
+          </filter>
+        </defs>
+
+        <rect width="430" height="844" fill="url(#mobile-wall)" />
+        <rect x="18" y="72" width="394" height="740" fill="none" stroke="#cdbda8" strokeWidth="2" />
+        <path d="M0 755H430V844H0Z" fill="#8c735d" />
+        <ellipse cx="85" cy="340" rx="185" ry="300" fill="url(#mobile-glow)" />
+
+        {/* Enlarged headboard and bed occupy the portrait frame. */}
+        <g filter="url(#mobile-shadow)">
+          <rect x="112" y="132" width="430" height="484" rx="13" fill="url(#mobile-headboard)" />
+          <path d="M238 132V616M364 132V616M490 132V616" stroke="#a48769" strokeOpacity="0.38" strokeWidth="3" />
+          <path d="M112 350H542" stroke="#4d362a" strokeOpacity="0.4" strokeWidth="3" />
+
+          <path d="M123 318H530L589 840H74Z" fill="#593e30" />
+          <path d="M125 308H525L565 761Q568 786 540 790H102Q75 786 78 761Z" fill="url(#mobile-duvet)" />
+          <path d="M134 293c5-58 38-91 86-94l143 12-18 139-213-4Z" fill="#fffdf8" stroke="#d8cfc2" strokeWidth="3" />
+          <path d="M386 295c-2-55-30-86-73-90l-82 7 17 137 144-3Z" fill="#faf7f0" stroke="#d8cfc2" strokeWidth="3" />
+          <path d="M78 520c75 24 185 37 258 37 85 0 158-8 213-26l13 232Q565 786 540 790H102Q75 786 78 761Z" fill="#eee7dc" />
+          <path d="M175 553c64 6 118 7 181 3 35-2 70-7 105-15l18 248H178Z" fill="url(#mobile-throw)" />
+          <path d="M211 558 205 786M257 560l-2 227M421 550l15 237" stroke="#dac39e" strokeOpacity="0.34" strokeWidth="3" />
+        </g>
+
+        {/* Left bedside lamp and table remain fully visible. */}
+        <g>
+          <path d="M72 208V449" stroke="#826548" strokeWidth="9" />
+          <path d="M35 449H109" stroke="#826548" strokeWidth="11" strokeLinecap="round" />
+          <path d="M18 222h108l-19 106H39Z" fill="#f7e8c7" stroke="#c6a876" strokeWidth="3" />
+        </g>
+
+        <g filter="url(#mobile-shadow)">
+          <path d="M8 503H174L161 754H21Z" fill="#604333" />
+          <rect x="0" y="484" width="182" height="28" rx="4" fill="#77543e" />
+          <path d="M34 750 27 836M148 750l8 86" stroke="#473025" strokeWidth="14" strokeLinecap="round" />
+          <rect x="31" y="591" width="111" height="78" rx="4" fill="#674937" stroke="#906f53" strokeWidth="2" />
+          <circle cx="87" cy="630" r="6" fill="#c89b55" />
+        </g>
+
+        {/* Amber hotel panel */}
+        <g data-scene-object="mobile-bedside-panel" filter="url(#mobile-device-shadow)">
+          <rect x="12" y="395" width="70" height="65" rx="9" fill="#252729" stroke="#87735d" strokeWidth="3" />
+          <rect x="21" y="404" width="52" height="33" rx="4" fill="#b77d37" />
+          <path d="M29 446h11M48 446h11M67 446h2" stroke="#efc47c" strokeWidth="4" strokeLinecap="round" />
+          <path d="M34 414c7-6 15-6 22 0M39 420c4-3 8-3 12 0" fill="none" stroke="#f7dca8" strokeWidth="3" strokeLinecap="round" />
+        </g>
+
+        {/* Oversized phone remains recognizable and thumb-adjacent. */}
+        <g data-scene-object="mobile-hotel-phone" filter="url(#mobile-device-shadow)">
+          <path d="M76 443h100l14 44H62Z" fill="#202426" stroke="#3e4345" strokeWidth="4" />
+          <rect x="92" y="455" width="51" height="20" rx="3" fill="#777168" />
+          <circle cx="159" cy="462" r="5" fill="#dc9c4c" />
+          <path d="M72 425c6-18 19-27 35-27h39c17 0 31 9 37 27l-15 14c-9-8-18-12-29-12h-25c-11 0-20 4-29 12Z" fill="#15191b" stroke="#373c3f" strokeWidth="4" />
+          <path d="M181 480c21 7 23 23 10 35-10 9-11 17-5 26" fill="none" stroke="#222628" strokeWidth="5" strokeLinecap="round" />
+        </g>
+      </svg>
+
       <svg
         viewBox="0 0 1200 800"
-        role="img"
-        aria-labelledby="hotel-room-title hotel-room-description"
-        className="block h-auto w-full"
-        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+        focusable="false"
+        className="hidden h-full w-full sm:block"
+        preserveAspectRatio="xMidYMid slice"
       >
-        <title id="hotel-room-title">A warm hotel room with a bedside phone</title>
-        <desc id="hotel-room-description">
-          A front-facing bed sits between two nightstands. A black hotel phone
-          and an amber bedside control panel are visible on the left.
-        </desc>
-
         <defs>
           <linearGradient id="room-wall" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#f5f0e8" />
@@ -146,10 +239,6 @@ export function HotelRoomOverview() {
         <path d="M165 764c166-38 704-38 870 0" fill="none" stroke="#d8c6ad" strokeOpacity="0.45" strokeWidth="34" strokeLinecap="round" />
       </svg>
 
-      <figcaption className="sr-only">
-        Landline guest-room overview. The bedside phone and control panel will
-        lead to a close-up view in the next phase.
-      </figcaption>
     </figure>
   );
 }
