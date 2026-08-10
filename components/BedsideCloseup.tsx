@@ -178,6 +178,8 @@ export function BedsideCloseup({
         }
 
         .bedside-panel {
+          position: relative;
+          align-self: start;
           width: 100%;
           max-width: 580px;
           padding: clamp(1rem, 2vw, 1.5rem);
@@ -186,6 +188,19 @@ export function BedsideCloseup({
           background: linear-gradient(145deg, #333536, #1f2223);
           box-shadow: 0 30px 55px rgba(31, 22, 17, 0.36), inset 0 1px rgba(255,255,255,0.12);
           box-sizing: border-box;
+        }
+
+        .bedside-panel::before {
+          content: '';
+          position: absolute;
+          z-index: -1;
+          top: -0.75rem;
+          left: 12%;
+          width: 76%;
+          height: 0.85rem;
+          border-radius: 0.45rem 0.45rem 0 0;
+          background: #66615b;
+          box-shadow: 0 8px 18px rgba(50, 37, 29, 0.24);
         }
 
         .panel-screen-button {
@@ -261,10 +276,15 @@ export function BedsideCloseup({
         @media (max-width: 720px) {
           .bedside-stage {
             grid-template-columns: 1fr;
-            grid-template-rows: minmax(210px, 42%) minmax(0, 58%);
+            grid-template-rows: minmax(230px, 48%) minmax(210px, 52%);
             gap: 0.25rem;
             width: 92vw;
             padding: 4rem 0 0.75rem;
+          }
+
+          .bedside-phone-zone {
+            order: 2;
+            align-self: end;
           }
 
           .bedside-phone-button {
@@ -280,9 +300,10 @@ export function BedsideCloseup({
           }
 
           .bedside-panel {
-            align-self: end;
+            order: 1;
+            align-self: start;
             max-width: none;
-            max-height: 52vh;
+            max-height: 44vh;
             padding: 0.75rem;
             border-radius: 1.4rem;
           }
@@ -356,7 +377,21 @@ export function BedsideCloseup({
               </defs>
               <ellipse cx="310" cy="350" rx="265" ry="25" fill="#3f2d23" opacity="0.25" />
               <g filter="url(#close-phone-shadow)">
-                <path d="M112 176h396l55 161H57Z" fill="url(#close-phone-body)" stroke="#565b5d" strokeWidth="7" />
+                <path
+                  data-scene-object="rear-phone-cord"
+                  d="M455 190c63-58 132-39 138 29 5 53-30 86-68 102"
+                  fill="none"
+                  stroke="#1d2021"
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                />
+                <path
+                  data-scene-object="phone-body"
+                  d="M112 176h396l55 161H57Z"
+                  fill="url(#close-phone-body)"
+                  stroke="#565b5d"
+                  strokeWidth="7"
+                />
                 <rect x="151" y="210" width="170" height="75" rx="12" fill="#8e8980" />
                 <rect x="342" y="211" width="145" height="78" rx="11" fill="#242829" stroke="#636566" strokeWidth="3" />
                 {[0, 1, 2].map((row) =>
@@ -373,7 +408,6 @@ export function BedsideCloseup({
                 <circle cx="520" cy="211" r="8" fill={phoneState === "error" ? "#a95555" : "#d89a4b"} />
                 <path d="M109 138c18-63 67-91 128-91h151c61 0 111 28 129 91l-49 54c-35-27-69-39-112-39h-88c-43 0-77 12-112 39Z" fill="#111516" stroke="#3e4446" strokeWidth="9" />
                 <path d="M150 131c23-34 56-48 100-48h125c44 0 78 14 101 48" fill="none" stroke="#262b2d" strokeWidth="16" strokeLinecap="round" />
-                <path d="M548 321c50 15 57 50 27 80" fill="none" stroke="#1d2021" strokeWidth="11" strokeLinecap="round" />
               </g>
             </svg>
           </button>
@@ -383,7 +417,7 @@ export function BedsideCloseup({
           </span>
         </div>
 
-        <div className="bedside-panel">
+        <div className="bedside-panel" data-placement="wall">
           <button
             type="button"
             className="panel-screen-button"

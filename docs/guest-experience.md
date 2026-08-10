@@ -75,14 +75,16 @@ View 2 shows the phone and panel at useful detail.
 
 The phone should resemble hotel hardware rather than a generic phone icon. It
 uses a low cradle, a corded handset, a small faceplate, and a message-waiting
-light. Later close-up detail can include a small set of service labels such as
-Front Desk, Concierge, Housekeeping, Room Service, and Emergency.
+light. In the close-up, the cord routes behind the phone body instead of across
+the front edge. Later close-up detail can include a small set of service labels
+such as Front Desk, Concierge, Housekeeping, Room Service, and Emergency.
 
-The panel should resemble a compact tabletop or wall-mounted hotel controller.
-Later close-up detail can show lighting, curtains, temperature, privacy, and
-service controls, but those controls remain inactive in this demo. Disabled
-controls must be represented as disabled controls, not as buttons that silently
-fail.
+The panel should resemble a compact wall-mounted hotel controller and remain
+fully above the wall/table seam in the close-up. On narrow screens, the panel
+appears above the tabletop phone to preserve the same physical placement. Later
+close-up detail can show lighting, curtains, temperature, privacy, and service
+controls, but those controls remain inactive in this demo. Disabled controls
+must be represented as disabled controls, not as buttons that silently fail.
 
 ## Interaction ownership
 

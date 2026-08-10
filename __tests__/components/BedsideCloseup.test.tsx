@@ -47,6 +47,27 @@ describe("BedsideCloseup", () => {
     }
   });
 
+  it("mounts the panel on the wall and draws the cord behind the phone body", () => {
+    const { container } = render(
+      <BedsideCloseup
+        config={RITZ_NOMAD_CONFIG}
+        phoneState="idle"
+        onPhoneAction={jest.fn()}
+        onBack={jest.fn()}
+      />
+    );
+    const panel = container.querySelector(".bedside-panel");
+    const cord = container.querySelector('[data-scene-object="rear-phone-cord"]');
+    const phoneBody = container.querySelector('[data-scene-object="phone-body"]');
+
+    expect(panel).toHaveAttribute("data-placement", "wall");
+    expect(cord).toBeInTheDocument();
+    expect(phoneBody).toBeInTheDocument();
+    expect(
+      cord!.compareDocumentPosition(phoneBody!) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
   it("routes the handset and panel phone through one action", () => {
     const { onPhoneAction } = renderCloseup();
     const phoneButtons = screen.getAllByRole("button", {
