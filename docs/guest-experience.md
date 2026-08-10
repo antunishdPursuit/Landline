@@ -105,6 +105,9 @@ fail.
 - Crop the right nightstand and most decorative wall details before reducing the
   size of the primary objects.
 - Fill the dynamic viewport height without horizontal scrolling.
+- Keep the viewport sizing and mutually exclusive mobile/desktop visibility in
+  the room component's critical styles so a delayed application stylesheet
+  cannot stack both illustrations.
 - Avoid text embedded in the SVG when equivalent HTML can remain legible and
   accessible.
 

@@ -5,19 +5,50 @@ export function HotelRoomOverview() {
     <figure
       role="img"
       aria-labelledby="room-scene-label"
-      className="relative h-full w-full overflow-hidden bg-[#e8dfd1]"
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        margin: 0,
+        overflow: "hidden",
+        backgroundColor: "#e8dfd1",
+      }}
     >
       <span id="room-scene-label" hidden>
         A warm hotel room with a large bed, a black hotel phone, and an amber
         bedside control panel.
       </span>
 
+      <style>{`
+        .landline-room-mobile {
+          display: block;
+          width: 100%;
+          height: 100%;
+        }
+
+        .landline-room-desktop {
+          display: none;
+          width: 100%;
+          height: 100%;
+        }
+
+        @media (min-width: 640px) {
+          .landline-room-mobile {
+            display: none;
+          }
+
+          .landline-room-desktop {
+            display: block;
+          }
+        }
+      `}</style>
+
       {/* Portrait composition keeps the devices useful instead of shrinking the wide room. */}
       <svg
         viewBox="0 0 430 844"
         aria-hidden="true"
         focusable="false"
-        className="block h-full w-full sm:hidden"
+        className="landline-room-mobile"
         preserveAspectRatio="xMinYMid slice"
       >
         <defs>
@@ -119,7 +150,7 @@ export function HotelRoomOverview() {
         viewBox="0 0 1200 800"
         aria-hidden="true"
         focusable="false"
-        className="hidden h-full w-full sm:block"
+        className="landline-room-desktop"
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>

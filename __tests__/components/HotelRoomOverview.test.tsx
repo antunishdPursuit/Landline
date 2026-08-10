@@ -40,6 +40,22 @@ describe("HotelRoomOverview", () => {
     ).toHaveTextContent("Landline");
   });
 
+  it("uses critical styles to show only one responsive room", () => {
+    const { container } = render(<HotelRoomOverview />);
+    const criticalStyles = container.querySelector("style")?.textContent;
+
+    expect(container.querySelector("figure")).toHaveStyle({
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+    });
+    expect(container.querySelector(".landline-room-mobile")).toBeInTheDocument();
+    expect(container.querySelector(".landline-room-desktop")).toBeInTheDocument();
+    expect(criticalStyles).toContain(".landline-room-mobile");
+    expect(criticalStyles).toContain(".landline-room-desktop");
+    expect(criticalStyles).toContain("@media (min-width: 640px)");
+  });
+
   it("does not expose an inactive bedside control", () => {
     render(<HotelRoomOverview />);
 

@@ -3,7 +3,18 @@ import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 
 export default function GuestPage() {
   return (
-    <main className="relative h-[100dvh] min-h-[560px] overflow-hidden bg-[#f3f0e9] text-ivory">
+    <main
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100dvh",
+        minHeight: 560,
+        overflow: "hidden",
+        backgroundColor: "#f3f0e9",
+        color: "#1f2a37",
+      }}
+    >
       <h1
         style={{
           position: "absolute",
@@ -20,7 +31,10 @@ export default function GuestPage() {
         Landline
       </h1>
 
-      <section aria-label="Hotel room overview" className="h-full w-full">
+      <section
+        aria-label="Hotel room overview"
+        style={{ width: "100%", height: "100%" }}
+      >
         <HotelRoomOverview />
       </section>
     </main>
