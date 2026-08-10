@@ -48,9 +48,8 @@ full-window and half-window widths. Welcome copy, room metadata, introductory
 headings, captions, and explanatory text do not compete with the scene. The
 phone and panel provide the visual invitation to approach.
 
-The bedside area is the future transition target for View 2. View 1 must not
-start ElevenLabs. Until View 2 exists, View 1 does not expose a dead or
-misleading interactive control.
+The bedside area is the transition target for View 2. View 1 must not start
+ElevenLabs. Its accessible hotspot only changes the guest view.
 
 The current property card, edit action, floating call button, and manual request
 controls do not appear in this view. Their underlying code and demo data remain
@@ -58,7 +57,7 @@ available for later guest states and staff workflows.
 
 ### View 2: bedside close-up
 
-View 2 will show the phone and panel at useful detail.
+View 2 shows the phone and panel at useful detail.
 
 - Picking up the handset starts the ElevenLabs conversation.
 - Selecting the panel displays hotel details on the panel screen.
@@ -67,9 +66,10 @@ View 2 will show the phone and panel at useful detail.
 - The panel's phone control is the only enabled panel action and also starts
   ElevenLabs.
 - A return control takes the guest back to the room overview.
-
-View 2 is documented here for continuity but is not part of the first
-implementation phase.
+- Returning during an active call ends that call before changing views. The
+  return control is unavailable while the voice session is connecting.
+- Voice errors remain in View 2 and allow the guest to try either phone control
+  again.
 
 ## Device conventions
 
