@@ -56,6 +56,16 @@ describe("HotelRoomOverview", () => {
     expect(criticalStyles).toContain("@media (min-width: 640px)");
   });
 
+  it("anchors both room compositions to the bedside focus zone", () => {
+    const { container } = render(<HotelRoomOverview />);
+    const rooms = container.querySelectorAll("figure svg");
+
+    expect(rooms).toHaveLength(2);
+    rooms.forEach((room) => {
+      expect(room).toHaveAttribute("preserveAspectRatio", "xMinYMid slice");
+    });
+  });
+
   it("does not expose an inactive bedside control", () => {
     render(<HotelRoomOverview />);
 

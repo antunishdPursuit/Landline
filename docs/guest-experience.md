@@ -98,6 +98,9 @@ fail.
 - Use the wide, symmetrical room composition on desktop screens.
 - Keep the headboard wordmark visible when the browser occupies either the full
   display or half of the display.
+- Anchor constrained desktop crops to a bedside focus zone between the phone,
+  panel, and left edge of the bed. The wordmark moves with the headboard instead
+  of repositioning independently.
 - Use a dedicated portrait composition on narrow screens instead of shrinking
   the entire wide room.
 - In the portrait composition, keep the left nightstand, phone, and panel fully

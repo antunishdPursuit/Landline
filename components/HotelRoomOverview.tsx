@@ -151,7 +151,7 @@ export function HotelRoomOverview() {
         aria-hidden="true"
         focusable="false"
         className="landline-room-desktop"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="xMinYMid slice"
       >
         <defs>
           <linearGradient id="room-wall" x1="0" y1="0" x2="0" y2="1">
