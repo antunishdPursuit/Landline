@@ -60,13 +60,13 @@ export function DemoRequestButton({
       onClick={handlePhoneClick}
       disabled={submitting}
       aria-label={revealed ? "Send demo request" : "Show demo request"}
-      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold text-white shadow-lg shadow-gold/20 transition-all hover:scale-105 hover:bg-gold/90 disabled:cursor-wait disabled:opacity-70"
+      className="mx-auto flex min-h-11 items-center justify-center gap-2 rounded-xl border border-base-border bg-white px-5 py-2.5 font-body text-xs font-semibold uppercase tracking-widest text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-wait disabled:opacity-70"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         fill="currentColor"
-        className={`h-6 w-6 ${submitting ? "animate-pulse" : ""}`}
+        className={`h-4 w-4 ${submitting ? "animate-pulse" : ""}`}
         aria-hidden="true"
       >
         <path
@@ -75,6 +75,7 @@ export function DemoRequestButton({
           clipRule="evenodd"
         />
       </svg>
+      {revealed ? "Send demo request" : "Use demo request"}
     </button>
   );
 

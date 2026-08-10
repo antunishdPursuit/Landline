@@ -180,6 +180,28 @@ export function addDemoTicket(
   )
 }
 
+export function addTravelRecommendation(
+  recommendation: TravelRecommendation,
+  storage: Storage | null = getBrowserStorage()
+): DemoState {
+  if (!isTravelRecommendation(recommendation)) {
+    throw new Error('Invalid travel recommendation')
+  }
+
+  return updateDemoState(
+    (current) => ({
+      ...current,
+      travel_recommendations: [
+        recommendation,
+        ...current.travel_recommendations.filter(
+          (item) => item.id !== recommendation.id
+        ),
+      ],
+    }),
+    storage
+  )
+}
+
 export function updateDemoTicketStatus(
   id: string,
   status: RequestStatus,

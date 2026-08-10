@@ -1,5 +1,6 @@
 import {
   addDemoTicket,
+  addTravelRecommendation,
   createSeedDemoState,
   isDemoState,
   readDemoState,
@@ -77,6 +78,23 @@ describe('demo store', () => {
       status: 'in_progress',
       assigned_to: 'Maria Lopez',
     })
+  })
+
+  it('adds and deduplicates displayed travel recommendations', () => {
+    const recommendation = {
+      id: 'stay_test',
+      title: 'View stays near NoMad',
+      url: 'https://www.stay22.com/allez/roam?aid=test&address=NoMad',
+      source: 'stay22' as const,
+      created_at: new Date().toISOString(),
+    }
+
+    addTravelRecommendation(recommendation)
+    addTravelRecommendation({ ...recommendation, title: 'Updated stay link' })
+
+    expect(readDemoState().travel_recommendations).toEqual([
+      { ...recommendation, title: 'Updated stay link' },
+    ])
   })
 
   it('resets local changes to fresh seed data', () => {

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Conversation } from "@elevenlabs/client";
+import { createVoiceClientTools } from "@/lib/voice-tools";
 
 export type PhoneSessionState =
   | "idle"
@@ -53,19 +54,7 @@ export function usePhoneSession(
           setState("error");
           conversationRef.current = null;
         },
-        clientTools: {
-          log_request: async (payload: unknown) => {
-            const response = await fetch("/api/requests", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            if (!response.ok) {
-              return "Request could not be logged";
-            }
-            return "Request logged";
-          },
-        },
+        clientTools: createVoiceClientTools(),
       });
 
       conversationRef.current = conversation;

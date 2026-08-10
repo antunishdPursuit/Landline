@@ -46,9 +46,9 @@ const STATE_APPEARANCE: Record<PhoneSessionState, ButtonAppearance> = {
     pulse: false,
   },
   "in-call": {
-    label: "In call",
-    ariaLabel: "In call",
-    disabled: true,
+    label: "End call",
+    ariaLabel: "End call",
+    disabled: false,
     ringClass: "border-gold shadow-[0_0_32px_rgba(200,145,74,0.25)]",
     iconClass: "text-gold",
     pulse: true,

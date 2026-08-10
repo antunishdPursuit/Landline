@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AgentConfigCard } from "@/components/AgentConfigCard";
 import { DemoRequestButton } from "@/components/DemoRequestButton";
+import { PhoneButton } from "@/components/PhoneButton";
 import { useAgentConfig } from "@/hooks/useAgentConfig";
 
 export default function GuestPage() {
@@ -46,7 +47,24 @@ export default function GuestPage() {
           />
 
           {!agentConfig.isEditing && (
-            <DemoRequestButton config={agentConfig.config} />
+            <div className="flex w-full max-w-sm flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-2">
+                <PhoneButton config={agentConfig.config} />
+                <p className="font-body text-xs uppercase tracking-widest text-taupe">
+                  Talk to the concierge
+                </p>
+              </div>
+
+              <div className="flex w-full items-center gap-3" aria-hidden="true">
+                <span className="h-px flex-1 bg-base-border" />
+                <span className="font-body text-[10px] uppercase tracking-widest text-taupe">
+                  Manual fallback
+                </span>
+                <span className="h-px flex-1 bg-base-border" />
+              </div>
+
+              <DemoRequestButton config={agentConfig.config} />
+            </div>
           )}
         </>
       )}

@@ -51,11 +51,13 @@ describe("PhoneButton", () => {
     expect(button).toBeDisabled();
   });
 
-  it("shows 'In call' and is disabled when state is in-call", () => {
+  it("lets the guest end an active call", () => {
     renderButton("in-call");
-    const button = screen.getByRole("button", { name: "In call" });
+    const button = screen.getByRole("button", { name: "End call" });
     expect(button).toBeInTheDocument();
-    expect(button).toBeDisabled();
+    expect(button).not.toBeDisabled();
+    fireEvent.click(button);
+    expect(mockEndSession).toHaveBeenCalledTimes(1);
   });
 
   it("shows 'Error — try again' and is not disabled when state is error", () => {
