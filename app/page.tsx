@@ -1,5 +1,5 @@
 import React from "react";
-import { HotelRoomOverview } from "@/components/HotelRoomOverview";
+import { GuestRoomExperience } from "@/components/GuestRoomExperience";
 
 export default function GuestPage() {
   return (
@@ -35,7 +35,7 @@ export default function GuestPage() {
         aria-label="Hotel room overview"
         style={{ width: "100%", height: "100%" }}
       >
-        <HotelRoomOverview />
+        <GuestRoomExperience />
       </section>
     </main>
   );

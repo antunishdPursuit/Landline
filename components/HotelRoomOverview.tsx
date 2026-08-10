@@ -1,6 +1,10 @@
 import React from "react";
 
-export function HotelRoomOverview() {
+interface HotelRoomOverviewProps {
+  onApproach?: () => void;
+}
+
+export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
   return (
     <figure
       role="img"
@@ -19,7 +23,7 @@ export function HotelRoomOverview() {
         bedside control panel.
       </span>
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         .landline-room-mobile {
           display: block;
           width: 100%;
@@ -39,6 +43,63 @@ export function HotelRoomOverview() {
 
           .landline-room-desktop {
             display: block;
+          }
+        }
+
+        .landline-approach-target {
+          position: absolute;
+          z-index: 2;
+          left: 0;
+          top: 35%;
+          width: 50%;
+          height: 62%;
+          border: 0;
+          border-radius: 1.5rem;
+          background: transparent;
+          cursor: pointer;
+        }
+
+        .landline-approach-target::after {
+          content: '';
+          position: absolute;
+          left: 25%;
+          top: 15%;
+          width: 1rem;
+          height: 1rem;
+          border: 2px solid rgba(235, 184, 104, 0.9);
+          border-radius: 999px;
+          box-shadow: 0 0 0 0 rgba(235, 184, 104, 0.35);
+          animation: landline-device-pulse 2.4s ease-out infinite;
+        }
+
+        .landline-approach-target:focus-visible {
+          outline: 3px solid #a8752b;
+          outline-offset: -6px;
+        }
+
+        @media (min-width: 640px) {
+          .landline-approach-target {
+            left: 2%;
+            top: 34%;
+            width: 27%;
+            height: 56%;
+          }
+
+          .landline-approach-target::after {
+            left: 42%;
+            top: 24%;
+          }
+        }
+
+        @keyframes landline-device-pulse {
+          70%, 100% {
+            box-shadow: 0 0 0 14px rgba(235, 184, 104, 0);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .landline-approach-target::after {
+            animation: none;
           }
         }
       `}</style>
@@ -295,6 +356,15 @@ export function HotelRoomOverview() {
         {/* Foreground rug edge */}
         <path d="M165 764c166-38 704-38 870 0" fill="none" stroke="#d8c6ad" strokeOpacity="0.45" strokeWidth="34" strokeLinecap="round" />
       </svg>
+
+      {onApproach && (
+        <button
+          type="button"
+          className="landline-approach-target"
+          onClick={onApproach}
+          aria-label="Approach the bedside phone and control panel"
+        />
+      )}
 
     </figure>
   );
