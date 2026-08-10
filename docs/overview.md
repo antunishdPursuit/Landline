@@ -29,9 +29,13 @@ call-log store.
 
 ### Guest experience
 
-- `app/page.tsx` renders the property, primary voice control, manual fallback,
-  and saved concierge links.
-- `components/PhoneButton.tsx` contains the ElevenLabs call control UI.
+- `app/page.tsx` provides the fixed full-viewport guest shell.
+- `components/GuestRoomExperience.tsx` owns the View 1/View 2 transition and
+  connects both bedside phone actions to one voice session.
+- `components/HotelRoomOverview.tsx` renders the responsive room scene and its
+  accessible bedside approach hotspot.
+- `components/BedsideCloseup.tsx` renders the physical phone, hotel-details
+  panel, disabled demonstration controls, and enabled panel phone control.
 - `components/DemoRequestButton.tsx` provides the same-browser fallback path.
 - `components/TravelRecommendations.tsx` presents Tavily sources and Stay22 links.
 - `hooks/usePhoneSession.ts` owns the browser conversation lifecycle and local call capture.

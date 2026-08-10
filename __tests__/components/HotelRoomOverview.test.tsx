@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 
@@ -64,6 +64,19 @@ describe("HotelRoomOverview", () => {
     rooms.forEach((room) => {
       expect(room).toHaveAttribute("preserveAspectRatio", "xMinYMid slice");
     });
+  });
+
+  it("exposes one bedside approach action when a handler is provided", () => {
+    const onApproach = jest.fn();
+    render(<HotelRoomOverview onApproach={onApproach} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /approach the bedside phone and control panel/i,
+      })
+    );
+
+    expect(onApproach).toHaveBeenCalledTimes(1);
   });
 
   it("does not expose an inactive bedside control", () => {

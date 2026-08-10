@@ -1,0 +1,74 @@
+import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { BedsideCloseup } from "@/components/BedsideCloseup";
+import { RITZ_NOMAD_CONFIG } from "@/types/agent";
+
+function renderCloseup(
+  phoneState: "idle" | "connecting" | "in-call" | "ended" | "error" = "idle"
+) {
+  const onPhoneAction = jest.fn();
+  const onBack = jest.fn();
+  render(
+    <BedsideCloseup
+      config={RITZ_NOMAD_CONFIG}
+      phoneState={phoneState}
+      onPhoneAction={onPhoneAction}
+      onBack={onBack}
+    />
+  );
+  return { onPhoneAction, onBack };
+}
+
+describe("BedsideCloseup", () => {
+  it("reveals hotel details without activating the phone", () => {
+    const { onPhoneAction } = renderCloseup();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /show hotel details on the bedside panel/i })
+    );
+
+    expect(screen.getByText(RITZ_NOMAD_CONFIG.name)).toBeInTheDocument();
+    expect(screen.getByText(RITZ_NOMAD_CONFIG.address)).toBeInTheDocument();
+    expect(onPhoneAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps every non-phone panel control disabled", () => {
+    renderCloseup();
+
+    for (const label of [
+      "All lights",
+      "Reading",
+      "Curtains",
+      "Temperature",
+      "Privacy",
+    ]) {
+      expect(screen.getByRole("button", { name: label })).toBeDisabled();
+    }
+  });
+
+  it("routes the handset and panel phone through one action", () => {
+    const { onPhoneAction } = renderCloseup();
+    const phoneButtons = screen.getAllByRole("button", {
+      name: /pick up the room phone/i,
+    });
+
+    expect(phoneButtons).toHaveLength(2);
+    fireEvent.click(phoneButtons[0]);
+    fireEvent.click(phoneButtons[1]);
+    expect(onPhoneAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("disables both phone controls and back while connecting", () => {
+    renderCloseup("connecting");
+
+    for (const phoneButton of screen.getAllByRole("button", {
+      name: /connecting to concierge/i,
+    })) {
+      expect(phoneButton).toBeDisabled();
+    }
+    expect(
+      screen.getByRole("button", { name: /return to room overview/i })
+    ).toBeDisabled();
+  });
+});
