@@ -1,75 +1,50 @@
-"use client";
-
-import React, { useState } from "react";
-import { AgentConfigCard } from "@/components/AgentConfigCard";
-import { DemoRequestButton } from "@/components/DemoRequestButton";
-import { PhoneButton } from "@/components/PhoneButton";
-import { TravelRecommendations } from "@/components/TravelRecommendations";
-import { useAgentConfig } from "@/hooks/useAgentConfig";
+import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 
 export default function GuestPage() {
-  const agentConfig = useAgentConfig();
-  const [propertyVisible, setPropertyVisible] = useState(false);
-
-  if (!agentConfig.isLoaded) {
-    return (
-      <main className="min-h-screen bg-espresso flex items-center justify-center">
-        <span className="font-body text-xs text-taupe/50 tracking-widest uppercase">
-          Loading
-        </span>
-      </main>
-    );
-  }
-
   return (
-    <main className="relative min-h-screen bg-espresso flex flex-col items-center justify-center gap-10 p-6 pt-32">
-      <h1 className="absolute top-10 font-display text-5xl font-semibold tracking-tight text-ivory sm:text-6xl">
-        Landline
-      </h1>
+    <main className="min-h-screen overflow-hidden bg-[#f3f0e9] px-4 py-5 text-ivory sm:px-8 sm:py-7 lg:px-12">
+      <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between border-b border-[#d8cdbd] pb-4">
+        <div>
+          <p className="font-body text-[10px] font-medium uppercase tracking-[0.3em] text-taupe sm:text-xs">
+            In-room concierge
+          </p>
+          <h1 className="font-display text-4xl font-semibold tracking-tight text-ivory sm:text-5xl">
+            Landline
+          </h1>
+        </div>
 
-      {!propertyVisible ? (
-        <button
-          type="button"
-          onClick={() => setPropertyVisible(true)}
-          className="rounded-xl border border-gold bg-white px-8 py-3 font-body text-sm font-semibold uppercase tracking-widest text-gold shadow-lg shadow-slate-900/5 transition-all hover:-translate-y-0.5 hover:bg-gold hover:text-white"
-        >
-          Property
-        </button>
-      ) : (
-        <>
-          <AgentConfigCard
-            config={agentConfig.config}
-            draft={agentConfig.draft}
-            isEditing={agentConfig.isEditing}
-            startEditing={agentConfig.startEditing}
-            cancelEditing={agentConfig.cancelEditing}
-            save={agentConfig.save}
-            updateDraft={agentConfig.updateDraft}
-          />
+        <div className="text-right">
+          <p className="font-body text-[10px] uppercase tracking-[0.25em] text-taupe sm:text-xs">
+            Welcome
+          </p>
+          <p className="font-display text-xl font-semibold text-ivory sm:text-2xl">
+            Room 1208
+          </p>
+        </div>
+      </header>
 
-          {!agentConfig.isEditing && (
-            <div className="flex w-full max-w-sm flex-col items-center gap-6">
-              <div className="flex flex-col items-center gap-2">
-                <PhoneButton config={agentConfig.config} />
-                <p className="font-body text-xs uppercase tracking-widest text-taupe">
-                  Talk to the concierge
-                </p>
-              </div>
+      <section
+        aria-labelledby="room-overview-heading"
+        className="mx-auto flex w-full max-w-[1440px] flex-col items-center pt-5 sm:pt-7"
+      >
+        <div className="mb-4 text-center sm:mb-6">
+          <p className="font-body text-[10px] font-medium uppercase tracking-[0.32em] text-gold sm:text-xs">
+            Your stay begins here
+          </p>
+          <h2
+            id="room-overview-heading"
+            className="mt-1 font-display text-3xl font-semibold text-ivory sm:text-4xl"
+          >
+            Make yourself at home
+          </h2>
+        </div>
 
-              <div className="flex w-full items-center gap-3" aria-hidden="true">
-                <span className="h-px flex-1 bg-base-border" />
-                <span className="font-body text-[10px] uppercase tracking-widest text-taupe">
-                  Manual fallback
-                </span>
-                <span className="h-px flex-1 bg-base-border" />
-              </div>
+        <HotelRoomOverview />
 
-              <DemoRequestButton config={agentConfig.config} />
-              <TravelRecommendations />
-            </div>
-          )}
-        </>
-      )}
+        <p className="mt-4 max-w-xl text-center font-body text-xs leading-relaxed text-taupe sm:mt-5 sm:text-sm">
+          Your bedside phone and room panel are ready whenever you need us.
+        </p>
+      </section>
     </main>
   );
 }
