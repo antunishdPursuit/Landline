@@ -1,3 +1,5 @@
+import React from "react";
+
 export function HotelRoomOverview() {
   return (
     <figure className="relative w-full overflow-hidden rounded-[2rem] border border-[#d8cdbd] bg-[#e8dfd1] shadow-[0_30px_90px_rgba(66,48,32,0.16)]">

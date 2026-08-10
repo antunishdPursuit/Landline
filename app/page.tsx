@@ -1,3 +1,4 @@
+import React from "react";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 
 export default function GuestPage() {
