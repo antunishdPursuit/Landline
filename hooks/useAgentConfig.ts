@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { AgentConfig } from "@/types/agent";
-import { EMPTY_CONFIG } from "@/types/agent";
+import { EMPTY_CONFIG, RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 const STORAGE_KEY = "landline_agent_config";
 
@@ -28,17 +28,28 @@ export function useAgentConfig(): UseAgentConfigReturn {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as AgentConfig;
-        setConfig(parsed);
-        setDraft(parsed);
+        const savedConfig =
+          parsed.name || parsed.address ? parsed : RITZ_NOMAD_CONFIG;
+        if (savedConfig === RITZ_NOMAD_CONFIG) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedConfig));
+        }
+        setConfig(savedConfig);
+        setDraft(savedConfig);
         setIsEditing(false);
       } else {
-        // No saved config — open edit form immediately
-        setDraft(EMPTY_CONFIG);
-        setIsEditing(true);
+        setConfig(RITZ_NOMAD_CONFIG);
+        setDraft(RITZ_NOMAD_CONFIG);
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(RITZ_NOMAD_CONFIG)
+        );
+        setIsEditing(false);
       }
     } catch {
-      setDraft(EMPTY_CONFIG);
-      setIsEditing(true);
+      setConfig(RITZ_NOMAD_CONFIG);
+      setDraft(RITZ_NOMAD_CONFIG);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(RITZ_NOMAD_CONFIG));
+      setIsEditing(false);
     }
     setIsLoaded(true);
   }, []);
