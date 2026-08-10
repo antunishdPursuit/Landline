@@ -65,6 +65,11 @@ View 2 shows the phone and panel at useful detail.
 - Non-phone panel controls are visibly disabled and do not perform actions.
 - The panel's phone control is the only enabled panel action and also starts
   ElevenLabs.
+- A handset-started call disables the panel until the call ends. A panel-started
+  call disables the handset until the call ends. The control that started the
+  active call remains available to end it.
+- The agent opens with the current hotel name and room number, followed by the
+  short question, "How can I help you?"
 - A return control takes the guest back to the room overview.
 - Returning during an active call ends that call before changing views. The
   return control is unavailable while the voice session is connecting.
@@ -91,6 +96,8 @@ must be represented as disabled controls, not as buttons that silently fail.
 - The guest page owns the current visual view and approach transition.
 - `usePhoneSession` continues to own the ElevenLabs browser conversation.
 - ElevenLabs starts only from a deliberate phone action in View 2.
+- `phoneSource` records whether the handset or panel started the active session
+  so only one device controls that session.
 - The browser demo store continues to own tickets, calls, and recommendations.
 - Clerk continues to own staff identity and dashboard access.
 - View changes must not write tickets or alter staff dashboard state.

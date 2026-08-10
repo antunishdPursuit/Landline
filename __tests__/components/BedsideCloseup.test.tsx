@@ -13,6 +13,7 @@ function renderCloseup(
     <BedsideCloseup
       config={RITZ_NOMAD_CONFIG}
       phoneState={phoneState}
+      phoneSource={null}
       onPhoneAction={onPhoneAction}
       onBack={onBack}
     />
@@ -52,6 +53,7 @@ describe("BedsideCloseup", () => {
       <BedsideCloseup
         config={RITZ_NOMAD_CONFIG}
         phoneState="idle"
+        phoneSource={null}
         onPhoneAction={jest.fn()}
         onBack={jest.fn()}
       />
@@ -77,7 +79,47 @@ describe("BedsideCloseup", () => {
     expect(phoneButtons).toHaveLength(2);
     fireEvent.click(phoneButtons[0]);
     fireEvent.click(phoneButtons[1]);
-    expect(onPhoneAction).toHaveBeenCalledTimes(2);
+    expect(onPhoneAction).toHaveBeenNthCalledWith(1, "handset");
+    expect(onPhoneAction).toHaveBeenNthCalledWith(2, "panel");
+  });
+
+  it("locks the panel during a handset call", () => {
+    const { container } = render(
+      <BedsideCloseup
+        config={RITZ_NOMAD_CONFIG}
+        phoneState="in-call"
+        phoneSource="handset"
+        onPhoneAction={jest.fn()}
+        onBack={jest.fn()}
+      />
+    );
+
+    expect(container.querySelector(".bedside-panel")).toHaveAttribute(
+      "data-locked",
+      "true"
+    );
+    expect(
+      screen.getByRole("button", { name: /show hotel details/i })
+    ).toBeDisabled();
+    expect(container.querySelector(".panel-phone-button")).toBeDisabled();
+  });
+
+  it("locks the handset during a panel call", () => {
+    render(
+      <BedsideCloseup
+        config={RITZ_NOMAD_CONFIG}
+        phoneState="in-call"
+        phoneSource="panel"
+        onPhoneAction={jest.fn()}
+        onBack={jest.fn()}
+      />
+    );
+
+    const callControls = screen.getAllByRole("button", {
+      name: /end concierge call/i,
+    });
+    expect(callControls[0]).toBeDisabled();
+    expect(callControls[1]).not.toBeDisabled();
   });
 
   it("disables both phone controls and back while connecting", () => {

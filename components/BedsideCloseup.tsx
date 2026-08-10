@@ -4,10 +4,13 @@ import React, { useState } from "react";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
 import type { AgentConfig } from "@/types/agent";
 
+export type PhoneSource = "handset" | "panel";
+
 interface BedsideCloseupProps {
   config: AgentConfig;
   phoneState: PhoneSessionState;
-  onPhoneAction: () => void;
+  phoneSource: PhoneSource | null;
+  onPhoneAction: (source: PhoneSource) => void;
   onBack: () => void;
 }
 
@@ -38,11 +41,16 @@ const DISABLED_CONTROLS = [
 export function BedsideCloseup({
   config,
   phoneState,
+  phoneSource,
   onPhoneAction,
   onBack,
 }: BedsideCloseupProps) {
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const phoneDisabled = phoneState === "connecting";
+  const sessionActive = phoneState === "connecting" || phoneState === "in-call";
+  const handsetDisabled =
+    phoneState === "connecting" || (sessionActive && phoneSource === "panel");
+  const panelLocked = sessionActive && phoneSource === "handset";
+  const panelPhoneDisabled = phoneState === "connecting" || panelLocked;
 
   return (
     <section
@@ -188,6 +196,12 @@ export function BedsideCloseup({
           background: linear-gradient(145deg, #333536, #1f2223);
           box-shadow: 0 30px 55px rgba(31, 22, 17, 0.36), inset 0 1px rgba(255,255,255,0.12);
           box-sizing: border-box;
+          transition: opacity 180ms ease, filter 180ms ease;
+        }
+
+        .bedside-panel[data-locked="true"] {
+          opacity: 0.5;
+          filter: grayscale(0.45);
         }
 
         .bedside-panel::before {
@@ -356,8 +370,8 @@ export function BedsideCloseup({
           <button
             type="button"
             className="bedside-phone-button"
-            onClick={onPhoneAction}
-            disabled={phoneDisabled}
+            onClick={() => onPhoneAction("handset")}
+            disabled={handsetDisabled}
             aria-label={PHONE_LABEL[phoneState]}
           >
             <svg
@@ -417,11 +431,17 @@ export function BedsideCloseup({
           </span>
         </div>
 
-        <div className="bedside-panel" data-placement="wall">
+        <div
+          className="bedside-panel"
+          data-placement="wall"
+          data-locked={panelLocked}
+          aria-disabled={panelLocked}
+        >
           <button
             type="button"
             className="panel-screen-button"
             onClick={() => setDetailsVisible(true)}
+            disabled={panelLocked}
             aria-expanded={detailsVisible}
             aria-label="Show hotel details on the bedside panel"
           >
@@ -455,8 +475,8 @@ export function BedsideCloseup({
             <button
               type="button"
               className="panel-phone-button"
-              onClick={onPhoneAction}
-              disabled={phoneDisabled}
+              onClick={() => onPhoneAction("panel")}
+              disabled={panelPhoneDisabled}
               aria-label={PHONE_LABEL[phoneState]}
             >
               {phoneState === "in-call" ? "End call" : "Phone"}

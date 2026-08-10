@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
-import { BedsideCloseup } from "@/components/BedsideCloseup";
+import {
+  BedsideCloseup,
+  type PhoneSource,
+} from "@/components/BedsideCloseup";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 import { useAgentConfig } from "@/hooks/useAgentConfig";
 import { usePhoneSession } from "@/hooks/usePhoneSession";
@@ -11,6 +14,7 @@ type GuestView = "room" | "bedside";
 
 export function GuestRoomExperience() {
   const [view, setView] = useState<GuestView>("room");
+  const [phoneSource, setPhoneSource] = useState<PhoneSource | null>(null);
   const agentConfig = useAgentConfig();
   const dynamicVariables = useMemo(
     () => toAgentDynamicVariables(agentConfig.config),
@@ -18,7 +22,7 @@ export function GuestRoomExperience() {
   );
   const phoneSession = usePhoneSession(dynamicVariables);
 
-  const handlePhoneAction = useCallback(() => {
+  const handlePhoneAction = useCallback((source: PhoneSource) => {
     if (phoneSession.state === "connecting") return;
 
     if (phoneSession.state === "in-call") {
@@ -26,6 +30,7 @@ export function GuestRoomExperience() {
       return;
     }
 
+    setPhoneSource(source);
     void phoneSession.startSession();
   }, [phoneSession]);
 
@@ -68,6 +73,7 @@ export function GuestRoomExperience() {
           <BedsideCloseup
             config={agentConfig.config}
             phoneState={phoneSession.state}
+            phoneSource={phoneSource}
             onPhoneAction={handlePhoneAction}
             onBack={handleBack}
           />
