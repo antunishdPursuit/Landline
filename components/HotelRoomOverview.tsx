@@ -59,6 +59,19 @@ export function HotelRoomOverview() {
           <rect x="112" y="132" width="430" height="484" rx="13" fill="url(#mobile-headboard)" />
           <path d="M238 132V616M364 132V616M490 132V616" stroke="#a48769" strokeOpacity="0.38" strokeWidth="3" />
           <path d="M112 350H542" stroke="#4d362a" strokeOpacity="0.4" strokeWidth="3" />
+          <text
+            data-scene-object="mobile-headboard-wordmark"
+            x="279"
+            y="180"
+            fill="#ead7b5"
+            fontSize="38"
+            fontWeight="600"
+            letterSpacing="1.5"
+            textAnchor="middle"
+            style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+          >
+            Landline
+          </text>
 
           <path d="M123 318H530L589 840H74Z" fill="#593e30" />
           <path d="M125 308H525L565 761Q568 786 540 790H102Q75 786 78 761Z" fill="url(#mobile-duvet)" />
@@ -176,6 +189,19 @@ export function HotelRoomOverview() {
           <path d="M443 166V517M600 166V517M757 166V517" stroke="#a28468" strokeOpacity="0.38" strokeWidth="3" />
           <path d="M286 326H914" stroke="#4d362a" strokeOpacity="0.4" strokeWidth="3" />
           <rect x="303" y="183" width="594" height="317" rx="5" fill="none" stroke="#b29678" strokeOpacity="0.2" strokeWidth="2" />
+          <text
+            data-scene-object="headboard-wordmark"
+            x="600"
+            y="252"
+            fill="#ead7b5"
+            fontSize="58"
+            fontWeight="600"
+            letterSpacing="2"
+            textAnchor="middle"
+            style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+          >
+            Landline
+          </text>
         </g>
 
         {/* Nightstands */}

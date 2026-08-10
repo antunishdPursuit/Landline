@@ -4,7 +4,19 @@ import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 export default function GuestPage() {
   return (
     <main className="relative h-[100dvh] min-h-[560px] overflow-hidden bg-[#f3f0e9] text-ivory">
-      <h1 className="absolute left-5 top-4 z-10 font-display text-3xl font-semibold tracking-tight text-[#2b2926] sm:left-8 sm:top-6 sm:text-4xl">
+      <h1
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
         Landline
       </h1>
 
