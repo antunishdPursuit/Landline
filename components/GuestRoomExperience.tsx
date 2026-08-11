@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BedsideCloseup,
   type PhoneSource,
@@ -13,6 +14,7 @@ import { toAgentDynamicVariables } from "@/lib/agent-dynamic-variables";
 type GuestView = "room" | "bedside";
 
 export function GuestRoomExperience() {
+  const router = useRouter();
   const [view, setView] = useState<GuestView>("room");
   const [phoneSource, setPhoneSource] = useState<PhoneSource | null>(null);
   const agentConfig = useAgentConfig();
@@ -21,6 +23,12 @@ export function GuestRoomExperience() {
     [agentConfig.config]
   );
   const phoneSession = usePhoneSession(dynamicVariables);
+
+  useEffect(() => {
+    if (phoneSession.state === "ended" && phoneSession.lastCall) {
+      router.push("/dashboard/calls");
+    }
+  }, [phoneSession.lastCall, phoneSession.state, router]);
 
   const handlePhoneAction = useCallback((source: PhoneSource) => {
     if (phoneSession.state === "connecting") return;

@@ -1,15 +1,19 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { GuestRoomExperience } from "@/components/GuestRoomExperience";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
 import type { CallLog } from "@/lib/types";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 const mockStartSession = jest.fn().mockResolvedValue(undefined);
 const mockEndSession = jest.fn().mockResolvedValue(undefined);
+const mockRouterPush = jest.fn();
 let mockPhoneState: PhoneSessionState = "idle";
 let mockLastCall: CallLog | null = null;
+
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}));
 
 jest.mock("@/hooks/useAgentConfig", () => ({
   useAgentConfig: () => ({
@@ -32,6 +36,8 @@ jest.mock("@/hooks/usePhoneSession", () => ({
     endSession: mockEndSession,
   }),
 }));
+
+import { GuestRoomExperience } from "@/components/GuestRoomExperience";
 
 function enterBedsideView() {
   render(<GuestRoomExperience />);
@@ -123,5 +129,14 @@ describe("GuestRoomExperience", () => {
     expect(screen.getByText(/sent to dashboard/i)).toBeInTheDocument();
     expect(screen.getByText("Request sent")).toBeInTheDocument();
     expect(screen.getByText("Deliver two towels")).toBeInTheDocument();
+    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard/calls");
+  });
+
+  it("does not open the dashboard until the completed call is saved", () => {
+    mockPhoneState = "ended";
+    mockLastCall = null;
+    enterBedsideView();
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 });

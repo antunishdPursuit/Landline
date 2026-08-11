@@ -78,6 +78,8 @@ View 2 shows the phone and panel at useful detail.
 - When a call ends, the panel changes to a receipt showing that the conversation
   was saved to the staff dashboard. Physical requests show their actionable
   summary; answerable calls remain available in the manager's Agent Calls view.
+- After the completed call record is saved, the guest view opens the manager's
+  Agent Calls dashboard so the transcript and routing result can be reviewed.
 
 ## Device conventions
 
