@@ -158,7 +158,6 @@ export async function searchStay22(
     response = await fetcher(endpoint, {
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(8_000),
-      cache: 'force-cache',
       next: { revalidate: 300 },
     })
   } catch {
