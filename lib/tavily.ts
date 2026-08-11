@@ -62,13 +62,11 @@ export async function searchConcierge(
         query,
         topic: 'general',
         search_depth: 'basic',
-        chunks_per_source: 2,
         max_results: 5,
         include_answer: 'basic',
         include_raw_content: false,
         include_images: false,
         auto_parameters: false,
-        safe_search: true,
       }),
       signal: AbortSignal.timeout(8_000),
     })

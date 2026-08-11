@@ -74,6 +74,8 @@ describe('POST /api/concierge/search', () => {
       include_answer: 'basic',
       include_raw_content: false,
     })
+    expect(requestBody).not.toHaveProperty('safe_search')
+    expect(requestBody).not.toHaveProperty('chunks_per_source')
   })
 
   it('returns no_answer when Tavily provides no source evidence', async () => {
