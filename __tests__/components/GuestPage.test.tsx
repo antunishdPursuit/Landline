@@ -1,6 +1,11 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
+
 import GuestPage from "@/app/page";
 
 describe("GuestPage room overview", () => {
