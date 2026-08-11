@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
+import type { CallLog } from "@/lib/types";
 import type { AgentConfig } from "@/types/agent";
 
 export type PhoneSource = "handset" | "panel";
@@ -10,6 +11,7 @@ interface BedsideCloseupProps {
   config: AgentConfig;
   phoneState: PhoneSessionState;
   phoneSource: PhoneSource | null;
+  lastCall?: CallLog | null;
   onPhoneAction: (source: PhoneSource) => void;
   onBack: () => void;
 }
@@ -42,6 +44,7 @@ export function BedsideCloseup({
   config,
   phoneState,
   phoneSource,
+  lastCall = null,
   onPhoneAction,
   onBack,
 }: BedsideCloseupProps) {
@@ -51,6 +54,13 @@ export function BedsideCloseup({
     phoneState === "connecting" || (sessionActive && phoneSource === "panel");
   const panelLocked = sessionActive && phoneSource === "handset";
   const panelPhoneDisabled = phoneState === "connecting" || panelLocked;
+  const callReceiptVisible = phoneState === "ended" && lastCall !== null;
+  const callReceiptTitle =
+    lastCall?.intent === "physical_request"
+      ? "Request sent"
+      : lastCall?.intent === "defer_to_operator"
+        ? "Staff notified"
+        : "Call complete";
 
   return (
     <section
@@ -445,7 +455,18 @@ export function BedsideCloseup({
             aria-expanded={detailsVisible}
             aria-label="Show hotel details on the bedside panel"
           >
-            {detailsVisible ? (
+            {callReceiptVisible ? (
+              <>
+                <span className="panel-eyebrow">
+                  Room {lastCall.room_number} · Sent to dashboard
+                </span>
+                <span className="panel-title">{callReceiptTitle}</span>
+                <span className="panel-address">
+                  {lastCall.request_summary ||
+                    "The conversation was saved to Agent Calls."}
+                </span>
+              </>
+            ) : detailsVisible ? (
               <>
                 <span className="panel-eyebrow">Room 1208 · Hotel details</span>
                 <span className="panel-title">

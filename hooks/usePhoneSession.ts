@@ -7,7 +7,7 @@ import {
   createVoiceClientTools,
   type VoiceToolActivity,
 } from "@/lib/voice-tools";
-import type { ConversationTurn } from "@/lib/types";
+import type { CallLog, ConversationTurn } from "@/lib/types";
 
 export type PhoneSessionState =
   | "idle"
@@ -18,6 +18,7 @@ export type PhoneSessionState =
 
 export interface UsePhoneSessionReturn {
   state: PhoneSessionState;
+  lastCall: CallLog | null;
   startSession: () => Promise<void>;
   endSession: () => Promise<void>;
 }
@@ -26,6 +27,7 @@ export function usePhoneSession(
   dynamicVariables?: Record<string, string | number | boolean>
 ): UsePhoneSessionReturn {
   const [state, setState] = useState<PhoneSessionState>("idle");
+  const [lastCall, setLastCall] = useState<CallLog | null>(null);
   const conversationRef = useRef<Conversation | null>(null);
   const transcriptRef = useRef<ConversationTurn[]>([]);
   const activityRef = useRef<VoiceToolActivity | null>(null);
@@ -39,7 +41,7 @@ export function usePhoneSession(
 
     const activity = activityRef.current;
     const roomNumber = String(dynamicVariables?.room_number ?? "1208");
-    addDemoCallLog({
+    const call: CallLog = {
       id: sessionIdRef.current ?? `call_${startedAt}`,
       room_number: roomNumber,
       language_detected: activity?.language_detected ?? "en",
@@ -50,11 +52,14 @@ export function usePhoneSession(
       request_summary: activity?.request_summary ?? null,
       requires_human: activity?.requires_human ?? false,
       created_at: new Date(startedAt).toISOString(),
-    });
+    };
+    addDemoCallLog(call);
+    setLastCall(call);
     callSavedRef.current = true;
   }, [dynamicVariables]);
 
   const startSession = useCallback(async () => {
+    setLastCall(null);
     setState("connecting");
 
     let signedUrl: string;
@@ -125,5 +130,5 @@ export function usePhoneSession(
     setState("ended");
   }, [finalizeCall]);
 
-  return { state, startSession, endSession };
+  return { state, lastCall, startSession, endSession };
 }

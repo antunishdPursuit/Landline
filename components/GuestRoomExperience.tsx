@@ -74,6 +74,7 @@ export function GuestRoomExperience() {
             config={agentConfig.config}
             phoneState={phoneSession.state}
             phoneSource={phoneSource}
+            lastCall={phoneSession.lastCall}
             onPhoneAction={handlePhoneAction}
             onBack={handleBack}
           />

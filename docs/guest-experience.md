@@ -75,6 +75,9 @@ View 2 shows the phone and panel at useful detail.
   return control is unavailable while the voice session is connecting.
 - Voice errors remain in View 2 and allow the guest to try either phone control
   again.
+- When a call ends, the panel changes to a receipt showing that the conversation
+  was saved to the staff dashboard. Physical requests show their actionable
+  summary; answerable calls remain available in the manager's Agent Calls view.
 
 ## Device conventions
 

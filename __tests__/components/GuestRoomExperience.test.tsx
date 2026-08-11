@@ -3,11 +3,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { GuestRoomExperience } from "@/components/GuestRoomExperience";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
+import type { CallLog } from "@/lib/types";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 const mockStartSession = jest.fn().mockResolvedValue(undefined);
 const mockEndSession = jest.fn().mockResolvedValue(undefined);
 let mockPhoneState: PhoneSessionState = "idle";
+let mockLastCall: CallLog | null = null;
 
 jest.mock("@/hooks/useAgentConfig", () => ({
   useAgentConfig: () => ({
@@ -25,6 +27,7 @@ jest.mock("@/hooks/useAgentConfig", () => ({
 jest.mock("@/hooks/usePhoneSession", () => ({
   usePhoneSession: () => ({
     state: mockPhoneState,
+    lastCall: mockLastCall,
     startSession: mockStartSession,
     endSession: mockEndSession,
   }),
@@ -43,6 +46,7 @@ describe("GuestRoomExperience", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPhoneState = "idle";
+    mockLastCall = null;
   });
 
   it("moves from the room overview to the bedside close-up", () => {
@@ -98,5 +102,26 @@ describe("GuestRoomExperience", () => {
         })
       ).toBeInTheDocument()
     );
+  });
+
+  it("shows a dashboard receipt on the panel after a call ends", () => {
+    mockPhoneState = "ended";
+    mockLastCall = {
+      id: "call_1208",
+      room_number: "1208",
+      language_detected: "en",
+      duration_seconds: 24,
+      transcript: [],
+      intent: "physical_request",
+      department: "housekeeping",
+      request_summary: "Deliver two towels",
+      requires_human: false,
+      created_at: "2026-08-11T19:00:00.000Z",
+    };
+    enterBedsideView();
+
+    expect(screen.getByText(/sent to dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText("Request sent")).toBeInTheDocument();
+    expect(screen.getByText("Deliver two towels")).toBeInTheDocument();
   });
 });
