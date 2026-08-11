@@ -165,27 +165,64 @@ export function createVoiceClientTools({
         result.ok &&
         isRecord(result.body) &&
         result.body.status === 'ready' &&
-        isRecord(result.body.recommendation)
+        Array.isArray(result.body.options)
       ) {
-        try {
-          const recommendation =
-            result.body.recommendation as unknown as TravelRecommendation
-          saveRecommendation(recommendation)
+        const savedOptions: TravelRecommendation[] = []
+        result.body.options.forEach((option) => {
+          if (!isRecord(option)) return
+          try {
+            const recommendation = option as unknown as TravelRecommendation
+            saveRecommendation(recommendation)
+            savedOptions.push(recommendation)
+          } catch {
+            // Invalid options are excluded from the response to the agent.
+          }
+        })
+
+        if (savedOptions.length > 0) {
+          const summary = savedOptions
+            .map((option) => {
+              const price =
+                typeof option.price_total === 'number' && option.currency
+                  ? `${option.currency} ${option.price_total} total`
+                  : 'price unavailable'
+              return `${option.title}: ${price}`
+            })
+            .join('; ')
+
           onActivity({
             intent: 'answerable_qa',
             department: null,
-            request_summary: recommendation.title,
+            request_summary: summary,
             requires_human: false,
             language_detected: 'en',
           })
           return toResult({
-            status: 'ready',
-            message: 'This link lets the guest view stays. No reservation has been made.',
-            recommendation,
+            ...result.body,
+            options: savedOptions,
+            message:
+              'Describe up to three options with their full-stay prices. Availability can change. No reservation has been made.',
           })
-        } catch {
-          // Invalid API data is handled as an unavailable tool call below.
         }
+      }
+
+      if (
+        result.ok &&
+        isRecord(result.body) &&
+        result.body.status === 'no_results'
+      ) {
+        onActivity({
+          intent: 'answerable_qa',
+          department: null,
+          request_summary: 'No stays matched the confirmed search',
+          requires_human: false,
+          language_detected: 'en',
+        })
+        return toResult({
+          ...result.body,
+          message:
+            'No stays matched the confirmed search. Offer to change the destination, dates, or guest count.',
+        })
       }
 
       onActivity({
@@ -198,7 +235,8 @@ export function createVoiceClientTools({
 
       return toResult({
         status: 'unavailable',
-        message: 'Stay options are unavailable. Do not invent a link; offer staff help.',
+        message:
+          'Stay options are temporarily unavailable. Do not invent hotels, prices, availability, or links; offer staff help.',
       })
     },
   }

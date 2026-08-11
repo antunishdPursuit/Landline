@@ -89,7 +89,25 @@ function isTravelRecommendation(value: unknown): value is TravelRecommendation {
     isString(recommendation.title) &&
     isString(recommendation.url) &&
     (recommendation.source === 'tavily' || recommendation.source === 'stay22') &&
-    isString(recommendation.created_at)
+    isString(recommendation.created_at) &&
+    (recommendation.accommodation_type === undefined ||
+      isString(recommendation.accommodation_type)) &&
+    (recommendation.address === undefined ||
+      recommendation.address === null ||
+      isString(recommendation.address)) &&
+    (recommendation.supplier === undefined ||
+      recommendation.supplier === null ||
+      isString(recommendation.supplier)) &&
+    (recommendation.price_total === undefined ||
+      recommendation.price_total === null ||
+      typeof recommendation.price_total === 'number') &&
+    (recommendation.currency === undefined || isString(recommendation.currency)) &&
+    (recommendation.rating === undefined ||
+      recommendation.rating === null ||
+      typeof recommendation.rating === 'number') &&
+    (recommendation.hotel_stars === undefined ||
+      recommendation.hotel_stars === null ||
+      typeof recommendation.hotel_stars === 'number')
   )
 }
 

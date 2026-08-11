@@ -15,20 +15,25 @@ describe('TravelRecommendations', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('presents Stay22 as an external stay search without a booking claim', async () => {
+  it('presents a priced Stay22 option without a booking claim', async () => {
     addTravelRecommendation({
       id: 'stay_test',
-      title: 'View stays near NoMad',
-      url: 'https://www.stay22.com/allez/roam?aid=test&address=NoMad',
+      title: 'Example Hotel',
+      url: 'https://www.stay22.com/allez/booking/123',
       source: 'stay22',
       created_at: new Date().toISOString(),
+      price_total: 590,
+      currency: 'USD',
+      rating: 8.7,
     })
 
     render(<TravelRecommendations />)
 
-    const link = await screen.findByRole('link', { name: /view stays near nomad/i })
+    const link = await screen.findByRole('link', { name: /example hotel/i })
     expect(link).toHaveAttribute('target', '_blank')
     expect(link).toHaveAttribute('rel', expect.stringContaining('sponsored'))
+    expect(screen.getByText(/USD 590 total/i)).toBeInTheDocument()
+    expect(screen.getByText(/8.7\/10/i)).toBeInTheDocument()
     expect(screen.getByText(/has not made a reservation/i)).toBeInTheDocument()
   })
 

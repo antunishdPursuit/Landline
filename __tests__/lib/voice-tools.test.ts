@@ -114,26 +114,74 @@ describe('ElevenLabs client tools', () => {
     expect(result.message).toContain('front desk')
   })
 
-  it('stores Stay22 links and states that no reservation was made', async () => {
-    const recommendation = {
+  it('stores priced Stay22 options and states that no reservation was made', async () => {
+    const option = {
       id: 'stay_voice',
-      title: 'View stays near NoMad',
-      url: 'https://www.stay22.com/allez/roam?aid=test&address=NoMad',
+      title: 'Example Hotel',
+      url: 'https://www.stay22.com/allez/booking/123',
       source: 'stay22',
       created_at: '2026-08-09T12:00:00.000Z',
+      price_total: 590,
+      currency: 'USD',
+      rating: 8.7,
     }
     const fetcher = jest.fn().mockResolvedValue(
-      response(true, { status: 'ready', recommendation })
+      response(true, {
+        status: 'ready',
+        search: {
+          address: 'NoMad, New York',
+          checkin: '2026-09-12',
+          checkout: '2026-09-15',
+          adults: 2,
+          children: 0,
+          rooms: 1,
+        },
+        options: [option],
+      })
     )
     const saveRecommendation = jest.fn()
     const tools = createVoiceClientTools({ fetcher, saveRecommendation })
 
     const result = JSON.parse(
-      await tools.find_stays({ destination: 'NoMad' })
+      await tools.find_stays({
+        address: 'NoMad, New York',
+        checkin: '2026-09-12',
+        checkout: '2026-09-15',
+        adults: 2,
+        children: 0,
+        rooms: 1,
+      })
     )
 
-    expect(saveRecommendation).toHaveBeenCalledWith(recommendation)
+    expect(saveRecommendation).toHaveBeenCalledWith(option)
+    expect(result.options).toEqual([option])
+    expect(result.message).toContain('full-stay prices')
     expect(result.message).toContain('No reservation has been made')
+  })
+
+  it('lets the agent revise a confirmed search when Stay22 has no results', async () => {
+    const fetcher = jest.fn().mockResolvedValue(
+      response(true, { status: 'no_results', options: [] })
+    )
+    const onActivity = jest.fn()
+    const tools = createVoiceClientTools({ fetcher, onActivity })
+
+    const result = JSON.parse(
+      await tools.find_stays({
+        address: 'NoMad, New York',
+        checkin: '2026-09-12',
+        checkout: '2026-09-15',
+        adults: 2,
+        children: 0,
+        rooms: 1,
+      })
+    )
+
+    expect(result.status).toBe('no_results')
+    expect(result.message).toContain('change the destination, dates, or guest count')
+    expect(onActivity).toHaveBeenCalledWith(
+      expect.objectContaining({ intent: 'answerable_qa', requires_human: false })
+    )
   })
 
   it('never fabricates a Stay22 link after failure', async () => {
@@ -141,7 +189,14 @@ describe('ElevenLabs client tools', () => {
     const tools = createVoiceClientTools({ fetcher })
 
     const result = JSON.parse(
-      await tools.find_stays({ destination: 'NoMad' })
+      await tools.find_stays({
+        address: 'NoMad, New York',
+        checkin: '2026-09-12',
+        checkout: '2026-09-15',
+        adults: 2,
+        children: 0,
+        rooms: 1,
+      })
     )
 
     expect(result.status).toBe('unavailable')

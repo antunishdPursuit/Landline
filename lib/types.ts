@@ -64,6 +64,13 @@ export interface TravelRecommendation {
   url: string
   source: 'tavily' | 'stay22'
   created_at: string
+  accommodation_type?: string
+  address?: string | null
+  supplier?: string | null
+  price_total?: number | null
+  currency?: string
+  rating?: number | null
+  hotel_stars?: number | null
 }
 
 export interface DemoState {
