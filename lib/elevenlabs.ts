@@ -1,7 +1,7 @@
 import "server-only";
 
-const ELEVENLABS_TOKEN_ENDPOINT =
-  "https://api.elevenlabs.io/v1/convai/conversation/token";
+const ELEVENLABS_SIGNED_URL_ENDPOINT =
+  "https://api.elevenlabs.io/v1/convai/conversation/get-signed-url";
 
 export async function getSignedUrl(): Promise<string> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
@@ -14,26 +14,28 @@ export async function getSignedUrl(): Promise<string> {
     throw new Error("Missing environment variable: ELEVENLABS_AGENT_ID");
   }
 
-  const response = await fetch(ELEVENLABS_TOKEN_ENDPOINT, {
-    method: "POST",
+  const endpoint = new URL(ELEVENLABS_SIGNED_URL_ENDPOINT);
+  endpoint.searchParams.set("agent_id", agentId);
+
+  const response = await fetch(endpoint, {
+    method: "GET",
     headers: {
       "xi-api-key": apiKey,
-      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ agent_id: agentId }),
+    cache: "no-store",
   });
 
   if (!response.ok) {
     throw new Error(
-      `ElevenLabs token request failed with status ${response.status}`
+      `ElevenLabs signed URL request failed with status ${response.status}`
     );
   }
 
-  const data = (await response.json()) as { token?: string };
+  const data = (await response.json()) as { signed_url?: string };
 
-  if (!data.token) {
-    throw new Error("ElevenLabs response did not include a token");
+  if (!data.signed_url) {
+    throw new Error("ElevenLabs response did not include a signed URL");
   }
 
-  return data.token;
+  return data.signed_url;
 }

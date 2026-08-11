@@ -28,10 +28,10 @@ afterEach(() => {
 });
 
 describe("GET /api/elevenlabs/signed-url", () => {
-  it("returns 200 with { url } when ElevenLabs returns a token", async () => {
+  it("returns 200 with { url } when ElevenLabs returns a signed URL", async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ token: "wss://example.com/signed" }),
+      json: async () => ({ signed_url: "wss://example.com/signed" }),
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
@@ -43,6 +43,31 @@ describe("GET /api/elevenlabs/signed-url", () => {
     // Credentials must never appear in the response body
     expect(JSON.stringify(body)).not.toContain("test-api-key");
     expect(JSON.stringify(body)).not.toContain("test-agent-id");
+  });
+
+  it("requests a fresh signed URL with the agent ID in the query", async () => {
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ signed_url: "wss://example.com/signed" }),
+    } as unknown as Response);
+
+    const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
+    await GET();
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    const [requestUrl, requestInit] = (global.fetch as jest.Mock).mock.calls[0] as [
+      URL,
+      RequestInit
+    ];
+    expect(requestUrl.toString()).toBe(
+      "https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=test-agent-id"
+    );
+    expect(requestInit).toMatchObject({
+      method: "GET",
+      cache: "no-store",
+      headers: { "xi-api-key": "test-api-key" },
+    });
+    expect(requestInit.body).toBeUndefined();
   });
 
   it("returns 500 when ELEVENLABS_API_KEY is missing", async () => {
@@ -95,7 +120,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     expect(response.status).not.toBe(200);
   });
 
-  it("returns 500 when ElevenLabs returns 200 but body has no token field", async () => {
+  it("returns 500 when ElevenLabs returns 200 but body has no signed URL", async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
       json: async () => ({ something_else: "value" }),
