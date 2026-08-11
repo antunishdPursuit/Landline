@@ -3,21 +3,15 @@
 A single-browser hotel voice-agent demo. Guests speak with an ElevenLabs agent
 or submit a manual request, the app routes requests, and Clerk-authenticated
 staff handle local tickets. Tavily supplies source-backed current information,
-and Stay22 supplies tracked links for viewing stays.
+and Stay22 supplies live accommodation options and booking deeplinks.
 
-**Origin:** [Checkout — The Travel & Hospitality Hackathon](../../Hackathons/Checkout%20Travel%20Hack%20NYC/FINAL_CLOSEOUT.md)
-
-**Status:** Active post-event continuation. The best available reference for
-the judged source is shared commit `0c2937c`. Later commits are post-event work
-and must not be described as part of the judged build.
+Landline began at Checkout — The Travel & Hospitality Hackathon and now
+continues as an independent active project.
 
 **Source:** [Moises-ITS/Landline](https://github.com/Moises-ITS/Landline)
 
 Landline is intentionally a demo, not a live multi-user service. It uses one
-versioned browser store instead of a shared database. See
-[`docs/architecture.md`](docs/architecture.md) for system boundaries,
-[`docs/Implementation.md`](docs/Implementation.md) for the completed sequence,
-and [`docs/elevenlabs-tools.md`](docs/elevenlabs-tools.md) for agent setup.
+versioned browser store instead of a shared database.
 
 ## Current architecture
 
@@ -44,7 +38,7 @@ Guest browser ──signed session──▶ ElevenLabs agent
 | Browser store | Same-browser tickets, calls, assignments, statuses, and displayed links |
 | Next.js routes | Secret handling, validation, classification, and vendor adapters |
 | Tavily | Source-backed current concierge information |
-| Stay22 | Tracked accommodation-search destinations |
+| Stay22 | Live accommodation results, full-stay prices, and booking deeplinks |
 
 There is no Supabase database, Python service, pgvector store, or production
 realtime backend.
@@ -55,10 +49,10 @@ realtime backend.
 - A Clerk application
 - An ElevenLabs account and configured agent
 - A Tavily API key for live current-information search
-- A Stay22 affiliate ID (`aid`) for tracked stay links
 
-The manual request and local dashboard still work when optional vendor
-configuration is absent.
+Stay22 demo mode requires no API key and permits five requests per minute per
+IP address. The manual request and local dashboard still work when an optional
+vendor is unavailable.
 
 ## Setup
 
@@ -77,7 +71,7 @@ Set the values used by the features you want to demonstrate:
 | `CLERK_SECRET_KEY` | Clerk server authentication |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser configuration |
 | `TAVILY_API_KEY` | Server-side current-information search |
-| `STAY22_AID` | Generates tracked Stay22 Allez destinations |
+| `STAY22_API_BASE_URL` | Stay22 no-key accommodations endpoint; use `https://api.stay22.com/v2/accommodations` |
 
 Guest page: `http://localhost:3000/`
 
@@ -95,9 +89,31 @@ Managers see all dashboard views. Department staff see only their assigned
 department. A signed-in user without a supported role sees the contact-admin
 state.
 
-Configure the four case-sensitive ElevenLabs client tools described in
-[`docs/elevenlabs-tools.md`](docs/elevenlabs-tools.md). Tool responses must be
-enabled so the agent waits for and uses each result.
+Configure these case-sensitive ElevenLabs client tools and enable waiting for
+each client response:
+
+- `log_request`: physical hotel requests.
+- `search_concierge`: current local information through Tavily.
+- `find_stays`: Stay22 accommodation searches.
+- `defer_to_staff`: requests that need a person.
+
+`find_stays` must collect and confirm every field before it runs:
+
+```json
+{
+  "address": "SoHo, New York",
+  "checkin": "2026-09-12",
+  "checkout": "2026-09-15",
+  "adults": 2,
+  "children": 0,
+  "rooms": 1
+}
+```
+
+Dates use `YYYY-MM-DD`. Landline requests at most three results and returns
+full-stay totals in USD. The agent may describe only returned options and must
+say that prices and availability can change and that no reservation was made.
+See the [Stay22 Direct Travel API quickstart](https://dev.stay22.com/docs/api/quickstart).
 
 ## Commands
 
@@ -113,7 +129,8 @@ npm run build
 - Voice calls and call transcripts remain local browser metadata; audio is not stored.
 - Staff presence is representative demo content.
 - The ElevenLabs tool definitions and agent prompt must be configured in the ElevenLabs dashboard.
-- Landline provides external Stay22 search links and never makes reservations.
+- Stay22 demo mode is limited to five requests per minute per IP address.
+- Landline displays Stay22 results and deeplinks but never makes reservations.
 
 ## Repository layout
 
@@ -123,5 +140,4 @@ components/   Guest and staff UI
 hooks/        Browser configuration and ElevenLabs session lifecycle
 lib/          Classification, browser store, integrations, and read models
 __tests__/    Jest unit and acceptance tests
-docs/         Architecture, implementation, and vendor setup guidance
 ```
