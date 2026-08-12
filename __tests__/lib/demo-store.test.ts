@@ -6,7 +6,6 @@ import {
   isDemoState,
   readDemoState,
   removeDemoTicket,
-  resetDemoState,
   updateDemoTicketStatus,
   writeDemoState,
 } from '@/lib/demo-store'
@@ -128,14 +127,5 @@ describe('demo store', () => {
 
     expect(readDemoState().call_logs.filter((item) => item.id === call.id)).toHaveLength(1)
     expect(readDemoState().call_logs[0].duration_seconds).toBe(45)
-  })
-
-  it('resets local changes to fresh seed data', () => {
-    addDemoTicket(makeTicket())
-
-    const reset = resetDemoState()
-
-    expect(reset.tickets.some((ticket) => ticket.id === 'req_test')).toBe(false)
-    expect(readDemoState()).toEqual(reset)
   })
 })

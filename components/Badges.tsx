@@ -1,4 +1,4 @@
-import type { Urgency, RequestStatus, Intent, Department } from '@/lib/types'
+import type { Urgency, Intent, Department } from '@/lib/types'
 import { LANGUAGE_NAMES } from '@/lib/format'
 import { DEPARTMENTS } from '@/lib/types'
 
@@ -21,28 +21,6 @@ export function UrgencyBadge({ urgency }: { urgency: Urgency }) {
     >
       {urgency === 'high' && <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />}
       {URGENCY_LABEL[urgency]}
-    </span>
-  )
-}
-
-const STATUS_STYLES: Record<RequestStatus, string> = {
-  new: 'bg-blue-100 text-blue-700 ring-blue-300',
-  in_progress: 'bg-amber-100 text-amber-800 ring-amber-300',
-  done: 'bg-emerald-100 text-emerald-700 ring-emerald-300',
-}
-
-const STATUS_LABEL: Record<RequestStatus, string> = {
-  new: 'New',
-  in_progress: 'In progress',
-  done: 'Done',
-}
-
-export function StatusBadge({ status }: { status: RequestStatus }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[status]}`}
-    >
-      {STATUS_LABEL[status]}
     </span>
   )
 }

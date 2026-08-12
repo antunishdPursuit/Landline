@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   readDemoState,
   removeDemoTicket,
-  resetDemoState,
   subscribeToDemoState,
   updateDemoTicketStatus,
 } from './demo-store'
@@ -33,10 +32,6 @@ export function useRequests() {
     return subscribeToDemoState(syncRequests)
   }, [])
 
-  const clearJustArrived = useCallback((id: string) => {
-    setJustArrivedId((current) => (current === id ? null : current))
-  }, [])
-
   const updateStatus = useCallback(
     (id: string, status: RequestStatus, assignedTo?: string) => {
       updateDemoTicketStatus(id, status, assignedTo)
@@ -44,15 +39,10 @@ export function useRequests() {
     []
   )
 
-  const reset = useCallback(() => {
-    resetDemoState()
-    setJustArrivedId(null)
-  }, [])
-
   const removeRequest = useCallback((id: string) => {
     removeDemoTicket(id)
     setJustArrivedId((current) => (current === id ? null : current))
   }, [])
 
-  return { requests, justArrivedId, clearJustArrived, updateStatus, removeRequest, reset }
+  return { requests, justArrivedId, updateStatus, removeRequest }
 }

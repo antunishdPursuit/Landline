@@ -278,10 +278,6 @@ export function removeDemoTicket(
   )
 }
 
-export function resetDemoState(storage: Storage | null = getBrowserStorage()): DemoState {
-  return writeDemoState(createSeedDemoState(), storage)
-}
-
 export function subscribeToDemoState(listener: () => void): () => void {
   if (typeof window === 'undefined') return () => undefined
 

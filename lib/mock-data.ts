@@ -1,7 +1,6 @@
 import type {
   CallLog,
   ConversationTurn,
-  Department,
   GuestRequest,
   StaffMember,
 } from './types'
@@ -114,10 +113,6 @@ const STAFF_ROSTER: StaffMember[] = [
 
 export function seedStaffRoster(): StaffMember[] {
   return STAFF_ROSTER.map((member) => ({ ...member }))
-}
-
-export function getStaffNamesForDepartment(department: Department): string[] {
-  return STAFF_ROSTER.filter((member) => member.department === department).map((member) => member.name)
 }
 
 const SEED_CALLS: Omit<CallLog, 'duration_seconds' | 'created_at'>[] = [

@@ -23,6 +23,5 @@ describe("GuestPage room overview", () => {
       height: "100dvh",
       overflow: "hidden",
     });
-    expect(screen.queryByText(/manual fallback/i)).not.toBeInTheDocument();
   });
 });

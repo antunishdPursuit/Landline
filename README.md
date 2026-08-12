@@ -1,9 +1,9 @@
 # Landline
 
-A single-browser hotel voice-agent demo. Guests speak with an ElevenLabs agent
-or submit a manual request, the app routes requests, and Clerk-authenticated
-staff handle local tickets. Tavily supplies source-backed current information,
-and Stay22 supplies live accommodation options and booking deeplinks.
+A single-browser hotel voice-agent demo. Guests speak with an ElevenLabs agent,
+the app routes requests, and Clerk-authenticated staff handle local tickets.
+Tavily supplies current local information, and Stay22 supplies live
+accommodation options and booking deeplinks.
 
 Landline began at Checkout — The Travel & Hospitality Hackathon and now
 continues as an independent active project.
@@ -22,20 +22,19 @@ Guest browser ──signed session──▶ ElevenLabs agent
       │                                  ├── search_concierge ──▶ Tavily route
       │                                  └── find_stays ────────▶ Stay22 route
       │
-      ├── manual fallback
       └──────────────┬───────────────────────────────────────────┘
                      ▼
              browser demo state
                │             │
                ▼             ▼
-     guest source links   Clerk-gated dashboard
+       vendor results     Clerk-gated dashboard
 ```
 
 | System | Responsibility |
 |---|---|
 | Clerk | Staff sign-in, name, and role |
 | ElevenLabs | Voice conversation and tool selection |
-| Browser store | Same-browser tickets, calls, assignments, statuses, and displayed links |
+| Browser store | Same-browser tickets, calls, assignments, statuses, and returned vendor metadata |
 | Next.js routes | Secret handling, validation, classification, and vendor adapters |
 | Tavily | Source-backed current concierge information |
 | Stay22 | Live accommodation results, full-stay prices, and booking deeplinks |
@@ -51,14 +50,14 @@ realtime backend.
 - A Tavily API key for live current-information search
 
 Stay22 demo mode requires no API key and permits five requests per minute per
-IP address. The manual request and local dashboard still work when an optional
-vendor is unavailable.
+IP address. Seed dashboard data remains usable when an optional vendor is
+unavailable.
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env.local
+cp .env.example .env
 npm run dev
 ```
 
@@ -121,6 +120,15 @@ another API call. Prices are full-stay totals in USD. The agent must say that
 prices and availability can change and that no reservation was made.
 See the [Stay22 Direct Travel API quickstart](https://dev.stay22.com/docs/api/quickstart).
 
+Configure the ElevenLabs agent with a 90-second maximum conversation duration,
+a short closing message, and the End Conversation system tool. The browser asks
+the agent to close at 75 seconds and ends the session at 90 seconds if needed.
+
+For a public Vercel deployment, add a WAF rate-limit rule for
+`GET /api/elevenlabs/signed-url`: two requests per IP address in a fixed
+10-minute window, with a `429` response when exceeded. Landline does not store
+or count IP addresses. The production host must enforce this limit.
+
 ## Commands
 
 ```bash
@@ -132,7 +140,7 @@ npm run build
 ## Current limitations
 
 - Demo state does not synchronize between browsers or devices.
-- Voice calls and call transcripts remain local browser metadata; audio is not stored.
+- Landline stores call metadata and transcripts in the current browser. ElevenLabs retention follows the agent and account configuration.
 - Staff presence is representative demo content.
 - The ElevenLabs tool definitions and agent prompt must be configured in the ElevenLabs dashboard.
 - Stay22 demo mode is limited to five requests per minute per IP address.
@@ -143,7 +151,7 @@ npm run build
 ```text
 app/          Next.js pages and route handlers
 components/   Guest and staff UI
-hooks/        Browser configuration and ElevenLabs session lifecycle
+hooks/        ElevenLabs session lifecycle
 lib/          Classification, browser store, integrations, and read models
 __tests__/    Jest unit and acceptance tests
 ```
