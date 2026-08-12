@@ -1,4 +1,4 @@
-import { SignIn } from '@clerk/nextjs'
+import { SignInExperience } from '@/components/SignInExperience'
 
 export default function SignInPage() {
   const demoUsername = process.env.NEXT_PUBLIC_DEMO_USERNAME
@@ -20,7 +20,7 @@ export default function SignInPage() {
           </dl>
         </aside>
       )}
-      <SignIn path="/sign-in" routing="path" forceRedirectUrl="/dashboard" />
+      <SignInExperience />
     </main>
   )
 }
