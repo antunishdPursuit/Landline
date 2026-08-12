@@ -290,6 +290,13 @@ export function BedsideCloseup({
           font-weight: 700;
         }
 
+        .panel-wrap-up-note {
+          max-width: 28rem;
+          margin: 0.8rem auto 0;
+          color: rgba(255, 246, 230, 0.82);
+          font: 500 clamp(0.72rem, 1vw, 0.86rem)/1.5 var(--font-dm-sans), system-ui, sans-serif;
+        }
+
         .panel-controls {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -470,7 +477,7 @@ export function BedsideCloseup({
                 className={countdownWarning ? "panel-countdown-warning" : undefined}
                 aria-live="polite"
               >
-                · {countdown}
+                {countdownWarning ? `· Wrapping up · ${countdown}` : `· ${countdown}`}
               </span>
             )}
           </span>
@@ -495,12 +502,22 @@ export function BedsideCloseup({
                 <span className="panel-eyebrow">
                   Demo call · {countdown} remaining
                 </span>
-                <span className="panel-title">Try a concierge request</span>
-                <ul className="panel-demo-prompts">
-                  <li>Send two extra towels to room 1208.”</li>
-                  <li>What Italian restaurants near the hotel are open tonight?”</li>
-                  <li>Help me find another hotel nearby.”</li>
-                </ul>
+                <span className="panel-title">
+                  {countdownWarning
+                    ? "Concierge is wrapping up"
+                    : "Try a concierge request"}
+                </span>
+                {countdownWarning ? (
+                  <p className="panel-wrap-up-note">
+                    The concierge is saying goodbye before the demo ends.
+                  </p>
+                ) : (
+                  <ul className="panel-demo-prompts">
+                    <li>Send two extra towels to room 1208.”</li>
+                    <li>What Italian restaurants near the hotel are open tonight?”</li>
+                    <li>Help me find another hotel nearby.”</li>
+                  </ul>
+                )}
               </>
             ) : phoneState === "error" && errorMessage ? (
               <>

@@ -121,6 +121,24 @@ describe("BedsideCloseup", () => {
     expect(screen.getAllByText(/1:14/)).toHaveLength(2);
   });
 
+  it("shows the graceful closing state for the final 15 seconds", () => {
+    render(
+      <BedsideCloseup
+        config={RITZ_NOMAD_CONFIG}
+        phoneState="in-call"
+        phoneSource="handset"
+        remainingSeconds={15}
+        onPhoneAction={jest.fn()}
+        onBack={jest.fn()}
+      />
+    );
+
+    expect(screen.getByText(/concierge is wrapping up/i)).toBeInTheDocument();
+    expect(screen.getByText(/concierge is saying goodbye/i)).toBeInTheDocument();
+    expect(screen.queryByText(/try a concierge request/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/wrapping up · 0:15/i)).toBeInTheDocument();
+  });
+
   it("locks the handset during a panel call", () => {
     render(
       <BedsideCloseup
