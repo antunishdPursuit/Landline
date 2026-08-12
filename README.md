@@ -70,6 +70,8 @@ Set the values used by the features you want to demonstrate:
 | `ELEVENLABS_AGENT_ID` | Selects the configured voice agent |
 | `CLERK_SECRET_KEY` | Clerk server authentication |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser configuration |
+| `NEXT_PUBLIC_DEMO_USERNAME` | Public demo-only username shown on the sign-in page |
+| `NEXT_PUBLIC_DEMO_PASSWORD` | Public demo-only password shown on the sign-in page; never reuse it elsewhere |
 | `TAVILY_API_KEY` | Server-side current-information search |
 | `STAY22_API_BASE_URL` | Stay22 no-key accommodations endpoint; use `https://api.stay22.com/v2/accommodations` |
 
