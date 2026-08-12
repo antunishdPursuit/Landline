@@ -2,16 +2,54 @@
 
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/requests/route";
+import { createToolAccessToken } from "@/lib/tool-access-token";
 
-function makeRequest(body: unknown): NextRequest {
+const ORIGINAL_ENV = process.env;
+
+function makeRequest(body: unknown, authorized = true): NextRequest {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (authorized) {
+    headers.Authorization = `Bearer ${createToolAccessToken()}`;
+  }
+
   return new NextRequest("http://localhost/api/requests", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
 }
 
+beforeEach(() => {
+  process.env = {
+    ...ORIGINAL_ENV,
+    ELEVENLABS_API_KEY: "test-api-key",
+    ELEVENLABS_AGENT_ID: "test-agent-id",
+  };
+});
+
+afterAll(() => {
+  process.env = ORIGINAL_ENV;
+});
+
 describe("POST /api/requests", () => {
+  it("rejects direct public requests", async () => {
+    const response = await POST(
+      makeRequest(
+        {
+          intent: "physical_request",
+          room_number: "1208",
+          summary: "Two towels",
+        },
+        false
+      )
+    );
+
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toEqual({ error: "Unauthorized" });
+  });
+
   it("returns no ticket for an answerable question", async () => {
     const response = await POST(
       makeRequest({

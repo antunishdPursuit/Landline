@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { classifyRequest } from "@/lib/classifier";
+import { requestHasToolAccess } from "@/lib/tool-access-token";
 
 type RequestBody = {
   intent?: unknown;
@@ -19,6 +20,10 @@ const VALID_INTENTS = new Set([
 const VALID_URGENCIES = new Set(["low", "medium", "high"]);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!requestHasToolAccess(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;

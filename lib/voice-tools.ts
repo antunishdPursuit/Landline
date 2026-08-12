@@ -72,7 +72,12 @@ export function createVoiceClientTools({
     const normalizedPayload = forceStaffDeferral
       ? { ...requestPayload, intent: 'defer_to_operator' }
       : requestPayload
-    const result = await postJson(fetcher, '/api/requests', normalizedPayload)
+    const result = await postJson(
+      fetcher,
+      '/api/requests',
+      normalizedPayload,
+      toolToken
+    )
 
     if (result.ok && isRecord(result.body)) {
       if (result.body.status === 'no_ticket') {

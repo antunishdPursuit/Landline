@@ -25,7 +25,12 @@ describe('ElevenLabs client tools', () => {
     )
     const saveTicket = jest.fn()
     const onActivity = jest.fn()
-    const tools = createVoiceClientTools({ fetcher, saveTicket, onActivity })
+    const tools = createVoiceClientTools({
+      fetcher,
+      saveTicket,
+      onActivity,
+      toolToken: 'short-lived-token',
+    })
 
     const result = JSON.parse(
       await tools.log_request({
@@ -37,7 +42,12 @@ describe('ElevenLabs client tools', () => {
 
     expect(fetcher).toHaveBeenCalledWith(
       '/api/requests',
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer short-lived-token',
+        }),
+      })
     )
     expect(saveTicket).toHaveBeenCalledWith(ticket)
     expect(onActivity).toHaveBeenCalledWith({
