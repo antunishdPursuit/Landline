@@ -31,6 +31,7 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(RITZ_NOMAD_CONFIG.name)).toBeInTheDocument();
     expect(screen.getByText(RITZ_NOMAD_CONFIG.address)).toBeInTheDocument();
     expect(onPhoneAction).not.toHaveBeenCalled();
+    expect(screen.getByText("0:55 maximum")).toBeInTheDocument();
   });
 
   it("keeps every non-phone panel control disabled", () => {

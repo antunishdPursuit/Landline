@@ -64,7 +64,7 @@ const DEMO_SCRIPTS = [
 export function BedsideCloseup({
   config,
   phoneState,
-  remainingSeconds = 60,
+  remainingSeconds = 55,
   errorMessage = null,
   phoneSource,
   lastCall = null,
@@ -722,7 +722,7 @@ export function BedsideCloseup({
                   ? `${countdown} remaining`
                   : phoneState === "connecting"
                     ? "Connecting"
-                    : "1:00 maximum"}
+                    : "0:55 maximum"}
               </span>
               <button
                 type="button"
