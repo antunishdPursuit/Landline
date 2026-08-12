@@ -82,14 +82,14 @@ describe("voice session lifecycle", () => {
 
     const options = mockStartSession.mock.calls[0][0] as {
       onMessage: (message: { source: "user" | "ai"; message: string }) => void;
-      onStatusChange: (status: { status: string }) => void;
+      onDisconnect: (details: { reason: "agent" }) => void;
     };
 
     act(() => {
       options.onMessage({ source: "user", message: "I need two towels." });
       options.onMessage({ source: "user", message: DEMO_CALL_WRAP_UP_EVENT });
       options.onMessage({ source: "ai", message: "I can help with that." });
-      options.onStatusChange({ status: "disconnected" });
+      options.onDisconnect({ reason: "agent" });
     });
 
     expect(readDemoState().call_logs[0]).toMatchObject({
@@ -99,7 +99,59 @@ describe("voice session lifecycle", () => {
         { speaker: "guest", text: "I need two towels." },
         { speaker: "agent", text: "I can help with that." },
       ],
+      end_reason: "agent_ended",
+      end_source: "elevenlabs",
     });
+  });
+
+  it("records a guest hang-up separately from the demo timer", async () => {
+    setupHappyFetch();
+    startCall();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "in-call" })).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "in-call" }));
+
+    await waitFor(() =>
+      expect(readDemoState().call_logs[0]).toMatchObject({
+        id: "conv_test_123",
+        end_reason: "guest_ended",
+        end_source: "landline",
+      })
+    );
+  });
+
+  it("uses the provider termination detail after an agent disconnect", async () => {
+    global.fetch = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      if (String(input) === "/api/elevenlabs/signed-url") {
+        return {
+          ok: true,
+          json: async () => ({ url: SIGNED_URL, toolToken: TOOL_TOKEN }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        json: async () => ({ terminationReason: "Silence timeout reached" }),
+      } as Response;
+    });
+    startCall();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "in-call" })).toBeInTheDocument()
+    );
+
+    const options = mockStartSession.mock.calls[0][0] as {
+      onDisconnect: (details: { reason: "agent" }) => void;
+    };
+    act(() => options.onDisconnect({ reason: "agent" }));
+
+    await waitFor(() =>
+      expect(readDemoState().call_logs[0]).toMatchObject({
+        end_reason: "silence_timeout",
+        end_source: "elevenlabs",
+        end_detail: "Silence timeout reached",
+      })
+    );
   });
 
   it("requests one graceful close at 75 seconds and ends at 90 seconds", async () => {
@@ -127,6 +179,10 @@ describe("voice session lifecycle", () => {
     expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
     expect(mockConversationEnd).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "ended" })).toBeInTheDocument();
+    expect(readDemoState().call_logs[0]).toMatchObject({
+      end_reason: "demo_time_limit",
+      end_source: "landline",
+    });
   });
 
   it("fetches the signed URL before starting ElevenLabs and passes no raw credentials", async () => {

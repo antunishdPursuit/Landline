@@ -45,6 +45,17 @@ export interface ConversationTurn {
   text: string
 }
 
+export type CallEndReason =
+  | 'guest_ended'
+  | 'agent_ended'
+  | 'demo_time_limit'
+  | 'silence_timeout'
+  | 'connection_lost'
+  | 'client_error'
+  | 'unknown'
+
+export type CallEndSource = 'landline' | 'elevenlabs' | 'browser'
+
 export interface CallLog {
   id: string
   room_number: string
@@ -56,6 +67,10 @@ export interface CallLog {
   request_summary: string | null
   requires_human: boolean
   created_at: string
+  end_reason?: CallEndReason
+  end_source?: CallEndSource
+  end_detail?: string | null
+  ended_at?: string
 }
 
 export interface TravelRecommendation {

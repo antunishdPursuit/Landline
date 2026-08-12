@@ -3,6 +3,8 @@ import {
   DEMO_STORE_STORAGE_KEY,
   DEMO_STORE_VERSION,
   type CallLog,
+  type CallEndReason,
+  type CallEndSource,
   type DemoState,
   type Department,
   type GuestRequest,
@@ -27,6 +29,20 @@ const INTENTS = new Set<Intent>([
 ])
 const URGENCIES = new Set<Urgency>(['low', 'medium', 'high'])
 const STATUSES = new Set<RequestStatus>(['new', 'in_progress', 'done'])
+const CALL_END_REASONS = new Set<CallEndReason>([
+  'guest_ended',
+  'agent_ended',
+  'demo_time_limit',
+  'silence_timeout',
+  'connection_lost',
+  'client_error',
+  'unknown',
+])
+const CALL_END_SOURCES = new Set<CallEndSource>([
+  'landline',
+  'elevenlabs',
+  'browser',
+])
 
 function getBrowserStorage(): Storage | null {
   return typeof window === 'undefined' ? null : window.localStorage
@@ -76,7 +92,15 @@ function isCallLog(value: unknown): value is CallLog {
     (call.department === null || DEPARTMENTS.has(call.department as Department)) &&
     (call.request_summary === null || isString(call.request_summary)) &&
     typeof call.requires_human === 'boolean' &&
-    isString(call.created_at)
+    isString(call.created_at) &&
+    (call.end_reason === undefined ||
+      CALL_END_REASONS.has(call.end_reason as CallEndReason)) &&
+    (call.end_source === undefined ||
+      CALL_END_SOURCES.has(call.end_source as CallEndSource)) &&
+    (call.end_detail === undefined ||
+      call.end_detail === null ||
+      isString(call.end_detail)) &&
+    (call.ended_at === undefined || isString(call.ended_at))
   )
 }
 
