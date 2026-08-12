@@ -5,6 +5,37 @@ import type { CallLog } from '@/lib/types'
 import { timeAgo } from '@/lib/format'
 import { CallOutcomeBadge, LanguageBadge, NeedsHumanBadge } from './Badges'
 
+const END_REASON_PRESENTATION = {
+  guest_ended: {
+    label: 'Guest ended',
+    className: 'border-slate-200 bg-slate-100 text-slate-700',
+  },
+  agent_ended: {
+    label: 'Agent ended',
+    className: 'border-blue-200 bg-blue-50 text-blue-700',
+  },
+  demo_time_limit: {
+    label: 'Demo limit',
+    className: 'border-amber-200 bg-amber-50 text-amber-800',
+  },
+  silence_timeout: {
+    label: 'Silence timeout',
+    className: 'border-amber-200 bg-amber-50 text-amber-800',
+  },
+  connection_lost: {
+    label: 'Connection lost',
+    className: 'border-rose-200 bg-rose-50 text-rose-700',
+  },
+  client_error: {
+    label: 'Call error',
+    className: 'border-rose-200 bg-rose-50 text-rose-700',
+  },
+  unknown: {
+    label: 'End reason unavailable',
+    className: 'border-slate-200 bg-white text-slate-500',
+  },
+} as const
+
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60)
   const secs = Math.round(seconds % 60)
@@ -13,6 +44,7 @@ function formatDuration(seconds: number): string {
 
 export function CallLogCard({ call, justArrived }: { call: CallLog; justArrived: boolean }) {
   const [expanded, setExpanded] = useState(false)
+  const endReason = END_REASON_PRESENTATION[call.end_reason ?? 'unknown']
 
   return (
     <div
@@ -37,6 +69,11 @@ export function CallLogCard({ call, justArrived }: { call: CallLog; justArrived:
         <CallOutcomeBadge intent={call.intent} />
         <LanguageBadge code={call.language_detected} />
         {call.requires_human && <NeedsHumanBadge />}
+        <span
+          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${endReason.className}`}
+        >
+          {endReason.label}
+        </span>
       </div>
 
       <button
@@ -48,6 +85,12 @@ export function CallLogCard({ call, justArrived }: { call: CallLog; justArrived:
 
       {expanded && (
         <div className="mt-3 space-y-2 rounded-lg border border-base-border bg-slate-50 p-3">
+          {call.end_detail && (
+            <p className="border-b border-slate-200 pb-2 text-xs text-slate-600">
+              <span className="font-medium text-slate-700">Call ended:</span>{' '}
+              {call.end_detail}
+            </p>
+          )}
           {call.transcript.map((turn, i) => (
             <div key={i} className={`flex ${turn.speaker === 'guest' ? 'justify-start' : 'justify-end'}`}>
               <div
