@@ -3,7 +3,6 @@ export interface AgentConfig {
   address: string;
   lat: string;
   lng: string;
-  thumbnailUrl: string;
 }
 
 export const EMPTY_CONFIG: AgentConfig = {
@@ -11,7 +10,6 @@ export const EMPTY_CONFIG: AgentConfig = {
   address: "",
   lat: "",
   lng: "",
-  thumbnailUrl: "",
 };
 
 export const RITZ_NOMAD_CONFIG: AgentConfig = {
@@ -19,5 +17,4 @@ export const RITZ_NOMAD_CONFIG: AgentConfig = {
   address: "25 West 28th Street, New York, NY 10001",
   lat: "40.745556",
   lng: "-73.98942",
-  thumbnailUrl: "",
 };

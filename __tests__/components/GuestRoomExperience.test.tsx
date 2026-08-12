@@ -16,19 +16,6 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockRouterPush }),
 }));
 
-jest.mock("@/hooks/useAgentConfig", () => ({
-  useAgentConfig: () => ({
-    config: RITZ_NOMAD_CONFIG,
-    draft: RITZ_NOMAD_CONFIG,
-    isEditing: false,
-    isLoaded: true,
-    startEditing: jest.fn(),
-    cancelEditing: jest.fn(),
-    save: jest.fn(),
-    updateDraft: jest.fn(),
-  }),
-}));
-
 jest.mock("@/hooks/usePhoneSession", () => ({
   usePhoneSession: () => ({
     state: mockPhoneState,

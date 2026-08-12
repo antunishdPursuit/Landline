@@ -1,28 +1,24 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BedsideCloseup,
   type PhoneSource,
 } from "@/components/BedsideCloseup";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
-import { useAgentConfig } from "@/hooks/useAgentConfig";
 import { usePhoneSession } from "@/hooks/usePhoneSession";
 import { toAgentDynamicVariables } from "@/lib/agent-dynamic-variables";
+import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 type GuestView = "room" | "bedside";
+const AGENT_DYNAMIC_VARIABLES = toAgentDynamicVariables(RITZ_NOMAD_CONFIG);
 
 export function GuestRoomExperience() {
   const router = useRouter();
   const [view, setView] = useState<GuestView>("room");
   const [phoneSource, setPhoneSource] = useState<PhoneSource | null>(null);
-  const agentConfig = useAgentConfig();
-  const dynamicVariables = useMemo(
-    () => toAgentDynamicVariables(agentConfig.config),
-    [agentConfig.config]
-  );
-  const phoneSession = usePhoneSession(dynamicVariables);
+  const phoneSession = usePhoneSession(AGENT_DYNAMIC_VARIABLES);
 
   useEffect(() => {
     if (phoneSession.state === "ended" && phoneSession.lastCall) {
@@ -79,7 +75,7 @@ export function GuestRoomExperience() {
       ) : (
         <div className="guest-view-enter">
           <BedsideCloseup
-            config={agentConfig.config}
+            config={RITZ_NOMAD_CONFIG}
             phoneState={phoneSession.state}
             remainingSeconds={phoneSession.remainingSeconds}
             errorMessage={phoneSession.errorMessage}
