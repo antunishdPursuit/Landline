@@ -152,6 +152,7 @@ export function usePhoneSession(
         signedUrl,
         dynamicVariables,
         onMessage: ({ source, message }) => {
+          if (source === "user" && message === DEMO_CALL_WRAP_UP_EVENT) return;
           transcriptRef.current = [
             ...transcriptRef.current,
             { speaker: source === "user" ? "guest" : "agent", text: message },

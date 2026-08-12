@@ -32,6 +32,7 @@ jest.mock("@elevenlabs/client", () => ({
 }));
 
 import { PhoneButton } from "@/components/PhoneButton";
+import { DEMO_CALL_WRAP_UP_EVENT } from "@/hooks/usePhoneSession";
 import { readDemoState } from "@/lib/demo-store";
 import { EMPTY_CONFIG } from "@/types/agent";
 
@@ -79,6 +80,7 @@ describe("local call history", () => {
 
     act(() => {
       options.onMessage({ source: "user", message: "I need two towels." });
+      options.onMessage({ source: "user", message: DEMO_CALL_WRAP_UP_EVENT });
       options.onMessage({ source: "ai", message: "I can help with that." });
       options.onStatusChange({ status: "disconnected" });
     });
