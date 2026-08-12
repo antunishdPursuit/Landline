@@ -103,7 +103,7 @@ describe("BedsideCloseup", () => {
     expect(container.querySelector(".panel-phone-button")).toBeDisabled();
   });
 
-  it("shows test scripts and the connected-call countdown", () => {
+  it("shows both test scripts and the connected-call countdown", () => {
     render(
       <BedsideCloseup
         config={RITZ_NOMAD_CONFIG}
@@ -115,9 +115,11 @@ describe("BedsideCloseup", () => {
       />
     );
 
-    expect(screen.getByText(/try a concierge request/i)).toBeInTheDocument();
+    expect(screen.getByText(/call 1 · service and nearby/i)).toBeInTheDocument();
+    expect(screen.getByText(/call 2 · another hotel/i)).toBeInTheDocument();
     expect(screen.getByText(/send two extra towels/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/1:14/)).toHaveLength(2);
+    expect(screen.getByText(/leaving tomorrow and need another nearby hotel/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/1:14/)).toHaveLength(3);
   });
 
   it("shows the graceful closing state for the final 15 seconds", () => {
@@ -134,7 +136,7 @@ describe("BedsideCloseup", () => {
 
     expect(screen.getByText(/concierge is wrapping up/i)).toBeInTheDocument();
     expect(screen.getByText(/concierge is saying goodbye/i)).toBeInTheDocument();
-    expect(screen.queryByText(/try a concierge request/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/call 1 · service and nearby/i)).toBeInTheDocument();
     expect(screen.getByText(/wrapping up · 0:15/i)).toBeInTheDocument();
   });
 

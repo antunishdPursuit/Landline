@@ -42,6 +42,25 @@ const DISABLED_CONTROLS = [
   "Privacy",
 ];
 
+const DEMO_SCRIPTS = [
+  {
+    title: "Call 1 · Service and nearby",
+    prompts: [
+      "Send two extra towels to room 1208.",
+      "What Italian restaurants near the hotel are open tonight?",
+      "That’s all. Goodbye.",
+    ],
+  },
+  {
+    title: "Call 2 · Another hotel",
+    prompts: [
+      "I’m leaving tomorrow and need another nearby hotel.",
+      "Two adults, no children, one room.",
+      "Confirm the dates, then say goodbye.",
+    ],
+  },
+];
+
 export function BedsideCloseup({
   config,
   phoneState,
@@ -53,6 +72,7 @@ export function BedsideCloseup({
   onBack,
 }: BedsideCloseupProps) {
   const [detailsVisible, setDetailsVisible] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const sessionActive = phoneState === "connecting" || phoneState === "in-call";
   const handsetDisabled =
     phoneState === "connecting" || (sessionActive && phoneSource === "panel");
@@ -203,6 +223,66 @@ export function BedsideCloseup({
           background: #9a4e4e;
         }
 
+        .bedside-test-guide {
+          width: min(100%, 620px);
+          margin-top: 1rem;
+          padding: 0.9rem 1rem;
+          border: 1px solid rgba(91, 65, 48, 0.28);
+          border-radius: 1.1rem;
+          background: rgba(250, 247, 241, 0.9);
+          box-shadow: 0 14px 30px rgba(54, 38, 28, 0.16);
+          box-sizing: border-box;
+          backdrop-filter: blur(12px);
+        }
+
+        .bedside-test-guide-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .bedside-test-guide-title,
+        .bedside-test-guide-timer {
+          font: 700 0.68rem/1.2 var(--font-dm-sans), system-ui, sans-serif;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        .bedside-test-guide-timer {
+          color: #80582e;
+        }
+
+        .bedside-test-guide-toggle {
+          display: none;
+        }
+
+        .bedside-test-guide-body {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.8rem;
+          margin-top: 0.75rem;
+        }
+
+        .bedside-test-script {
+          min-width: 0;
+        }
+
+        .bedside-test-script h3 {
+          margin: 0 0 0.35rem;
+          color: #503929;
+          font: 700 0.7rem/1.3 var(--font-dm-sans), system-ui, sans-serif;
+        }
+
+        .bedside-test-script ol {
+          display: grid;
+          gap: 0.22rem;
+          margin: 0;
+          padding-left: 1.15rem;
+          color: #5f554d;
+          font: 500 0.68rem/1.38 var(--font-dm-sans), system-ui, sans-serif;
+        }
+
         .bedside-panel {
           position: relative;
           align-self: start;
@@ -269,20 +349,6 @@ export function BedsideCloseup({
           margin-top: 0.75rem;
           font: 500 0.76rem/1.45 var(--font-dm-sans), system-ui, sans-serif;
           opacity: 0.82;
-        }
-
-        .panel-demo-prompts {
-          display: grid;
-          gap: 0.4rem;
-          margin: 0.8rem 0 0;
-          padding: 0;
-          list-style: none;
-          font: 500 0.7rem/1.35 var(--font-dm-sans), system-ui, sans-serif;
-        }
-
-        .panel-demo-prompts li::before {
-          content: '“';
-          color: #f1ca8b;
         }
 
         .panel-countdown-warning {
@@ -355,6 +421,41 @@ export function BedsideCloseup({
 
           .bedside-phone-status {
             margin-top: -1.25rem;
+          }
+
+          .bedside-test-guide {
+            position: absolute;
+            z-index: 6;
+            right: 0.75rem;
+            bottom: 0.75rem;
+            width: min(92vw, 390px);
+            margin: 0;
+            padding: 0.75rem;
+          }
+
+          .bedside-test-guide-toggle {
+            display: inline-flex;
+            min-height: 36px;
+            align-items: center;
+            border: 1px solid rgba(91, 65, 48, 0.25);
+            border-radius: 999px;
+            background: #fffaf2;
+            padding: 0 0.75rem;
+            color: #503929;
+            font: 700 0.62rem/1 var(--font-dm-sans), system-ui, sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          }
+
+          .bedside-test-guide-body {
+            display: none;
+            max-height: 34vh;
+            grid-template-columns: 1fr;
+            overflow-y: auto;
+          }
+
+          .bedside-test-guide[data-open="true"] .bedside-test-guide-body {
+            display: grid;
           }
 
           .bedside-panel {
@@ -481,6 +582,46 @@ export function BedsideCloseup({
               </span>
             )}
           </span>
+
+          <aside
+            className="bedside-test-guide"
+            data-open={guideOpen}
+            aria-label="Demo call scripts"
+          >
+            <div className="bedside-test-guide-header">
+              <span className="bedside-test-guide-title">Try these scripts</span>
+              <span
+                className={`bedside-test-guide-timer${countdownWarning ? " panel-countdown-warning" : ""}`}
+                aria-live="polite"
+              >
+                {phoneState === "in-call"
+                  ? `${countdown} remaining`
+                  : phoneState === "connecting"
+                    ? "Connecting"
+                    : "1:30 maximum"}
+              </span>
+              <button
+                type="button"
+                className="bedside-test-guide-toggle"
+                onClick={() => setGuideOpen((open) => !open)}
+                aria-expanded={guideOpen}
+              >
+                {guideOpen ? "Hide" : "Show"}
+              </button>
+            </div>
+            <div className="bedside-test-guide-body">
+              {DEMO_SCRIPTS.map((script) => (
+                <section key={script.title} className="bedside-test-script">
+                  <h3>{script.title}</h3>
+                  <ol>
+                    {script.prompts.map((prompt) => (
+                      <li key={prompt}>{prompt}</li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </aside>
         </div>
 
         <div
@@ -505,18 +646,16 @@ export function BedsideCloseup({
                 <span className="panel-title">
                   {countdownWarning
                     ? "Concierge is wrapping up"
-                    : "Try a concierge request"}
+                    : "Concierge connected"}
                 </span>
                 {countdownWarning ? (
                   <p className="panel-wrap-up-note">
                     The concierge is saying goodbye before the demo ends.
                   </p>
                 ) : (
-                  <ul className="panel-demo-prompts">
-                    <li>Send two extra towels to room 1208.”</li>
-                    <li>What Italian restaurants near the hotel are open tonight?”</li>
-                    <li>Help me find another hotel nearby.”</li>
-                  </ul>
+                  <span className="panel-address">
+                    {config.name || "Landline Hotel"} · Room 1208
+                  </span>
                 )}
               </>
             ) : phoneState === "error" && errorMessage ? (
