@@ -6,5 +6,7 @@ node_modules/
 .next/
 next-env.d.ts
 *.tsbuildinfo
+CLAUDE.md
 claude.md
 .claude/
+/docs/

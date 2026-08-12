@@ -142,6 +142,18 @@ Configure the ElevenLabs agent with a 60-second maximum conversation duration,
 a short closing message, and the End Conversation system tool. The browser asks
 the agent to close at 55 seconds and ends the session at 60 seconds if needed.
 
+For this public demo, use these agent settings:
+
+- Enable authentication so Landline must request a short-lived signed URL.
+- Keep the client override for maximum conversation duration disabled.
+- Set the maximum conversation duration to 60 seconds.
+- Disable file attachments and call-audio storage.
+- Set the concurrent call limit to seven and keep bursting disabled.
+
+Landline sends every client-tool request with a separate short-lived token.
+The Tavily, Stay22, staff-request, and conversation-detail routes reject direct
+requests that do not contain that token.
+
 For a public Vercel deployment, add a WAF rate-limit rule for
 `GET /api/elevenlabs/signed-url`: two requests per IP address in a fixed
 10-minute window, with a `429` response when exceeded. Landline does not store
@@ -159,8 +171,9 @@ npm run build
 
 - Demo state does not synchronize between browsers or devices.
 - Landline stores call metadata and transcripts in the current browser; it does
-  not store call audio. ElevenLabs retention follows the agent and account
-  configuration.
+  not store call audio. The demo agent is configured with ElevenLabs call-audio
+  storage disabled; provider transcript retention still follows the ElevenLabs
+  account configuration.
 - Staff presence is representative demo content.
 - The ElevenLabs tool definitions and agent prompt must be configured in the ElevenLabs dashboard.
 - Stay22 demo mode is limited to five requests per minute per IP address.
