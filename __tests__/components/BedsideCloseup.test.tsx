@@ -125,6 +125,9 @@ describe("BedsideCloseup", () => {
         /a transcript and any call issues are saved locally/i
       )
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/does not place real hotel requests or reservations/i)
+    ).toBeInTheDocument();
     expect(screen.getAllByText(/1:14/)).toHaveLength(3);
     expect(container.querySelector(".bedside-demo-hud")).toContainElement(
       container.querySelector(".bedside-phone-status")

@@ -747,7 +747,8 @@ export function BedsideCloseup({
               <p className="bedside-test-guide-note">
                 A transcript and any call issues are saved locally. After the
                 call, the dashboard will show the transcript and details about
-                any issues that occurred.
+                any issues that occurred. Landline is for demonstration only;
+                it does not place real hotel requests or reservations.
               </p>
             </div>
         </aside>
