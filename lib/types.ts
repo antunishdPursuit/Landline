@@ -71,6 +71,8 @@ export interface TravelRecommendation {
   currency?: string
   rating?: number | null
   hotel_stars?: number | null
+  rating_count?: number | null
+  distance_meters?: number | null
 }
 
 export interface DemoState {

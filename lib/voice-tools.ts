@@ -165,10 +165,15 @@ export function createVoiceClientTools({
         result.ok &&
         isRecord(result.body) &&
         result.body.status === 'ready' &&
-        Array.isArray(result.body.options)
+        isRecord(result.body.recommended_option) &&
+        Array.isArray(result.body.backup_options)
       ) {
+        const returnedOptions = [
+          result.body.recommended_option,
+          ...result.body.backup_options,
+        ]
         const savedOptions: TravelRecommendation[] = []
-        result.body.options.forEach((option) => {
+        returnedOptions.forEach((option) => {
           if (!isRecord(option)) return
           try {
             const recommendation = option as unknown as TravelRecommendation
@@ -180,15 +185,13 @@ export function createVoiceClientTools({
         })
 
         if (savedOptions.length > 0) {
-          const summary = savedOptions
-            .map((option) => {
-              const price =
-                typeof option.price_total === 'number' && option.currency
-                  ? `${option.currency} ${option.price_total} total`
-                  : 'price unavailable'
-              return `${option.title}: ${price}`
-            })
-            .join('; ')
+          const recommendedOption = savedOptions[0]
+          const price =
+            typeof recommendedOption.price_total === 'number' &&
+            recommendedOption.currency
+              ? `${recommendedOption.currency} ${recommendedOption.price_total} total`
+              : 'price unavailable'
+          const summary = `${recommendedOption.title}: ${price}`
 
           onActivity({
             intent: 'answerable_qa',
@@ -199,9 +202,10 @@ export function createVoiceClientTools({
           })
           return toResult({
             ...result.body,
-            options: savedOptions,
+            recommended_option: recommendedOption,
+            backup_options: savedOptions.slice(1),
             message:
-              'Describe up to three options with their full-stay prices. Availability can change. No reservation has been made.',
+              'Describe only recommended_option with its full-stay price. Availability can change. No reservation has been made. If the guest rejects it, offer one backup_options entry without calling find_stays again.',
           })
         }
       }

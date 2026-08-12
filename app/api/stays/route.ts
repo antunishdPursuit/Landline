@@ -112,6 +112,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       currency: option.currency,
       rating: option.rating,
       hotel_stars: option.hotel_stars,
+      rating_count: option.rating_count,
+      distance_meters: option.distance_meters,
     }))
 
     return NextResponse.json({
@@ -119,7 +121,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       search: input,
       nights: result.nights,
       total_results: result.total,
-      options,
+      recommended_option: options[0] ?? null,
+      backup_options: options.slice(1),
     })
   } catch (caught) {
     if (caught instanceof Stay22ConfigurationError) {

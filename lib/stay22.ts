@@ -5,7 +5,7 @@ type JsonRecord = Record<string, unknown>
 
 const STAY22_API_ORIGIN = 'https://api.stay22.com'
 const STAY22_API_PATH = '/v2/accommodations'
-const RESULT_LIMIT = 3
+const CANDIDATE_LIMIT = 5
 
 export interface Stay22SearchInput {
   address: string
@@ -27,6 +27,8 @@ export interface Stay22Option {
   currency: string
   rating: number | null
   hotel_stars: number | null
+  rating_count: number | null
+  distance_meters: number | null
 }
 
 export interface Stay22SearchResult {
@@ -133,7 +135,70 @@ function parseOption(value: unknown, currency: string): Stay22Option | null {
     currency,
     rating: optionalNumber(rating?.value),
     hotel_stars: optionalNumber(rating?.hotelStars),
+    rating_count: optionalNumber(rating?.count),
+    distance_meters: optionalNumber(location?.distanceInMeters),
   }
+}
+
+function compareNullableAscending(
+  left: number | null,
+  right: number | null
+): number {
+  if (left === null && right === null) return 0
+  if (left === null) return 1
+  if (right === null) return -1
+  return left - right
+}
+
+function compareNullableDescending(
+  left: number | null,
+  right: number | null
+): number {
+  return compareNullableAscending(right, left)
+}
+
+function isWellReviewed(option: Stay22Option): boolean {
+  return (
+    option.rating !== null &&
+    option.rating >= 8 &&
+    option.rating_count !== null &&
+    option.rating_count >= 50
+  )
+}
+
+function normalizeLocationName(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function matchesSearchLocation(option: Stay22Option, address: string): boolean {
+  const title = normalizeLocationName(option.name)
+  const searchLocation = normalizeLocationName(address)
+
+  return title.length > 0 && searchLocation.includes(title)
+}
+
+export function rankStay22Options(options: Stay22Option[]): Stay22Option[] {
+  return [...options].sort((left, right) => {
+    const reviewQuality = Number(isWellReviewed(right)) - Number(isWellReviewed(left))
+    if (reviewQuality !== 0) return reviewQuality
+
+    const distance = compareNullableAscending(
+      left.distance_meters,
+      right.distance_meters
+    )
+    if (distance !== 0) return distance
+
+    const rating = compareNullableDescending(left.rating, right.rating)
+    if (rating !== 0) return rating
+
+    const reviewCount = compareNullableDescending(
+      left.rating_count,
+      right.rating_count
+    )
+    if (reviewCount !== 0) return reviewCount
+
+    return compareNullableAscending(left.price_total, right.price_total)
+  })
 }
 
 export async function searchStay22(
@@ -149,7 +214,8 @@ export async function searchStay22(
   endpoint.searchParams.set('rooms', String(input.rooms))
   endpoint.searchParams.set('currency', 'USD')
   endpoint.searchParams.set('lang', 'en')
-  endpoint.searchParams.set('pageSize', String(RESULT_LIMIT))
+  endpoint.searchParams.set('type', 'hotel')
+  endpoint.searchParams.set('pageSize', String(CANDIDATE_LIMIT))
   endpoint.searchParams.set('page', '1')
   endpoint.searchParams.set('cluster', 'false')
 
@@ -180,10 +246,13 @@ export async function searchStay22(
   }
 
   const currency = optionalString(body.meta.currency) ?? 'USD'
-  const options = body.results
-    .map((result) => parseOption(result, currency))
-    .filter((option): option is Stay22Option => option !== null)
-    .slice(0, RESULT_LIMIT)
+  const options = rankStay22Options(
+    body.results
+      .map((result) => parseOption(result, currency))
+      .filter((option): option is Stay22Option => option !== null)
+      .filter((option) => !matchesSearchLocation(option, input.address))
+      .slice(0, CANDIDATE_LIMIT)
+  )
 
   return {
     currency,

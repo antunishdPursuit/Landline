@@ -136,7 +136,8 @@ describe('ElevenLabs client tools', () => {
           children: 0,
           rooms: 1,
         },
-        options: [option],
+        recommended_option: option,
+        backup_options: [],
       })
     )
     const saveRecommendation = jest.fn()
@@ -154,14 +155,64 @@ describe('ElevenLabs client tools', () => {
     )
 
     expect(saveRecommendation).toHaveBeenCalledWith(option)
-    expect(result.options).toEqual([option])
-    expect(result.message).toContain('full-stay prices')
+    expect(result.recommended_option).toEqual(option)
+    expect(result.backup_options).toEqual([])
+    expect(result.message).toContain('Describe only recommended_option')
     expect(result.message).toContain('No reservation has been made')
+  })
+
+  it('stores backups from the same response without another Stay22 request', async () => {
+    const recommended = {
+      id: 'stay_recommended',
+      title: 'Recommended Hotel',
+      url: 'https://www.stay22.com/allez/booking/1',
+      source: 'stay22',
+      created_at: '2026-08-12T12:00:00.000Z',
+      price_total: 600,
+      currency: 'USD',
+    }
+    const backup = {
+      ...recommended,
+      id: 'stay_backup',
+      title: 'Backup Hotel',
+      url: 'https://www.stay22.com/allez/booking/2',
+      price_total: 550,
+    }
+    const fetcher = jest.fn().mockResolvedValue(
+      response(true, {
+        status: 'ready',
+        recommended_option: recommended,
+        backup_options: [backup],
+      })
+    )
+    const saveRecommendation = jest.fn()
+    const tools = createVoiceClientTools({ fetcher, saveRecommendation })
+
+    const result = JSON.parse(
+      await tools.find_stays({
+        address: 'NoMad, New York',
+        checkin: '2026-09-12',
+        checkout: '2026-09-15',
+        adults: 2,
+        children: 0,
+        rooms: 1,
+      })
+    )
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(saveRecommendation).toHaveBeenNthCalledWith(1, recommended)
+    expect(saveRecommendation).toHaveBeenNthCalledWith(2, backup)
+    expect(result.recommended_option).toEqual(recommended)
+    expect(result.backup_options).toEqual([backup])
   })
 
   it('lets the agent revise a confirmed search when Stay22 has no results', async () => {
     const fetcher = jest.fn().mockResolvedValue(
-      response(true, { status: 'no_results', options: [] })
+      response(true, {
+        status: 'no_results',
+        recommended_option: null,
+        backup_options: [],
+      })
     )
     const onActivity = jest.fn()
     const tools = createVoiceClientTools({ fetcher, onActivity })

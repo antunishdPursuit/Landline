@@ -39,8 +39,11 @@ function stay22Response(results: unknown[] = [
     name: 'The Example Hotel',
     type: 'Hotel',
     url: 'https://www.stay22.com/allez/roam/hotel_123?source=direct',
-    location: { address: '10 Example Street, New York' },
-    rating: { value: 8.7, hotelStars: 4 },
+    location: {
+      address: '10 Example Street, New York',
+      distanceInMeters: 850,
+    },
+    rating: { value: 8.7, hotelStars: 4, count: 420 },
     suppliers: {
       booking: {
         link: 'https://www.stay22.com/allez/booking/123',
@@ -55,7 +58,7 @@ function stay22Response(results: unknown[] = [
 ]) {
   return {
     meta: {
-      pageSize: 3,
+      pageSize: 5,
       count: results.length,
       page: 1,
       total: results.length,
@@ -84,7 +87,7 @@ afterAll(() => {
 })
 
 describe('POST /api/stays', () => {
-  it('returns three or fewer priced Stay22 options without an API key', async () => {
+  it('returns one recommendation and backups from one no-key request', async () => {
     const search = validSearch()
     const response = await POST(makeRequest(search))
     const body = await response.json()
@@ -96,21 +99,24 @@ describe('POST /api/stays', () => {
       nights: 3,
       total_results: 1,
     })
-    expect(body.options).toEqual([
+    expect(body.recommended_option).toEqual(
       expect.objectContaining({
-        id: 'stay_hotel_123',
-        title: 'The Example Hotel',
-        url: 'https://www.stay22.com/allez/expedia/456',
-        source: 'stay22',
-        accommodation_type: 'Hotel',
-        address: '10 Example Street, New York',
-        supplier: 'expedia',
-        price_total: 590,
-        currency: 'USD',
-        rating: 8.7,
-        hotel_stars: 4,
-      }),
-    ])
+          id: 'stay_hotel_123',
+          title: 'The Example Hotel',
+          url: 'https://www.stay22.com/allez/expedia/456',
+          source: 'stay22',
+          accommodation_type: 'Hotel',
+          address: '10 Example Street, New York',
+          supplier: 'expedia',
+          price_total: 590,
+          currency: 'USD',
+          rating: 8.7,
+          hotel_stars: 4,
+          rating_count: 420,
+          distance_meters: 850,
+        })
+    )
+    expect(body.backup_options).toEqual([])
 
     const [requestedUrl, requestInit] = (global.fetch as jest.Mock).mock.calls[0]
     const url = new URL(String(requestedUrl))
@@ -123,8 +129,104 @@ describe('POST /api/stays', () => {
     expect(url.searchParams.get('adults')).toBe('2')
     expect(url.searchParams.get('children')).toBe('0')
     expect(url.searchParams.get('rooms')).toBe('1')
-    expect(url.searchParams.get('pageSize')).toBe('3')
+    expect(url.searchParams.get('type')).toBe('hotel')
+    expect(url.searchParams.get('pageSize')).toBe('5')
     expect(requestInit.headers).not.toHaveProperty('X-API-KEY')
+  })
+
+  it('recommends a nearby well-reviewed hotel and retains ranked backups', async () => {
+    const option = (
+      id: string,
+      name: string,
+      distanceInMeters: number,
+      rating: number,
+      count: number,
+      total: number
+    ) => ({
+      id,
+      name,
+      type: 'Hotel',
+      url: `https://www.stay22.com/allez/roam/${id}`,
+      location: { address: `${name} address`, distanceInMeters },
+      rating: { value: rating, hotelStars: 4, count },
+      suppliers: {
+        booking: {
+          link: `https://www.stay22.com/allez/booking/${id}`,
+          price: { total },
+        },
+      },
+    })
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(
+        JSON.stringify(
+          stay22Response([
+            option('cheap', 'Cheap Hotel', 300, 6.8, 800, 300),
+            option('far', 'Far Excellent Hotel', 5000, 9.4, 2000, 700),
+            option('near', 'Nearby Strong Hotel', 600, 8.5, 900, 650),
+            option('mid', 'Midrange Strong Hotel', 1200, 8.8, 1200, 550),
+          ])
+        ),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    )
+
+    const response = await POST(makeRequest(validSearch()))
+    const body = await response.json()
+
+    expect(body.recommended_option.title).toBe('Nearby Strong Hotel')
+    expect(body.backup_options.map((item: { title: string }) => item.title)).toEqual([
+      'Midrange Strong Hotel',
+      'Far Excellent Hotel',
+      'Cheap Hotel',
+    ])
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not recommend the hotel named as the search location', async () => {
+    const currentHotel = {
+      id: 'current',
+      name: 'The Ritz-Carlton New York, Nomad',
+      type: 'Hotel',
+      url: 'https://www.stay22.com/allez/roam/current',
+      location: { address: '25 West 28th Street', distanceInMeters: 20 },
+      rating: { value: 9.2, hotelStars: 5, count: 900 },
+      suppliers: {
+        booking: {
+          link: 'https://www.stay22.com/allez/booking/current',
+          price: { total: 1200 },
+        },
+      },
+    }
+    const alternative = {
+      ...currentHotel,
+      id: 'alternative',
+      name: 'Nearby Alternative Hotel',
+      url: 'https://www.stay22.com/allez/roam/alternative',
+      location: { address: '30 West 28th Street', distanceInMeters: 80 },
+      suppliers: {
+        booking: {
+          link: 'https://www.stay22.com/allez/booking/alternative',
+          price: { total: 900 },
+        },
+      },
+    }
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify(stay22Response([currentHotel, alternative])), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+
+    const response = await POST(
+      makeRequest(
+        validSearch({ address: 'The Ritz-Carlton New York, NoMad' })
+      )
+    )
+    const body = await response.json()
+
+    expect(body.recommended_option.title).toBe('Nearby Alternative Hotel')
+    expect(body.backup_options).toEqual([])
+    expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
   it.each([
@@ -157,7 +259,8 @@ describe('POST /api/stays', () => {
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
       status: 'no_results',
-      options: [],
+      recommended_option: null,
+      backup_options: [],
     })
   })
 

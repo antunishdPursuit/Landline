@@ -110,9 +110,13 @@ each client response:
 }
 ```
 
-Dates use `YYYY-MM-DD`. Landline requests at most three results and returns
-full-stay totals in USD. The agent may describe only returned options and must
-say that prices and availability can change and that no reservation was made.
+Dates use `YYYY-MM-DD`. Landline makes one Stay22 request after confirmation,
+retrieves five hotel candidates, and ranks them locally using review strength,
+distance, rating, review volume, and price. If the search location names the
+current hotel, Landline removes that hotel before ranking alternatives. The
+agent recommends one hotel and retains the remaining results as backups without
+another API call. Prices are full-stay totals in USD. The agent must say that
+prices and availability can change and that no reservation was made.
 See the [Stay22 Direct Travel API quickstart](https://dev.stay22.com/docs/api/quickstart).
 
 ## Commands

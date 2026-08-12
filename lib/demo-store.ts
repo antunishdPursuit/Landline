@@ -107,7 +107,13 @@ function isTravelRecommendation(value: unknown): value is TravelRecommendation {
       typeof recommendation.rating === 'number') &&
     (recommendation.hotel_stars === undefined ||
       recommendation.hotel_stars === null ||
-      typeof recommendation.hotel_stars === 'number')
+      typeof recommendation.hotel_stars === 'number') &&
+    (recommendation.rating_count === undefined ||
+      recommendation.rating_count === null ||
+      typeof recommendation.rating_count === 'number') &&
+    (recommendation.distance_meters === undefined ||
+      recommendation.distance_meters === null ||
+      typeof recommendation.distance_meters === 'number')
   )
 }
 
