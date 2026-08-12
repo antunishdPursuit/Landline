@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { GuestRequest, RequestStatus } from '@/lib/types'
 import { timeAgo } from '@/lib/format'
 import { DepartmentBadge, LanguageBadge, NeedsHumanBadge, UrgencyBadge } from './Badges'

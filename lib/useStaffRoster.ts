@@ -1,14 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { seedStaffRoster } from './mock-data'
 import type { StaffMember } from './types'
 
 export function useStaffRoster() {
-  const [roster, setRoster] = useState<StaffMember[]>([])
+  const [roster] = useState<StaffMember[]>(seedStaffRoster)
 
-  useEffect(() => {
-    setRoster(seedStaffRoster())
-  }, [])
   return { roster }
 }

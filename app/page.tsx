@@ -1,4 +1,3 @@
-import React from "react";
 import { GuestRoomExperience } from "@/components/GuestRoomExperience";
 
 export default function GuestPage() {

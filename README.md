@@ -44,7 +44,7 @@ realtime backend.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20.19+ or 22.13+
 - A Clerk application
 - An ElevenLabs account and configured agent
 - A Tavily API key for live current-information search

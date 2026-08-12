@@ -7,7 +7,7 @@ const config = {
       "ts-jest",
       {
         tsconfig: {
-          jsx: "react",
+          jsx: "react-jsx",
           esModuleInterop: true,
           module: "commonjs",
           moduleResolution: "node",

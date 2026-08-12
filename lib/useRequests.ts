@@ -27,6 +27,8 @@ export function useRequests() {
     // Initialize without treating seeded tickets as newly arrived.
     const initial = readDemoState().tickets
     knownIds.current = new Set(initial.map((ticket) => ticket.id))
+    // Browser storage must be read after mount to avoid a server/client hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRequests(initial)
 
     return subscribeToDemoState(syncRequests)

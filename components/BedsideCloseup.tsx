@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
 import type { CallLog } from "@/lib/types";
 import type { AgentConfig } from "@/types/agent";

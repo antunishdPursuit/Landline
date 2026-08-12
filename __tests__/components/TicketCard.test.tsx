@@ -1,4 +1,3 @@
-import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { TicketCard } from '@/components/TicketCard'
 import type { GuestRequest } from '@/lib/types'
