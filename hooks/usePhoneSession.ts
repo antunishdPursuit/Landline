@@ -34,8 +34,8 @@ export interface UsePhoneSessionReturn {
   endSession: () => Promise<void>;
 }
 
-export const DEMO_CALL_LIMIT_SECONDS = 60;
-export const DEMO_CALL_WRAP_UP_SECONDS = 15;
+export const DEMO_CALL_LIMIT_SECONDS = 55;
+export const DEMO_CALL_WRAP_UP_SECONDS = 10;
 export const DEMO_CALL_WRAP_UP_EVENT =
   '[LANDLINE_SYSTEM_EVENT] The public demo time limit is approaching. Say exactly: "I’m sorry, but we’ve reached the demo time limit. Thank you for trying Landline. Goodbye." Then use the End Conversation system tool.';
 
@@ -163,7 +163,7 @@ export function usePhoneSession(
         try {
           conversationRef.current?.sendUserMessage(DEMO_CALL_WRAP_UP_EVENT);
         } catch {
-          // The 60-second hard cutoff remains active if the graceful close fails.
+          // The 55-second hard cutoff remains active if the graceful close fails.
         }
       }
 
@@ -171,7 +171,7 @@ export function usePhoneSession(
         pendingEndRef.current = {
           reason: "demo_time_limit",
           source: "landline",
-          detail: "The 60-second public demo limit was reached.",
+          detail: "The 55-second public demo limit was reached.",
         };
         const conversation = conversationRef.current;
         conversationRef.current = null;

@@ -154,7 +154,7 @@ describe("voice session lifecycle", () => {
     );
   });
 
-  it("requests one graceful close at 45 seconds and ends at 60 seconds", async () => {
+  it("requests one graceful close at 45 seconds and ends at 55 seconds", async () => {
     jest.useFakeTimers();
     setupHappyFetch();
     startCall();
@@ -173,7 +173,7 @@ describe("voice session lifecycle", () => {
     );
 
     await act(async () => {
-      jest.advanceTimersByTime(15_000);
+      jest.advanceTimersByTime(10_000);
       await Promise.resolve();
     });
     expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
