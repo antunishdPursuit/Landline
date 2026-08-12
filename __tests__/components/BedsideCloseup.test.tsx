@@ -104,7 +104,7 @@ describe("BedsideCloseup", () => {
   });
 
   it("shows both test scripts and the connected-call countdown", () => {
-    render(
+    const { container } = render(
       <BedsideCloseup
         config={RITZ_NOMAD_CONFIG}
         phoneState="in-call"
@@ -120,6 +120,15 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(/send two extra towels/i)).toBeInTheDocument();
     expect(screen.getByText(/leaving tomorrow and need another nearby hotel/i)).toBeInTheDocument();
     expect(screen.getAllByText(/1:14/)).toHaveLength(3);
+    expect(container.querySelector(".bedside-demo-hud")).toContainElement(
+      container.querySelector(".bedside-phone-status")
+    );
+    expect(container.querySelector(".bedside-demo-hud")).toContainElement(
+      container.querySelector(".bedside-test-guide")
+    );
+    expect(container.querySelector(".bedside-phone-zone")).not.toContainElement(
+      container.querySelector(".bedside-test-guide")
+    );
   });
 
   it("shows the graceful closing state for the final 15 seconds", () => {

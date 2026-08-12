@@ -28,6 +28,23 @@ describe("HotelRoomOverview", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps the phone left of the panel in both responsive room scenes", () => {
+    const { container } = render(<HotelRoomOverview />);
+
+    expect(
+      container.querySelector('[data-scene-object="hotel-phone"]')
+    ).toHaveAttribute("data-device-side", "left");
+    expect(
+      container.querySelector('[data-scene-object="bedside-panel"]')
+    ).toHaveAttribute("data-device-side", "right");
+    expect(
+      container.querySelector('[data-scene-object="mobile-hotel-phone"]')
+    ).toHaveAttribute("data-device-side", "left");
+    expect(
+      container.querySelector('[data-scene-object="mobile-bedside-panel"]')
+    ).toHaveAttribute("data-device-side", "right");
+  });
+
   it("places the wordmark on both responsive headboards", () => {
     const { container } = render(<HotelRoomOverview />);
 

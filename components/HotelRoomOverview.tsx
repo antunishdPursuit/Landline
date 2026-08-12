@@ -188,7 +188,12 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         </g>
 
         {/* Amber hotel panel */}
-        <g data-scene-object="mobile-bedside-panel" filter="url(#mobile-device-shadow)">
+        <g
+          data-scene-object="mobile-bedside-panel"
+          data-device-side="right"
+          transform="translate(100 0)"
+          filter="url(#mobile-device-shadow)"
+        >
           <rect x="12" y="395" width="70" height="65" rx="9" fill="#252729" stroke="#87735d" strokeWidth="3" />
           <rect x="21" y="404" width="52" height="33" rx="4" fill="#b77d37" />
           <path d="M29 446h11M48 446h11M67 446h2" stroke="#efc47c" strokeWidth="4" strokeLinecap="round" />
@@ -196,7 +201,12 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         </g>
 
         {/* Oversized phone remains recognizable and thumb-adjacent. */}
-        <g data-scene-object="mobile-hotel-phone" filter="url(#mobile-device-shadow)">
+        <g
+          data-scene-object="mobile-hotel-phone"
+          data-device-side="left"
+          transform="translate(-60 0)"
+          filter="url(#mobile-device-shadow)"
+        >
           <path d="M76 443h100l14 44H62Z" fill="#202426" stroke="#3e4345" strokeWidth="4" />
           <rect x="92" y="455" width="51" height="20" rx="3" fill="#777168" />
           <circle cx="159" cy="462" r="5" fill="#dc9c4c" />
@@ -320,7 +330,12 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         </g>
 
         {/* Bedside control panel */}
-        <g data-scene-object="bedside-panel" filter="url(#device-shadow)">
+        <g
+          data-scene-object="bedside-panel"
+          data-device-side="right"
+          transform="translate(115 0)"
+          filter="url(#device-shadow)"
+        >
           <rect x="88" y="397" width="63" height="49" rx="7" fill="#252729" stroke="#86735d" strokeWidth="2" />
           <rect x="96" y="404" width="47" height="24" rx="3" fill="#b77d37" />
           <path d="M104 434h9M120 434h9M136 434h2" stroke="#e5bb77" strokeWidth="3" strokeLinecap="round" />
@@ -329,7 +344,12 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         </g>
 
         {/* Hotel phone */}
-        <g data-scene-object="hotel-phone" filter="url(#device-shadow)">
+        <g
+          data-scene-object="hotel-phone"
+          data-device-side="left"
+          transform="translate(-80 0)"
+          filter="url(#device-shadow)"
+        >
           <path d="M166 428h96l11 36H154Z" fill="#202426" stroke="#3e4345" strokeWidth="3" />
           <rect x="180" y="437" width="49" height="18" rx="3" fill="#777168" />
           <circle cx="244" cy="444" r="3.5" fill="#dc9c4c" />

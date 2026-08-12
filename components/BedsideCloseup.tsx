@@ -223,9 +223,26 @@ export function BedsideCloseup({
           background: #9a4e4e;
         }
 
+        .bedside-demo-hud {
+          position: absolute;
+          z-index: 6;
+          left: 50%;
+          bottom: clamp(0.75rem, 2vh, 1.5rem);
+          display: flex;
+          width: min(700px, 72vw);
+          flex-direction: column;
+          align-items: center;
+          gap: 0.65rem;
+          transform: translateX(-50%);
+          pointer-events: none;
+        }
+
+        .bedside-demo-hud > * {
+          pointer-events: auto;
+        }
+
         .bedside-test-guide {
-          width: min(100%, 620px);
-          margin-top: 1rem;
+          width: 100%;
           padding: 0.9rem 1rem;
           border: 1px solid rgba(91, 65, 48, 0.28);
           border-radius: 1.1rem;
@@ -238,8 +255,9 @@ export function BedsideCloseup({
         .bedside-test-guide-header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           gap: 1rem;
+          text-align: center;
         }
 
         .bedside-test-guide-title,
@@ -262,6 +280,7 @@ export function BedsideCloseup({
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0.8rem;
           margin-top: 0.75rem;
+          text-align: left;
         }
 
         .bedside-test-script {
@@ -420,16 +439,17 @@ export function BedsideCloseup({
           }
 
           .bedside-phone-status {
-            margin-top: -1.25rem;
+            margin-top: 0;
+          }
+
+          .bedside-demo-hud {
+            left: 50%;
+            top: calc(44vh + 0.75rem);
+            bottom: auto;
+            width: min(92vw, 390px);
           }
 
           .bedside-test-guide {
-            position: absolute;
-            z-index: 6;
-            right: 0.75rem;
-            bottom: 0.75rem;
-            width: min(92vw, 390px);
-            margin: 0;
             padding: 0.75rem;
           }
 
@@ -571,57 +591,6 @@ export function BedsideCloseup({
             </svg>
           </button>
 
-          <span className="bedside-phone-status" data-state={phoneState}>
-            {PHONE_STATUS[phoneState]}
-            {phoneState === "in-call" && (
-              <span
-                className={countdownWarning ? "panel-countdown-warning" : undefined}
-                aria-live="polite"
-              >
-                {countdownWarning ? `· Wrapping up · ${countdown}` : `· ${countdown}`}
-              </span>
-            )}
-          </span>
-
-          <aside
-            className="bedside-test-guide"
-            data-open={guideOpen}
-            aria-label="Demo call scripts"
-          >
-            <div className="bedside-test-guide-header">
-              <span className="bedside-test-guide-title">Try these scripts</span>
-              <span
-                className={`bedside-test-guide-timer${countdownWarning ? " panel-countdown-warning" : ""}`}
-                aria-live="polite"
-              >
-                {phoneState === "in-call"
-                  ? `${countdown} remaining`
-                  : phoneState === "connecting"
-                    ? "Connecting"
-                    : "1:30 maximum"}
-              </span>
-              <button
-                type="button"
-                className="bedside-test-guide-toggle"
-                onClick={() => setGuideOpen((open) => !open)}
-                aria-expanded={guideOpen}
-              >
-                {guideOpen ? "Hide" : "Show"}
-              </button>
-            </div>
-            <div className="bedside-test-guide-body">
-              {DEMO_SCRIPTS.map((script) => (
-                <section key={script.title} className="bedside-test-script">
-                  <h3>{script.title}</h3>
-                  <ol>
-                    {script.prompts.map((prompt) => (
-                      <li key={prompt}>{prompt}</li>
-                    ))}
-                  </ol>
-                </section>
-              ))}
-            </div>
-          </aside>
         </div>
 
         <div
@@ -713,6 +682,60 @@ export function BedsideCloseup({
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="bedside-demo-hud">
+        <span className="bedside-phone-status" data-state={phoneState}>
+          {PHONE_STATUS[phoneState]}
+          {phoneState === "in-call" && (
+            <span
+              className={countdownWarning ? "panel-countdown-warning" : undefined}
+              aria-live="polite"
+            >
+              {countdownWarning ? `· Wrapping up · ${countdown}` : `· ${countdown}`}
+            </span>
+          )}
+        </span>
+
+        <aside
+          className="bedside-test-guide"
+          data-open={guideOpen}
+          aria-label="Demo call scripts"
+        >
+            <div className="bedside-test-guide-header">
+              <span className="bedside-test-guide-title">Try these scripts</span>
+              <span
+                className={`bedside-test-guide-timer${countdownWarning ? " panel-countdown-warning" : ""}`}
+                aria-live="polite"
+              >
+                {phoneState === "in-call"
+                  ? `${countdown} remaining`
+                  : phoneState === "connecting"
+                    ? "Connecting"
+                    : "1:30 maximum"}
+              </span>
+              <button
+                type="button"
+                className="bedside-test-guide-toggle"
+                onClick={() => setGuideOpen((open) => !open)}
+                aria-expanded={guideOpen}
+              >
+                {guideOpen ? "Hide" : "Show"}
+              </button>
+            </div>
+            <div className="bedside-test-guide-body">
+              {DEMO_SCRIPTS.map((script) => (
+                <section key={script.title} className="bedside-test-script">
+                  <h3>{script.title}</h3>
+                  <ol>
+                    {script.prompts.map((prompt) => (
+                      <li key={prompt}>{prompt}</li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+        </aside>
       </div>
     </section>
   );
