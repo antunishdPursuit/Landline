@@ -119,6 +119,11 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(/call 2 · another hotel/i)).toBeInTheDocument();
     expect(screen.getByText(/send two extra towels/i)).toBeInTheDocument();
     expect(screen.getByText(/leaving tomorrow and need another nearby hotel/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /a transcript and any call issues are saved locally/i
+      )
+    ).toBeInTheDocument();
     expect(screen.getAllByText(/1:14/)).toHaveLength(3);
     expect(container.querySelector(".bedside-demo-hud")).toContainElement(
       container.querySelector(".bedside-phone-status")

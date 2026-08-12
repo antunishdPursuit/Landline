@@ -302,6 +302,16 @@ export function BedsideCloseup({
           font: 500 0.68rem/1.38 var(--font-dm-sans), system-ui, sans-serif;
         }
 
+        .bedside-test-guide-note {
+          grid-column: 1 / -1;
+          margin: 0;
+          padding-top: 0.65rem;
+          border-top: 1px solid rgba(91, 65, 48, 0.18);
+          color: #74685f;
+          font: 500 0.64rem/1.45 var(--font-dm-sans), system-ui, sans-serif;
+          text-align: center;
+        }
+
         .bedside-panel {
           position: relative;
           align-self: start;
@@ -734,6 +744,11 @@ export function BedsideCloseup({
                   </ol>
                 </section>
               ))}
+              <p className="bedside-test-guide-note">
+                A transcript and any call issues are saved locally. After the
+                call, the dashboard will show the transcript and details about
+                any issues that occurred.
+              </p>
             </div>
         </aside>
       </div>
