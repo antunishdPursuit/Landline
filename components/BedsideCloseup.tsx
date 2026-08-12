@@ -46,17 +46,18 @@ const DEMO_SCRIPTS = [
   {
     title: "Call 1 · Service and nearby",
     prompts: [
-      "Send two extra towels to room 1208.",
-      "What Italian restaurants near the hotel are open tonight?",
+      "Please send two extra towels to room 1208.",
+      "What Italian restaurant within a 10-minute walk is open tonight? Give me one option and its closing time.",
       "That’s all. Goodbye.",
     ],
   },
   {
     title: "Call 2 · Another hotel",
     prompts: [
-      "I’m leaving tomorrow and need another nearby hotel.",
-      "Two adults, no children, one room.",
-      "Confirm the dates, then say goodbye.",
+      "I need another hotel near NoMad. Check in tomorrow for two nights: two adults, no children, one room.",
+      "When the agent repeats the search, say: Yes, that’s correct.",
+      "Where can I book it?",
+      "That’s all. Goodbye.",
     ],
   },
 ];
