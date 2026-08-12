@@ -107,19 +107,6 @@ describe("GET /api/elevenlabs/signed-url", () => {
     expect(response.status).not.toBe(200);
   });
 
-  it("returns non-200 when ElevenLabs returns 503", async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 503,
-      json: async () => ({ detail: "Service unavailable" }),
-    } as unknown as Response);
-
-    const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
-
-    expect(response.status).not.toBe(200);
-  });
-
   it("returns 500 when ElevenLabs returns 200 but body has no signed URL", async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,

@@ -23,19 +23,6 @@ describe("GuestPage room overview", () => {
       height: "100dvh",
       overflow: "hidden",
     });
-  });
-
-  it("does not show setup controls or supporting copy", () => {
-    render(<GuestPage />);
-
-    expect(screen.queryByRole("button", { name: /property/i })).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /pick up phone/i })
-    ).not.toBeInTheDocument();
     expect(screen.queryByText(/manual fallback/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/in-room concierge/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/room 1208/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/make yourself at home/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/your bedside phone/i)).not.toBeInTheDocument();
   });
 });

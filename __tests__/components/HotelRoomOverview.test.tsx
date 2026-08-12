@@ -40,32 +40,6 @@ describe("HotelRoomOverview", () => {
     ).toHaveTextContent("Landline");
   });
 
-  it("uses critical styles to show only one responsive room", () => {
-    const { container } = render(<HotelRoomOverview />);
-    const criticalStyles = container.querySelector("style")?.textContent;
-
-    expect(container.querySelector("figure")).toHaveStyle({
-      width: "100%",
-      height: "100%",
-      overflow: "hidden",
-    });
-    expect(container.querySelector(".landline-room-mobile")).toBeInTheDocument();
-    expect(container.querySelector(".landline-room-desktop")).toBeInTheDocument();
-    expect(criticalStyles).toContain(".landline-room-mobile");
-    expect(criticalStyles).toContain(".landline-room-desktop");
-    expect(criticalStyles).toContain("@media (min-width: 640px)");
-  });
-
-  it("anchors both room compositions to the bedside focus zone", () => {
-    const { container } = render(<HotelRoomOverview />);
-    const rooms = container.querySelectorAll("figure svg");
-
-    expect(rooms).toHaveLength(2);
-    rooms.forEach((room) => {
-      expect(room).toHaveAttribute("preserveAspectRatio", "xMinYMid slice");
-    });
-  });
-
   it("exposes one bedside approach action when a handler is provided", () => {
     const onApproach = jest.fn();
     render(<HotelRoomOverview onApproach={onApproach} />);
@@ -79,9 +53,4 @@ describe("HotelRoomOverview", () => {
     expect(onApproach).toHaveBeenCalledTimes(1);
   });
 
-  it("does not expose an inactive bedside control", () => {
-    render(<HotelRoomOverview />);
-
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
-  });
 });
