@@ -22,6 +22,7 @@ import "@testing-library/jest-dom";
 // Mock @elevenlabs/client before any module that imports it is loaded
 // ---------------------------------------------------------------------------
 const mockConversationEnd = jest.fn().mockResolvedValue(undefined);
+const mockSendUserMessage = jest.fn();
 const mockStartSession = jest.fn();
 
 jest.mock("@elevenlabs/client", () => ({
@@ -56,6 +57,7 @@ beforeEach(() => {
   localStorage.clear();
   mockStartSession.mockResolvedValue({
     endSession: mockConversationEnd,
+    sendUserMessage: mockSendUserMessage,
     getId: () => "conv_test_123",
   });
 });
@@ -116,6 +118,36 @@ describe("public demo call limit", () => {
 
     expect(mockConversationEnd).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: /call ended/i })).toBeInTheDocument();
+  });
+
+  it("asks the agent to close gracefully once with 15 seconds remaining", async () => {
+    jest.useFakeTimers();
+    setupHappyFetch();
+    render(<PhoneButton config={EMPTY_CONFIG} />);
+    fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(75_000);
+      await Promise.resolve();
+    });
+
+    expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
+    expect(mockSendUserMessage).toHaveBeenCalledWith(
+      expect.stringContaining("End Conversation system tool")
+    );
+
+    await act(async () => {
+      jest.advanceTimersByTime(10_000);
+      await Promise.resolve();
+    });
+
+    expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
+    expect(mockConversationEnd).not.toHaveBeenCalled();
   });
 });
 

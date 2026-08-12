@@ -26,6 +26,9 @@ export interface UsePhoneSessionReturn {
 }
 
 export const DEMO_CALL_LIMIT_SECONDS = 90;
+export const DEMO_CALL_WRAP_UP_SECONDS = 15;
+export const DEMO_CALL_WRAP_UP_EVENT =
+  '[LANDLINE_SYSTEM_EVENT] The public demo time limit is approaching. Say exactly: "I’m sorry, but we’ve reached the demo time limit. Thank you for trying Landline. Goodbye." Then use the End Conversation system tool.';
 
 export function usePhoneSession(
   dynamicVariables?: Record<string, string | number | boolean>
@@ -40,6 +43,7 @@ export function usePhoneSession(
   const sessionStartedAtRef = useRef<number | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const callSavedRef = useRef(false);
+  const wrapUpRequestedRef = useRef(false);
 
   const finalizeCall = useCallback(() => {
     const startedAt = sessionStartedAtRef.current;
@@ -72,6 +76,19 @@ export function usePhoneSession(
     const updateCountdown = () => {
       const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
       setRemainingSeconds(next);
+
+      if (
+        next > 0 &&
+        next <= DEMO_CALL_WRAP_UP_SECONDS &&
+        !wrapUpRequestedRef.current
+      ) {
+        wrapUpRequestedRef.current = true;
+        try {
+          conversationRef.current?.sendUserMessage(DEMO_CALL_WRAP_UP_EVENT);
+        } catch {
+          // The 90-second hard cutoff remains active if the graceful close fails.
+        }
+      }
 
       if (next === 0) {
         const conversation = conversationRef.current;
@@ -128,6 +145,7 @@ export function usePhoneSession(
     sessionStartedAtRef.current = null;
     sessionIdRef.current = null;
     callSavedRef.current = false;
+    wrapUpRequestedRef.current = false;
 
     try {
       const conversation = await Conversation.startSession({
