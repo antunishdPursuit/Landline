@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Conversation } from "@elevenlabs/client";
 import { addDemoCallLog } from "@/lib/demo-store";
 import {
@@ -18,15 +18,19 @@ export type PhoneSessionState =
 
 export interface UsePhoneSessionReturn {
   state: PhoneSessionState;
+  remainingSeconds: number;
   lastCall: CallLog | null;
   startSession: () => Promise<void>;
   endSession: () => Promise<void>;
 }
 
+export const DEMO_CALL_LIMIT_SECONDS = 90;
+
 export function usePhoneSession(
   dynamicVariables?: Record<string, string | number | boolean>
 ): UsePhoneSessionReturn {
   const [state, setState] = useState<PhoneSessionState>("idle");
+  const [remainingSeconds, setRemainingSeconds] = useState(DEMO_CALL_LIMIT_SECONDS);
   const [lastCall, setLastCall] = useState<CallLog | null>(null);
   const conversationRef = useRef<Conversation | null>(null);
   const transcriptRef = useRef<ConversationTurn[]>([]);
@@ -58,8 +62,33 @@ export function usePhoneSession(
     callSavedRef.current = true;
   }, [dynamicVariables]);
 
+  useEffect(() => {
+    if (state !== "in-call") return;
+
+    const startedAt = sessionStartedAtRef.current ?? Date.now();
+    const deadline = startedAt + DEMO_CALL_LIMIT_SECONDS * 1000;
+    const updateCountdown = () => {
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setRemainingSeconds(next);
+
+      if (next === 0) {
+        const conversation = conversationRef.current;
+        conversationRef.current = null;
+        void conversation?.endSession().finally(() => {
+          finalizeCall();
+          setState("ended");
+        });
+      }
+    };
+
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 250);
+    return () => window.clearInterval(interval);
+  }, [finalizeCall, state]);
+
   const startSession = useCallback(async () => {
     setLastCall(null);
+    setRemainingSeconds(DEMO_CALL_LIMIT_SECONDS);
     setState("connecting");
 
     let signedUrl: string;
@@ -78,7 +107,7 @@ export function usePhoneSession(
 
     transcriptRef.current = [];
     activityRef.current = null;
-    sessionStartedAtRef.current = Date.now();
+    sessionStartedAtRef.current = null;
     sessionIdRef.current = null;
     callSavedRef.current = false;
 
@@ -112,6 +141,7 @@ export function usePhoneSession(
       });
 
       conversationRef.current = conversation;
+      sessionStartedAtRef.current = Date.now();
       sessionIdRef.current =
         typeof conversation.getId === "function" ? conversation.getId() : null;
       setState("in-call");
@@ -130,5 +160,5 @@ export function usePhoneSession(
     setState("ended");
   }, [finalizeCall]);
 
-  return { state, lastCall, startSession, endSession };
+  return { state, remainingSeconds, lastCall, startSession, endSession };
 }

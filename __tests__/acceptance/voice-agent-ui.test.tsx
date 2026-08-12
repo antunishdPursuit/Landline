@@ -92,6 +92,33 @@ describe("local call history", () => {
   });
 });
 
+describe("public demo call limit", () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("ends a connected call after 90 seconds", async () => {
+    jest.useFakeTimers();
+    setupHappyFetch();
+    render(<PhoneButton config={EMPTY_CONFIG} />);
+    fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(screen.getByRole("button", { name: /end call/i })).toBeInTheDocument();
+
+    await act(async () => {
+      jest.advanceTimersByTime(90_000);
+      await Promise.resolve();
+    });
+
+    expect(mockConversationEnd).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: /call ended/i })).toBeInTheDocument();
+  });
+});
+
 // ---------------------------------------------------------------------------
 // AC-1: Button renders and is interactive on page load
 // ---------------------------------------------------------------------------

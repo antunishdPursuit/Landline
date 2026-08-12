@@ -81,6 +81,7 @@ export function GuestRoomExperience() {
           <BedsideCloseup
             config={agentConfig.config}
             phoneState={phoneSession.state}
+            remainingSeconds={phoneSession.remainingSeconds}
             phoneSource={phoneSource}
             lastCall={phoneSession.lastCall}
             onPhoneAction={handlePhoneAction}

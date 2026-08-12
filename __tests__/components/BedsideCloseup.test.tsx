@@ -104,6 +104,23 @@ describe("BedsideCloseup", () => {
     expect(container.querySelector(".panel-phone-button")).toBeDisabled();
   });
 
+  it("shows test scripts and the connected-call countdown", () => {
+    render(
+      <BedsideCloseup
+        config={RITZ_NOMAD_CONFIG}
+        phoneState="in-call"
+        phoneSource="handset"
+        remainingSeconds={74}
+        onPhoneAction={jest.fn()}
+        onBack={jest.fn()}
+      />
+    );
+
+    expect(screen.getByText(/try a concierge request/i)).toBeInTheDocument();
+    expect(screen.getByText(/send two extra towels/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/1:14/)).toHaveLength(2);
+  });
+
   it("locks the handset during a panel call", () => {
     render(
       <BedsideCloseup

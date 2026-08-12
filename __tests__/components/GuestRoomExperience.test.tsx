@@ -9,6 +9,7 @@ const mockStartSession = jest.fn().mockResolvedValue(undefined);
 const mockEndSession = jest.fn().mockResolvedValue(undefined);
 const mockRouterPush = jest.fn();
 let mockPhoneState: PhoneSessionState = "idle";
+let mockRemainingSeconds = 90;
 let mockLastCall: CallLog | null = null;
 
 jest.mock("next/navigation", () => ({
@@ -31,6 +32,7 @@ jest.mock("@/hooks/useAgentConfig", () => ({
 jest.mock("@/hooks/usePhoneSession", () => ({
   usePhoneSession: () => ({
     state: mockPhoneState,
+    remainingSeconds: mockRemainingSeconds,
     lastCall: mockLastCall,
     startSession: mockStartSession,
     endSession: mockEndSession,
@@ -52,6 +54,7 @@ describe("GuestRoomExperience", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPhoneState = "idle";
+    mockRemainingSeconds = 90;
     mockLastCall = null;
   });
 

@@ -10,6 +10,7 @@ export type PhoneSource = "handset" | "panel";
 interface BedsideCloseupProps {
   config: AgentConfig;
   phoneState: PhoneSessionState;
+  remainingSeconds?: number;
   phoneSource: PhoneSource | null;
   lastCall?: CallLog | null;
   onPhoneAction: (source: PhoneSource) => void;
@@ -43,6 +44,7 @@ const DISABLED_CONTROLS = [
 export function BedsideCloseup({
   config,
   phoneState,
+  remainingSeconds = 90,
   phoneSource,
   lastCall = null,
   onPhoneAction,
@@ -61,6 +63,10 @@ export function BedsideCloseup({
       : lastCall?.intent === "defer_to_operator"
         ? "Staff notified"
         : "Call complete";
+  const countdown = `${Math.floor(remainingSeconds / 60)}:${String(
+    remainingSeconds % 60
+  ).padStart(2, "0")}`;
+  const countdownWarning = phoneState === "in-call" && remainingSeconds <= 15;
 
   return (
     <section
@@ -263,6 +269,25 @@ export function BedsideCloseup({
           opacity: 0.82;
         }
 
+        .panel-demo-prompts {
+          display: grid;
+          gap: 0.4rem;
+          margin: 0.8rem 0 0;
+          padding: 0;
+          list-style: none;
+          font: 500 0.7rem/1.35 var(--font-dm-sans), system-ui, sans-serif;
+        }
+
+        .panel-demo-prompts li::before {
+          content: '“';
+          color: #f1ca8b;
+        }
+
+        .panel-countdown-warning {
+          color: #ffe0ae;
+          font-weight: 700;
+        }
+
         .panel-controls {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -438,6 +463,14 @@ export function BedsideCloseup({
 
           <span className="bedside-phone-status" data-state={phoneState}>
             {PHONE_STATUS[phoneState]}
+            {phoneState === "in-call" && (
+              <span
+                className={countdownWarning ? "panel-countdown-warning" : undefined}
+                aria-live="polite"
+              >
+                · {countdown}
+              </span>
+            )}
           </span>
         </div>
 
@@ -455,7 +488,19 @@ export function BedsideCloseup({
             aria-expanded={detailsVisible}
             aria-label="Show hotel details on the bedside panel"
           >
-            {callReceiptVisible ? (
+            {phoneState === "in-call" ? (
+              <>
+                <span className="panel-eyebrow">
+                  Demo call · {countdown} remaining
+                </span>
+                <span className="panel-title">Try a concierge request</span>
+                <ul className="panel-demo-prompts">
+                  <li>Send two extra towels to room 1208.”</li>
+                  <li>What Italian restaurants near the hotel are open tonight?”</li>
+                  <li>Help me find another hotel nearby.”</li>
+                </ul>
+              </>
+            ) : callReceiptVisible ? (
               <>
                 <span className="panel-eyebrow">
                   Room {lastCall.room_number} · Sent to dashboard
