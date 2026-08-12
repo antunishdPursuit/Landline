@@ -13,6 +13,24 @@ continues as an independent active project.
 Landline is intentionally a demo, not a live multi-user service. It uses one
 versioned browser store instead of a shared database.
 
+**Demo:** [landline-eta.vercel.app](https://landline-eta.vercel.app)
+
+## Try the demo
+
+1. Open the demo in current desktop Chrome or Safari, or mobile Safari.
+2. Use the dedicated demo username and password shown on the sign-in page.
+3. Open the guest room, approach the bedside devices, and use the phone or the
+   panel phone button.
+4. Follow one of the displayed test scripts. Calls have a 60-second limit and
+   begin closing after 55 seconds.
+5. After the call, review the browser-local transcript and any ending issue in
+   Agent Calls.
+
+Slack and other embedded browsers can block Clerk authentication. Use their
+**Open in Browser** action and continue in Safari or Chrome. Demo data remains
+in the browser that created it and does not synchronize to another browser or
+device.
+
 ## Current architecture
 
 ```text
@@ -140,7 +158,9 @@ npm run build
 ## Current limitations
 
 - Demo state does not synchronize between browsers or devices.
-- Landline stores call metadata and transcripts in the current browser. ElevenLabs retention follows the agent and account configuration.
+- Landline stores call metadata and transcripts in the current browser; it does
+  not store call audio. ElevenLabs retention follows the agent and account
+  configuration.
 - Staff presence is representative demo content.
 - The ElevenLabs tool definitions and agent prompt must be configured in the ElevenLabs dashboard.
 - Stay22 demo mode is limited to five requests per minute per IP address.
