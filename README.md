@@ -120,9 +120,9 @@ another API call. Prices are full-stay totals in USD. The agent must say that
 prices and availability can change and that no reservation was made.
 See the [Stay22 Direct Travel API quickstart](https://dev.stay22.com/docs/api/quickstart).
 
-Configure the ElevenLabs agent with a 55-second maximum conversation duration,
+Configure the ElevenLabs agent with a 60-second maximum conversation duration,
 a short closing message, and the End Conversation system tool. The browser asks
-the agent to close at 45 seconds and ends the session at 55 seconds if needed.
+the agent to close at 55 seconds and ends the session at 60 seconds if needed.
 
 For a public Vercel deployment, add a WAF rate-limit rule for
 `GET /api/elevenlabs/signed-url`: two requests per IP address in a fixed

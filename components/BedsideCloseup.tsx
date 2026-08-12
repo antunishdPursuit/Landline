@@ -64,7 +64,7 @@ const DEMO_SCRIPTS = [
 export function BedsideCloseup({
   config,
   phoneState,
-  remainingSeconds = 55,
+  remainingSeconds = 60,
   errorMessage = null,
   phoneSource,
   lastCall = null,
@@ -88,7 +88,7 @@ export function BedsideCloseup({
   const countdown = `${Math.floor(remainingSeconds / 60)}:${String(
     remainingSeconds % 60
   ).padStart(2, "0")}`;
-  const countdownWarning = phoneState === "in-call" && remainingSeconds <= 15;
+  const countdownWarning = phoneState === "in-call" && remainingSeconds <= 5;
 
   return (
     <section
@@ -722,7 +722,7 @@ export function BedsideCloseup({
                   ? `${countdown} remaining`
                   : phoneState === "connecting"
                     ? "Connecting"
-                    : "0:55 maximum"}
+                    : "1:00 maximum"}
               </span>
               <button
                 type="button"

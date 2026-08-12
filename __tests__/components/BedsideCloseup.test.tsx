@@ -31,7 +31,7 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(RITZ_NOMAD_CONFIG.name)).toBeInTheDocument();
     expect(screen.getByText(RITZ_NOMAD_CONFIG.address)).toBeInTheDocument();
     expect(onPhoneAction).not.toHaveBeenCalled();
-    expect(screen.getByText("0:55 maximum")).toBeInTheDocument();
+    expect(screen.getByText("1:00 maximum")).toBeInTheDocument();
   });
 
   it("keeps every non-phone panel control disabled", () => {
@@ -137,13 +137,13 @@ describe("BedsideCloseup", () => {
     );
   });
 
-  it("shows the graceful closing state for the final 15 seconds", () => {
+  it("shows the graceful closing state for the final 5 seconds", () => {
     render(
       <BedsideCloseup
         config={RITZ_NOMAD_CONFIG}
         phoneState="in-call"
         phoneSource="handset"
-        remainingSeconds={15}
+        remainingSeconds={5}
         onPhoneAction={jest.fn()}
         onBack={jest.fn()}
       />
@@ -152,7 +152,7 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(/concierge is wrapping up/i)).toBeInTheDocument();
     expect(screen.getByText(/concierge is saying goodbye/i)).toBeInTheDocument();
     expect(screen.getByText(/call 1 · service and nearby/i)).toBeInTheDocument();
-    expect(screen.getByText(/wrapping up · 0:15/i)).toBeInTheDocument();
+    expect(screen.getByText(/wrapping up · 0:05/i)).toBeInTheDocument();
   });
 
   it("locks the handset during a panel call", () => {

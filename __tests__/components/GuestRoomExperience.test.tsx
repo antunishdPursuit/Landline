@@ -8,7 +8,7 @@ const mockStartSession = jest.fn().mockResolvedValue(undefined);
 const mockEndSession = jest.fn().mockResolvedValue(undefined);
 const mockRouterPush = jest.fn();
 let mockPhoneState: PhoneSessionState = "idle";
-let mockRemainingSeconds = 55;
+let mockRemainingSeconds = 60;
 let mockLastCall: CallLog | null = null;
 
 jest.mock("next/navigation", () => ({
@@ -41,7 +41,7 @@ describe("GuestRoomExperience", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPhoneState = "idle";
-    mockRemainingSeconds = 55;
+    mockRemainingSeconds = 60;
     mockLastCall = null;
   });
 
