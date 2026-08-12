@@ -5,6 +5,7 @@ import {
   createSeedDemoState,
   isDemoState,
   readDemoState,
+  removeDemoTicket,
   resetDemoState,
   updateDemoTicketStatus,
   writeDemoState,
@@ -79,6 +80,16 @@ describe('demo store', () => {
       status: 'in_progress',
       assigned_to: 'Maria Lopez',
     })
+  })
+
+  it('removes only the selected ticket', () => {
+    addDemoTicket(makeTicket({ id: 'req_first' }))
+    addDemoTicket(makeTicket({ id: 'req_second' }))
+
+    removeDemoTicket('req_first')
+
+    expect(readDemoState().tickets.some((ticket) => ticket.id === 'req_first')).toBe(false)
+    expect(readDemoState().tickets.some((ticket) => ticket.id === 'req_second')).toBe(true)
   })
 
   it('adds and deduplicates displayed travel recommendations', () => {

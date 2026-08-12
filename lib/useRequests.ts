@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   readDemoState,
+  removeDemoTicket,
   resetDemoState,
   subscribeToDemoState,
   updateDemoTicketStatus,
@@ -48,5 +49,10 @@ export function useRequests() {
     setJustArrivedId(null)
   }, [])
 
-  return { requests, justArrivedId, clearJustArrived, updateStatus, reset }
+  const removeRequest = useCallback((id: string) => {
+    removeDemoTicket(id)
+    setJustArrivedId((current) => (current === id ? null : current))
+  }, [])
+
+  return { requests, justArrivedId, clearJustArrived, updateStatus, removeRequest, reset }
 }

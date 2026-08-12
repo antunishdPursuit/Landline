@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { GuestRequest, RequestStatus } from '@/lib/types'
 import { timeAgo } from '@/lib/format'
 import { DepartmentBadge, LanguageBadge, NeedsHumanBadge, UrgencyBadge } from './Badges'
@@ -22,9 +22,16 @@ interface TicketCardProps {
   justArrived: boolean
   currentStaffName: string
   onAdvanceStatus: (id: string, status: RequestStatus, assignedTo?: string) => void
+  onRemove: (id: string) => void
 }
 
-export function TicketCard({ request, justArrived, currentStaffName, onAdvanceStatus }: TicketCardProps) {
+export function TicketCard({
+  request,
+  justArrived,
+  currentStaffName,
+  onAdvanceStatus,
+  onRemove,
+}: TicketCardProps) {
   const [, forceTick] = useState(0)
 
   useEffect(() => {
@@ -34,6 +41,12 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
 
   const nextStatus = NEXT_STATUS[request.status]
   const isDone = request.status === 'done'
+
+  const handleRemove = () => {
+    if (window.confirm(`Remove the request for room ${request.room_number}?`)) {
+      onRemove(request.id)
+    }
+  }
 
   return (
     <div
@@ -50,7 +63,17 @@ export function TicketCard({ request, justArrived, currentStaffName, onAdvanceSt
           <span className="text-lg font-semibold tracking-tight text-slate-900">Room {request.room_number}</span>
           <span className="text-xs text-slate-500">{timeAgo(request.created_at)}</span>
         </div>
-        <StatusDot status={request.status} />
+        <div className="flex items-center gap-2">
+          <StatusDot status={request.status} />
+          <button
+            type="button"
+            aria-label={`Remove request for room ${request.room_number}`}
+            onClick={handleRemove}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none text-slate-400 transition-colors hover:bg-slate-900/[0.06] hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
       </div>
 
       <p className="mt-1.5 text-sm leading-snug text-slate-700">{request.summary}</p>

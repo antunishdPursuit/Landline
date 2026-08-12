@@ -265,6 +265,19 @@ export function updateDemoTicketStatus(
   )
 }
 
+export function removeDemoTicket(
+  id: string,
+  storage: Storage | null = getBrowserStorage()
+): DemoState {
+  return updateDemoState(
+    (current) => ({
+      ...current,
+      tickets: current.tickets.filter((ticket) => ticket.id !== id),
+    }),
+    storage
+  )
+}
+
 export function resetDemoState(storage: Storage | null = getBrowserStorage()): DemoState {
   return writeDemoState(createSeedDemoState(), storage)
 }

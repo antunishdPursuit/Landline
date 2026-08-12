@@ -12,6 +12,7 @@ interface RequestColumnProps {
   justArrivedId: string | null
   currentStaffName: string
   onAdvanceStatus: (id: string, status: RequestStatus, assignedTo?: string) => void
+  onRemove: (id: string) => void
 }
 
 export function RequestColumn({
@@ -21,6 +22,7 @@ export function RequestColumn({
   justArrivedId,
   currentStaffName,
   onAdvanceStatus,
+  onRemove,
 }: RequestColumnProps) {
   const sorted = [...requests].sort((a, b) => {
     if (a.status === 'done' && b.status !== 'done') return 1
@@ -59,6 +61,7 @@ export function RequestColumn({
             justArrived={request.id === justArrivedId}
             currentStaffName={currentStaffName}
             onAdvanceStatus={onAdvanceStatus}
+            onRemove={onRemove}
           />
         ))}
       </div>

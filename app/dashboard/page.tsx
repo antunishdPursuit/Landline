@@ -16,7 +16,7 @@ const STATUS_COLUMN_LABEL = {
 export default function DashboardPage() {
   const session = useStaffSession()
   const signOut = useStaffSignOut()
-  const { requests, justArrivedId, updateStatus } = useRequests()
+  const { requests, justArrivedId, updateStatus, removeRequest } = useRequests()
 
   if (session === undefined) {
     return (
@@ -96,6 +96,7 @@ export default function DashboardPage() {
             justArrivedId={justArrivedId}
             currentStaffName={session.name}
             onAdvanceStatus={updateStatus}
+            onRemove={removeRequest}
           />
         ))}
       </div>
