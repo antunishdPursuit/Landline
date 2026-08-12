@@ -84,13 +84,26 @@ describe('ElevenLabs client tools', () => {
     )
     const saveRecommendation = jest.fn()
     const now = () => new Date('2026-08-09T12:00:00.000Z')
-    const tools = createVoiceClientTools({ fetcher, saveRecommendation, now })
+    const tools = createVoiceClientTools({
+      fetcher,
+      saveRecommendation,
+      now,
+      toolToken: 'short-lived-token',
+    })
 
     const result = JSON.parse(
       await tools.search_concierge({ query: 'When does the museum close?' })
     )
 
     expect(result.status).toBe('answered')
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/concierge/search',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer short-lived-token',
+        }),
+      })
+    )
     expect(saveRecommendation).toHaveBeenCalledWith({
       id: 'tavily_1786276800000_0',
       title: 'Museum hours',
@@ -141,7 +154,11 @@ describe('ElevenLabs client tools', () => {
       })
     )
     const saveRecommendation = jest.fn()
-    const tools = createVoiceClientTools({ fetcher, saveRecommendation })
+    const tools = createVoiceClientTools({
+      fetcher,
+      saveRecommendation,
+      toolToken: 'short-lived-token',
+    })
 
     const result = JSON.parse(
       await tools.find_stays({
@@ -155,6 +172,14 @@ describe('ElevenLabs client tools', () => {
     )
 
     expect(saveRecommendation).toHaveBeenCalledWith(option)
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/stays',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer short-lived-token',
+        }),
+      })
+    )
     expect(result.recommended_option).toEqual(option)
     expect(result.backup_options).toEqual([])
     expect(result.message).toContain('Describe only recommended_option')

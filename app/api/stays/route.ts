@@ -5,6 +5,7 @@ import {
   Stay22UpstreamError,
   type Stay22SearchInput,
 } from '@/lib/stay22'
+import { requestHasToolAccess } from '@/lib/tool-access-token'
 
 type StayBody = {
   address?: unknown
@@ -86,6 +87,10 @@ function validate(body: StayBody): Stay22SearchInput | NextResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  if (!requestHasToolAccess(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let body: StayBody
   try {
     body = (await request.json()) as StayBody

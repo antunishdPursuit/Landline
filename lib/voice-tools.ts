@@ -8,6 +8,7 @@ type Fetcher = typeof fetch
 
 interface VoiceToolDependencies {
   fetcher?: Fetcher
+  toolToken?: string
   saveTicket?: (ticket: GuestRequest) => unknown
   saveRecommendation?: (recommendation: TravelRecommendation) => unknown
   now?: () => Date
@@ -33,12 +34,15 @@ function toResult(value: JsonRecord): string {
 async function postJson(
   fetcher: Fetcher,
   url: string,
-  payload: unknown
+  payload: unknown,
+  toolToken?: string
 ): Promise<{ ok: boolean; body: unknown }> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (toolToken) headers.Authorization = `Bearer ${toolToken}`
     const response = await fetcher(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload),
     })
 
@@ -57,6 +61,7 @@ async function postJson(
 
 export function createVoiceClientTools({
   fetcher = fetch,
+  toolToken,
   saveTicket = addDemoTicket,
   saveRecommendation = addTravelRecommendation,
   now = () => new Date(),
@@ -108,7 +113,12 @@ export function createVoiceClientTools({
     defer_to_staff: async (payload: unknown) => saveRequest(payload, true),
 
     search_concierge: async (payload: unknown) => {
-      const result = await postJson(fetcher, '/api/concierge/search', payload)
+      const result = await postJson(
+        fetcher,
+        '/api/concierge/search',
+        payload,
+        toolToken
+      )
       if (result.ok && isRecord(result.body) && result.body.status === 'answered') {
         const sources = Array.isArray(result.body.sources) ? result.body.sources : []
         const createdAt = now().toISOString()
@@ -160,7 +170,7 @@ export function createVoiceClientTools({
     },
 
     find_stays: async (payload: unknown) => {
-      const result = await postJson(fetcher, '/api/stays', payload)
+      const result = await postJson(fetcher, '/api/stays', payload, toolToken)
       if (
         result.ok &&
         isRecord(result.body) &&

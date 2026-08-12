@@ -4,13 +4,16 @@ jest.mock('server-only', () => ({}), { virtual: true })
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/stays/route'
+import { createToolAccessToken } from '@/lib/tool-access-token'
 
 const ORIGINAL_ENV = process.env
 
-function makeRequest(body: unknown): NextRequest {
+function makeRequest(body: unknown, authorized = true): NextRequest {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken()}`
   return new NextRequest('http://localhost/api/stays', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   })
 }
@@ -73,6 +76,8 @@ beforeEach(() => {
   process.env = {
     ...ORIGINAL_ENV,
     STAY22_API_BASE_URL: 'https://api.stay22.com/v2/accommodations',
+    ELEVENLABS_API_KEY: 'test-api-key',
+    ELEVENLABS_AGENT_ID: 'test-agent-id',
   }
   global.fetch = jest.fn().mockResolvedValue(
     new Response(JSON.stringify(stay22Response()), {
@@ -87,6 +92,14 @@ afterAll(() => {
 })
 
 describe('POST /api/stays', () => {
+  it('rejects direct public requests before calling Stay22', async () => {
+    const response = await POST(makeRequest(validSearch(), false))
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({ error: 'Unauthorized' })
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
   it('returns one recommendation and backups from one no-key request', async () => {
     const search = validSearch()
     const response = await POST(makeRequest(search))

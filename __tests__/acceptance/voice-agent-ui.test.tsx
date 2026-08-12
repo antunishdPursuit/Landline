@@ -20,6 +20,7 @@ import { toAgentDynamicVariables } from "@/lib/agent-dynamic-variables";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 const SIGNED_URL = "wss://signed.example.com/token-abc123";
+const TOOL_TOKEN = "short-lived-tool-token";
 
 function PhoneSessionHarness() {
   const session = usePhoneSession(toAgentDynamicVariables(RITZ_NOMAD_CONFIG));
@@ -47,7 +48,7 @@ function startCall() {
 function setupHappyFetch() {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ url: SIGNED_URL }),
+    json: async () => ({ url: SIGNED_URL, toolToken: TOOL_TOKEN }),
   } as unknown as Response);
 }
 

@@ -112,6 +112,7 @@ export function usePhoneSession(
     setState("connecting");
 
     let signedUrl: string;
+    let toolToken: string;
     try {
       const response = await fetch("/api/elevenlabs/signed-url");
       if (!response.ok) {
@@ -132,8 +133,12 @@ export function usePhoneSession(
         setState("error");
         return;
       }
-      const data = (await response.json()) as { url: string };
+      const data = (await response.json()) as { url?: unknown; toolToken?: unknown };
+      if (typeof data.url !== "string" || typeof data.toolToken !== "string") {
+        throw new Error("Invalid signed session response");
+      }
       signedUrl = data.url;
+      toolToken = data.toolToken;
     } catch {
       setErrorMessage("The concierge is temporarily unavailable. Please try again.");
       setState("error");
@@ -171,6 +176,7 @@ export function usePhoneSession(
           conversationRef.current = null;
         },
         clientTools: createVoiceClientTools({
+          toolToken,
           onActivity: (activity) => {
             activityRef.current = activity;
           },

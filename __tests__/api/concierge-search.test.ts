@@ -4,19 +4,27 @@ jest.mock('server-only', () => ({}), { virtual: true })
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/concierge/search/route'
+import { createToolAccessToken } from '@/lib/tool-access-token'
 
 const ORIGINAL_ENV = process.env
 
-function makeRequest(body: unknown): NextRequest {
+function makeRequest(body: unknown, authorized = true): NextRequest {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken()}`
   return new NextRequest('http://localhost/api/concierge/search', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   })
 }
 
 beforeEach(() => {
-  process.env = { ...ORIGINAL_ENV, TAVILY_API_KEY: 'tvly-test-secret' }
+  process.env = {
+    ...ORIGINAL_ENV,
+    TAVILY_API_KEY: 'tvly-test-secret',
+    ELEVENLABS_API_KEY: 'test-api-key',
+    ELEVENLABS_AGENT_ID: 'test-agent-id',
+  }
   jest.restoreAllMocks()
   global.fetch = jest.fn()
 })
@@ -26,6 +34,16 @@ afterAll(() => {
 })
 
 describe('POST /api/concierge/search', () => {
+  it('rejects direct public requests before calling Tavily', async () => {
+    const response = await POST(
+      makeRequest({ query: 'Nearby restaurants' }, false)
+    )
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({ error: 'Unauthorized' })
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
   it('returns one source-backed answer with a location-aware query', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,

@@ -4,6 +4,7 @@ import {
   TavilyConfigurationError,
   TavilyUpstreamError,
 } from '@/lib/tavily'
+import { requestHasToolAccess } from '@/lib/tool-access-token'
 
 type SearchBody = {
   query?: unknown
@@ -11,6 +12,10 @@ type SearchBody = {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  if (!requestHasToolAccess(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let body: SearchBody
   try {
     body = (await request.json()) as SearchBody

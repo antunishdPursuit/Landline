@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 describe("GET /api/elevenlabs/signed-url", () => {
-  it("returns 200 with { url } when ElevenLabs returns a signed URL", async () => {
+  it("returns a signed URL and short-lived tool token", async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
       json: async () => ({ signed_url: "wss://example.com/signed" }),
@@ -39,7 +39,10 @@ describe("GET /api/elevenlabs/signed-url", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toEqual({ url: "wss://example.com/signed" });
+    expect(body.url).toBe("wss://example.com/signed");
+    expect(typeof body.toolToken).toBe("string");
+    const { verifyToolAccessToken } = await import("@/lib/tool-access-token");
+    expect(verifyToolAccessToken(body.toolToken)).toBe(true);
     // Credentials must never appear in the response body
     expect(JSON.stringify(body)).not.toContain("test-api-key");
     expect(JSON.stringify(body)).not.toContain("test-agent-id");
