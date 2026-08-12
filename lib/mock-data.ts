@@ -3,91 +3,17 @@ import type {
   ConversationTurn,
   Department,
   GuestRequest,
-  Intent,
   StaffMember,
-  Urgency,
 } from './types'
-
-const ROOMS = ['214', '308', '412', '119', '506', '227', '331', '150', '418', '602']
-
-const TEMPLATES: {
-  intent: Intent
-  department: Department
-  urgency: Urgency
-  summaries: string[]
-}[] = [
-  {
-    intent: 'physical_request',
-    department: 'housekeeping',
-    urgency: 'low',
-    summaries: ['Extra towels requested', 'Needs fresh linens', 'Requesting extra pillows', 'Room needs a top-up clean'],
-  },
-  {
-    intent: 'physical_request',
-    department: 'room_service',
-    urgency: 'medium',
-    summaries: ['Ordered club sandwich and sparkling water', 'Breakfast tray for 2, 8am delivery', 'Bottle of house red requested'],
-  },
-  {
-    intent: 'physical_request',
-    department: 'maintenance',
-    urgency: 'high',
-    summaries: ['AC unit not cooling, room too warm', 'Bathroom sink leaking onto floor', 'TV won’t power on'],
-  },
-  {
-    intent: 'defer_to_operator',
-    department: 'front_desk',
-    urgency: 'high',
-    summaries: ['Guest disputing a charge on folio, wants to speak to someone', 'Guest locked out, ID not matching reservation', 'Guest requesting early check-in exception'],
-  },
-  {
-    intent: 'physical_request',
-    department: 'front_desk',
-    urgency: 'medium',
-    summaries: ['Requesting late checkout', 'Needs a taxi booked for 6am airport run', 'Asking for an extra room key'],
-  },
-]
-
-const LANGUAGES = ['en', 'es', 'fr', 'de', 'pt']
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
 
 function minutesAgo(mins: number): string {
   return new Date(Date.now() - mins * 60_000).toISOString()
 }
 
-let counter = 0
-function nextId(prefix: string): string {
-  counter += 1
-  return `${prefix}_${counter}_${Math.random().toString(36).slice(2, 8)}`
-}
-
-export function generateRequest(overrides?: Partial<GuestRequest>): GuestRequest {
-  const template = pick(TEMPLATES)
-  const intent = overrides?.intent ?? template.intent
-  const now = new Date().toISOString()
-  return {
-    id: nextId('req'),
-    room_number: pick(ROOMS),
-    intent: template.intent,
-    department: template.department,
-    summary: pick(template.summaries),
-    urgency: template.urgency,
-    language_detected: Math.random() < 0.75 ? 'en' : pick(LANGUAGES),
-    status: 'new',
-    requires_human: intent === 'defer_to_operator',
-    assigned_to: null,
-    created_at: now,
-    updated_at: now,
-    ...overrides,
-  }
-}
-
 export function seedRequests(): GuestRequest[] {
   return [
-    generateRequest({
+    {
+      id: 'req_seed_front_desk',
       room_number: '412',
       department: 'front_desk',
       intent: 'defer_to_operator',
@@ -95,63 +21,81 @@ export function seedRequests(): GuestRequest[] {
       requires_human: true,
       summary: 'Guest disputing a minibar charge, asking to speak with someone directly',
       status: 'new',
+      language_detected: 'en',
+      assigned_to: null,
       created_at: minutesAgo(1),
       updated_at: minutesAgo(1),
-    }),
-    generateRequest({
+    },
+    {
+      id: 'req_seed_maintenance_ac',
       room_number: '308',
       department: 'maintenance',
       intent: 'physical_request',
       urgency: 'high',
       summary: 'AC unit not cooling, room too warm',
       status: 'new',
+      requires_human: false,
+      language_detected: 'en',
+      assigned_to: null,
       created_at: minutesAgo(3),
       updated_at: minutesAgo(3),
-    }),
-    generateRequest({
+    },
+    {
+      id: 'req_seed_housekeeping',
       room_number: '119',
       department: 'housekeeping',
       intent: 'physical_request',
       urgency: 'low',
       summary: 'Extra towels and pillows requested',
       status: 'in_progress',
+      requires_human: false,
+      language_detected: 'en',
       assigned_to: 'Maria Lopez',
       created_at: minutesAgo(14),
       updated_at: minutesAgo(6),
-    }),
-    generateRequest({
+    },
+    {
+      id: 'req_seed_room_service',
       room_number: '506',
       department: 'room_service',
       intent: 'physical_request',
       urgency: 'medium',
       summary: 'Breakfast tray for 2, requested for 8am',
-      language_detected: 'es',
+      language_detected: 'en',
       status: 'new',
+      requires_human: false,
+      assigned_to: null,
       created_at: minutesAgo(8),
       updated_at: minutesAgo(8),
-    }),
-    generateRequest({
+    },
+    {
+      id: 'req_seed_checkout',
       room_number: '227',
       department: 'front_desk',
       intent: 'physical_request',
       urgency: 'low',
       summary: 'Requesting late checkout, flight isn’t until 8pm',
       status: 'done',
+      requires_human: false,
+      language_detected: 'en',
       assigned_to: 'Sam Patel',
       created_at: minutesAgo(40),
       updated_at: minutesAgo(20),
-    }),
-    generateRequest({
+    },
+    {
+      id: 'req_seed_maintenance_sink',
       room_number: '331',
       department: 'maintenance',
       intent: 'physical_request',
       urgency: 'medium',
       summary: 'Bathroom sink leaking onto floor',
       status: 'in_progress',
+      requires_human: false,
+      language_detected: 'en',
       assigned_to: 'Diego Ramirez',
       created_at: minutesAgo(22),
       updated_at: minutesAgo(5),
-    }),
+    },
   ]
 }
 
@@ -176,48 +120,53 @@ export function getStaffNamesForDepartment(department: Department): string[] {
   return STAFF_ROSTER.filter((member) => member.department === department).map((member) => member.name)
 }
 
-const CALL_TEMPLATES: {
-  intent: Intent
-  department: Department | null
-  requires_human: boolean
-  request_summary: string | null
-  transcript: ConversationTurn[]
-}[] = [
+const SEED_CALLS: Omit<CallLog, 'duration_seconds' | 'created_at'>[] = [
   {
+    id: 'call_seed_capabilities',
+    room_number: '412',
+    language_detected: 'en',
     intent: 'answerable_qa',
     department: null,
     requires_human: false,
     request_summary: null,
     transcript: [
-      { speaker: 'guest', text: "Hi, what time does the pool close tonight?" },
-      { speaker: 'agent', text: "The rooftop pool is open until 10pm tonight, towels are available poolside." },
-      { speaker: 'guest', text: "Perfect, thank you." },
-      { speaker: 'agent', text: "You're welcome, enjoy your evening!" },
+      { speaker: 'guest', text: 'What can you help me with during my stay?' },
+      { speaker: 'agent', text: 'I can help with room requests, current nearby information, and accommodation searches.' },
+      { speaker: 'guest', text: 'That is all I needed. Thank you.' },
     ],
   },
   {
+    id: 'call_seed_restaurant_search',
+    room_number: '308',
+    language_detected: 'en',
     intent: 'answerable_qa',
     department: null,
     requires_human: false,
     request_summary: null,
     transcript: [
-      { speaker: 'guest', text: "Is breakfast included with my stay, and where is it served?" },
-      { speaker: 'agent', text: "Yes, breakfast is included and served in the Garden Room on the 2nd floor, 6:30 to 10am." },
-      { speaker: 'guest', text: "Great, that's all I needed." },
+      { speaker: 'guest', text: 'Can you help me find an Italian restaurant near the hotel?' },
+      { speaker: 'agent', text: 'Yes. What time would you like to go, and do you have a preferred walking distance?' },
+      { speaker: 'guest', text: 'I am only testing what you can search for.' },
     ],
   },
   {
+    id: 'call_seed_stay_search',
+    room_number: '214',
+    language_detected: 'en',
     intent: 'answerable_qa',
     department: null,
     requires_human: false,
     request_summary: null,
     transcript: [
-      { speaker: 'guest', text: "What's the wifi password for the room?" },
-      { speaker: 'agent', text: "The network is LandlineGuest and the password is printed on the card by the room phone — it's also stayhere2024, all lowercase." },
-      { speaker: 'guest', text: "Got it, thanks." },
+      { speaker: 'guest', text: 'Can you help me search for another hotel after I leave?' },
+      { speaker: 'agent', text: 'Yes. I will need the destination, dates, number of adults and children, and number of rooms.' },
+      { speaker: 'guest', text: 'Great, I will come back when I have those details.' },
     ],
   },
   {
+    id: 'call_seed_towels',
+    room_number: '119',
+    language_detected: 'en',
     intent: 'physical_request',
     department: 'housekeeping',
     requires_human: false,
@@ -229,6 +178,9 @@ const CALL_TEMPLATES: {
     ],
   },
   {
+    id: 'call_seed_room_service',
+    room_number: '506',
+    language_detected: 'en',
     intent: 'physical_request',
     department: 'room_service',
     requires_human: false,
@@ -241,6 +193,9 @@ const CALL_TEMPLATES: {
     ],
   },
   {
+    id: 'call_seed_maintenance',
+    room_number: '150',
+    language_detected: 'en',
     intent: 'physical_request',
     department: 'maintenance',
     requires_human: false,
@@ -253,6 +208,9 @@ const CALL_TEMPLATES: {
     ],
   },
   {
+    id: 'call_seed_staff_deferral',
+    room_number: '602',
+    language_detected: 'en',
     intent: 'defer_to_operator',
     department: 'front_desk',
     requires_human: true,
@@ -263,16 +221,6 @@ const CALL_TEMPLATES: {
       { speaker: 'guest', text: "Okay, please, I've been waiting." },
     ],
   },
-  {
-    intent: 'defer_to_operator',
-    department: 'front_desk',
-    requires_human: true,
-    request_summary: 'Guest locked out, ID not matching reservation',
-    transcript: [
-      { speaker: 'guest', text: "I'm locked out and the front desk said my ID doesn't match the reservation name." },
-      { speaker: 'agent', text: "That needs a staff member to verify in person — I'm connecting you to front desk now so they can sort out the key issue." },
-    ],
-  },
 ]
 
 function secondsFromTranscript(transcript: ConversationTurn[]): number {
@@ -280,32 +228,12 @@ function secondsFromTranscript(transcript: ConversationTurn[]): number {
   return base + transcript.reduce((sum, turn) => sum + turn.text.length, 0) / 4
 }
 
-export function generateCallLog(overrides?: Partial<CallLog>): CallLog {
-  const template = pick(CALL_TEMPLATES)
-  const now = new Date().toISOString()
-  return {
-    id: nextId('call'),
-    room_number: pick(ROOMS),
-    language_detected: Math.random() < 0.8 ? 'en' : pick(LANGUAGES),
-    duration_seconds: Math.round(secondsFromTranscript(template.transcript)),
-    transcript: template.transcript,
-    intent: template.intent,
-    department: template.department,
-    request_summary: template.request_summary,
-    requires_human: template.requires_human,
-    created_at: now,
-    ...overrides,
-  }
-}
-
 export function seedCallLogs(): CallLog[] {
-  return [
-    generateCallLog({ room_number: '412', created_at: minutesAgo(1) }),
-    generateCallLog({ room_number: '308', created_at: minutesAgo(4) }),
-    generateCallLog({ room_number: '214', created_at: minutesAgo(9) }),
-    generateCallLog({ room_number: '119', created_at: minutesAgo(15) }),
-    generateCallLog({ room_number: '506', language_detected: 'es', created_at: minutesAgo(21) }),
-    generateCallLog({ room_number: '150', created_at: minutesAgo(33) }),
-    generateCallLog({ room_number: '602', created_at: minutesAgo(47) }),
-  ]
+  const ages = [1, 4, 9, 15, 21, 33, 47]
+  return SEED_CALLS.map((call, index) => ({
+    ...call,
+    transcript: call.transcript.map((turn) => ({ ...turn })),
+    duration_seconds: Math.round(secondsFromTranscript(call.transcript)),
+    created_at: minutesAgo(ages[index]),
+  }))
 }

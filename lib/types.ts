@@ -7,7 +7,7 @@ export type Urgency = 'low' | 'medium' | 'high'
 export type RequestStatus = 'new' | 'in_progress' | 'done'
 
 export const DEMO_STORE_STORAGE_KEY = 'landline_demo_state'
-export const DEMO_STORE_VERSION = 1 as const
+export const DEMO_STORE_VERSION = 2 as const
 
 export type StaffRole = 'front_desk' | 'housekeeping' | 'room_service' | 'maintenance' | 'manager'
 

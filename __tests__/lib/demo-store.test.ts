@@ -41,7 +41,7 @@ describe('demo store', () => {
     const second = readDemoState()
 
     expect(first).toEqual(second)
-    expect(first.version).toBe(1)
+    expect(first.version).toBe(2)
     expect(first.tickets.length).toBeGreaterThan(0)
     expect(first.call_logs.length).toBeGreaterThan(0)
     expect(isDemoState(JSON.parse(localStorage.getItem(DEMO_STORE_STORAGE_KEY)!))).toBe(true)
@@ -58,7 +58,7 @@ describe('demo store', () => {
 
   it('rejects invalid state writes', () => {
     expect(() =>
-      writeDemoState({ ...createSeedDemoState(), version: 2 } as never)
+      writeDemoState({ ...createSeedDemoState(), version: 3 } as never)
     ).toThrow('Invalid demo state')
   })
 
