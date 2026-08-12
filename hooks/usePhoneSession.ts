@@ -19,6 +19,7 @@ export type PhoneSessionState =
 export interface UsePhoneSessionReturn {
   state: PhoneSessionState;
   remainingSeconds: number;
+  errorMessage: string | null;
   lastCall: CallLog | null;
   startSession: () => Promise<void>;
   endSession: () => Promise<void>;
@@ -31,6 +32,7 @@ export function usePhoneSession(
 ): UsePhoneSessionReturn {
   const [state, setState] = useState<PhoneSessionState>("idle");
   const [remainingSeconds, setRemainingSeconds] = useState(DEMO_CALL_LIMIT_SECONDS);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastCall, setLastCall] = useState<CallLog | null>(null);
   const conversationRef = useRef<Conversation | null>(null);
   const transcriptRef = useRef<ConversationTurn[]>([]);
@@ -88,6 +90,7 @@ export function usePhoneSession(
 
   const startSession = useCallback(async () => {
     setLastCall(null);
+    setErrorMessage(null);
     setRemainingSeconds(DEMO_CALL_LIMIT_SECONDS);
     setState("connecting");
 
@@ -95,12 +98,27 @@ export function usePhoneSession(
     try {
       const response = await fetch("/api/elevenlabs/signed-url");
       if (!response.ok) {
+        if (response.status === 429) {
+          const body = (await response.json().catch(() => null)) as {
+            retry_after_seconds?: number;
+          } | null;
+          const retryMinutes = Math.max(
+            1,
+            Math.ceil((body?.retry_after_seconds ?? 600) / 60)
+          );
+          setErrorMessage(
+            `This network has used its two demo calls. Try again in ${retryMinutes} minutes.`
+          );
+        } else {
+          setErrorMessage("The concierge is temporarily unavailable. Please try again.");
+        }
         setState("error");
         return;
       }
       const data = (await response.json()) as { url: string };
       signedUrl = data.url;
     } catch {
+      setErrorMessage("The concierge is temporarily unavailable. Please try again.");
       setState("error");
       return;
     }
@@ -147,6 +165,7 @@ export function usePhoneSession(
       setState("in-call");
     } catch {
       sessionStartedAtRef.current = null;
+      setErrorMessage("The concierge could not connect. Please try again.");
       setState("error");
     }
   }, [dynamicVariables, finalizeCall]);
@@ -160,5 +179,12 @@ export function usePhoneSession(
     setState("ended");
   }, [finalizeCall]);
 
-  return { state, remainingSeconds, lastCall, startSession, endSession };
+  return {
+    state,
+    remainingSeconds,
+    errorMessage,
+    lastCall,
+    startSession,
+    endSession,
+  };
 }

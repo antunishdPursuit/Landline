@@ -11,6 +11,7 @@ interface BedsideCloseupProps {
   config: AgentConfig;
   phoneState: PhoneSessionState;
   remainingSeconds?: number;
+  errorMessage?: string | null;
   phoneSource: PhoneSource | null;
   lastCall?: CallLog | null;
   onPhoneAction: (source: PhoneSource) => void;
@@ -45,6 +46,7 @@ export function BedsideCloseup({
   config,
   phoneState,
   remainingSeconds = 90,
+  errorMessage = null,
   phoneSource,
   lastCall = null,
   onPhoneAction,
@@ -499,6 +501,12 @@ export function BedsideCloseup({
                   <li>What Italian restaurants near the hotel are open tonight?”</li>
                   <li>Help me find another hotel nearby.”</li>
                 </ul>
+              </>
+            ) : phoneState === "error" && errorMessage ? (
+              <>
+                <span className="panel-eyebrow">Demo call unavailable</span>
+                <span className="panel-title">Please try later</span>
+                <span className="panel-address">{errorMessage}</span>
               </>
             ) : callReceiptVisible ? (
               <>

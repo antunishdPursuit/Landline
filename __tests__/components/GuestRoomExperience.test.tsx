@@ -33,6 +33,7 @@ jest.mock("@/hooks/usePhoneSession", () => ({
   usePhoneSession: () => ({
     state: mockPhoneState,
     remainingSeconds: mockRemainingSeconds,
+    errorMessage: null,
     lastCall: mockLastCall,
     startSession: mockStartSession,
     endSession: mockEndSession,

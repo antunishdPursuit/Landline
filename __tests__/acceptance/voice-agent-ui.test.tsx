@@ -236,6 +236,22 @@ describe("AC-9 (client side): signed-url non-200 response → Conversation.start
       expect(screen.getByRole("button", { name: /error/i })).toBeInTheDocument()
     );
   });
+
+  it("does not open ElevenLabs when the public demo limit is reached", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      json: async () => ({ retry_after_seconds: 540 }),
+    } as Response);
+    render(<PhoneButton config={EMPTY_CONFIG} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /pick up phone/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /error/i })).toBeInTheDocument()
+    );
+    expect(mockStartSession).not.toHaveBeenCalled();
+  });
 });
 
 // ---------------------------------------------------------------------------

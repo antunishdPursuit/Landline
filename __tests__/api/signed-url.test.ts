@@ -10,6 +10,14 @@
 // Must mock "server-only" before any imports that use it
 jest.mock("server-only", () => ({}), { virtual: true });
 
+import { NextRequest } from "next/server";
+
+function makeRequest(ip = "203.0.113.10"): NextRequest {
+  return new NextRequest("https://landline.example/api/elevenlabs/signed-url", {
+    headers: { "x-vercel-forwarded-for": ip },
+  });
+}
+
 // Provide env vars before any module is imported
 const ORIGINAL_ENV = process.env;
 
@@ -35,7 +43,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -52,7 +60,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    await GET();
+    await GET(makeRequest());
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     const [requestUrl, requestInit] = (global.fetch as jest.Mock).mock.calls[0] as [
@@ -76,7 +84,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     global.fetch = jest.fn();
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(500);
     expect(global.fetch).not.toHaveBeenCalled();
@@ -88,7 +96,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     global.fetch = jest.fn();
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(500);
     expect(global.fetch).not.toHaveBeenCalled();
@@ -102,7 +110,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     expect(response.status).not.toBe(200);
   });
@@ -115,7 +123,7 @@ describe("GET /api/elevenlabs/signed-url", () => {
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     expect(response.status).not.toBe(200);
   });
@@ -127,8 +135,59 @@ describe("GET /api/elevenlabs/signed-url", () => {
     } as unknown as Response);
 
     const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(500);
+  });
+
+  it("allows two production call starts per IP in ten minutes", async () => {
+    process.env.VERCEL_ENV = "production";
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ signed_url: "wss://example.com/signed" }),
+    } as unknown as Response);
+
+    const { clearRateLimitsForTests } = await import("@/lib/rate-limit");
+    const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
+    clearRateLimitsForTests();
+    const request = new NextRequest("https://landline.example/api/elevenlabs/signed-url", {
+      headers: { "x-vercel-forwarded-for": "203.0.113.10" },
+    });
+
+    expect((await GET(request)).status).toBe(200);
+    expect((await GET(request)).status).toBe(200);
+    const blocked = await GET(request);
+    const body = await blocked.json();
+
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("Retry-After")).toBe("600");
+    expect(body).toEqual({
+      error: "Demo call limit reached",
+      retry_after_seconds: 600,
+    });
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("tracks production call starts separately by IP", async () => {
+    process.env.VERCEL_ENV = "production";
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ signed_url: "wss://example.com/signed" }),
+    } as unknown as Response);
+
+    const { clearRateLimitsForTests } = await import("@/lib/rate-limit");
+    const { GET } = await import("@/app/api/elevenlabs/signed-url/route");
+    clearRateLimitsForTests();
+
+    const firstIp = new NextRequest("https://landline.example/api/elevenlabs/signed-url", {
+      headers: { "x-vercel-forwarded-for": "203.0.113.10" },
+    });
+    const secondIp = new NextRequest("https://landline.example/api/elevenlabs/signed-url", {
+      headers: { "x-vercel-forwarded-for": "203.0.113.11" },
+    });
+
+    expect((await GET(firstIp)).status).toBe(200);
+    expect((await GET(firstIp)).status).toBe(200);
+    expect((await GET(secondIp)).status).toBe(200);
   });
 });
