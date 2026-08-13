@@ -12,6 +12,6 @@ export function toAgentDynamicVariables(
     property_lat: config.lat || "0",
     property_lng: config.lng || "0",
     room_number: roomNumber,
-    opening_greeting: `Welcome to ${propertyName}, room ${roomNumber}. How can I help you?`,
+    opening_greeting: `This is a demo. Welcome to ${propertyName}, room ${roomNumber}. How can I help you?`,
   };
 }

@@ -10,7 +10,7 @@ describe("toAgentDynamicVariables", () => {
       property_lng: RITZ_NOMAD_CONFIG.lng,
       room_number: "1208",
       opening_greeting:
-        "Welcome to The Ritz-Carlton New York, NoMad, room 1208. How can I help you?",
+        "This is a demo. Welcome to The Ritz-Carlton New York, NoMad, room 1208. How can I help you?",
     });
   });
 
@@ -22,7 +22,7 @@ describe("toAgentDynamicVariables", () => {
       property_lng: "0",
       room_number: "1208",
       opening_greeting:
-        "Welcome to Unnamed property, room 1208. How can I help you?",
+        "This is a demo. Welcome to Unnamed property, room 1208. How can I help you?",
     });
   });
 });
