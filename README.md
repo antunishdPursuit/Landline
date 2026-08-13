@@ -8,7 +8,7 @@ accommodation options and booking deeplinks.
 Landline began at Checkout — The Travel & Hospitality Hackathon and now
 continues as an independent active project.
 
-**Source:** [Moises-ITS/Landline](https://github.com/Moises-ITS/Landline)
+**Repository:** [antunishdPursuit/Landline](https://github.com/antunishdPursuit/Landline)
 
 Landline is intentionally a demo, not a live multi-user service. It uses one
 versioned browser store instead of a shared database.
@@ -22,9 +22,9 @@ versioned browser store instead of a shared database.
 3. Open the guest room, approach the bedside devices, and use the phone or the
    panel phone button.
 4. Follow one of the displayed test scripts. Calls have a 60-second limit and
-   begin closing after 55 seconds.
-5. After the call, review the browser-local transcript and any ending issue in
-   Agent Calls.
+   the agent receives a closing instruction after 55 seconds.
+5. After the call, Landline opens the matching Agent Calls entry so you can
+   review its browser-local transcript and any ending issue.
 
 Slack and other embedded browsers can block Clerk authentication. Use their
 **Open in Browser** action and continue in Safari or Chrome. Demo data remains
@@ -62,7 +62,7 @@ realtime backend.
 
 ## Requirements
 
-- Node.js 20.19+ or 22.13+
+- Node.js 22.13–22.x (Node 22.23.2 is the tested version)
 - A Clerk application
 - An ElevenLabs account and configured agent
 - A Tavily API key for live current-information search
@@ -74,6 +74,7 @@ unavailable.
 ## Setup
 
 ```bash
+nvm use
 npm install
 cp .env.example .env
 npm run dev
