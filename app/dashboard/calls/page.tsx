@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useStaffSession, useStaffSignOut } from '@/lib/auth'
 import { useCallLogs } from '@/lib/useCallLogs'
 import { Header } from '@/components/Header'
@@ -9,10 +9,26 @@ import { DashboardNav } from '@/components/DashboardNav'
 import { CallLogCard } from '@/components/CallLogCard'
 
 export default function AgentCallsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-slate-500">Loading…</p>
+        </main>
+      }
+    >
+      <AgentCallsContent />
+    </Suspense>
+  )
+}
+
+function AgentCallsContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const session = useStaffSession()
   const signOut = useStaffSignOut()
   const { calls } = useCallLogs()
+  const selectedCallId = searchParams.get('call')
 
   useEffect(() => {
     if (session && session.role !== 'manager') {
@@ -61,7 +77,12 @@ export default function AgentCallsPage() {
 
         <div className="space-y-2.5">
           {calls.map((call) => (
-            <CallLogCard key={call.id} call={call} justArrived={false} />
+            <CallLogCard
+              key={call.id}
+              call={call}
+              justArrived={call.id === selectedCallId}
+              defaultExpanded={call.id === selectedCallId}
+            />
           ))}
         </div>
       </div>

@@ -47,4 +47,15 @@ describe('CallLogCard', () => {
 
     expect(screen.getByText('End reason unavailable')).toBeInTheDocument()
   })
+
+  it('opens a newly completed call transcript by default', () => {
+    render(
+      <CallLogCard call={BASE_CALL} justArrived defaultExpanded />
+    )
+
+    expect(screen.getByText('Are you still there?')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Hide transcript' })
+    ).toBeInTheDocument()
+  })
 })

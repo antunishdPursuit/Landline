@@ -119,7 +119,9 @@ describe("GuestRoomExperience", () => {
     expect(screen.getByText(/sent to dashboard/i)).toBeInTheDocument();
     expect(screen.getByText("Request sent")).toBeInTheDocument();
     expect(screen.getByText("Deliver two towels")).toBeInTheDocument();
-    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard/calls");
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      "/dashboard/calls?call=call_1208"
+    );
   });
 
   it("does not open the dashboard until the completed call is saved", () => {

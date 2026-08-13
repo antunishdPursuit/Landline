@@ -42,8 +42,16 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-export function CallLogCard({ call, justArrived }: { call: CallLog; justArrived: boolean }) {
-  const [expanded, setExpanded] = useState(false)
+export function CallLogCard({
+  call,
+  justArrived,
+  defaultExpanded = false,
+}: {
+  call: CallLog
+  justArrived: boolean
+  defaultExpanded?: boolean
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded)
   const endReason = END_REASON_PRESENTATION[call.end_reason ?? 'unknown']
 
   return (

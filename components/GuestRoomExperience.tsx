@@ -22,7 +22,9 @@ export function GuestRoomExperience() {
 
   useEffect(() => {
     if (phoneSession.state === "ended" && phoneSession.lastCall) {
-      router.push("/dashboard/calls");
+      router.push(
+        `/dashboard/calls?call=${encodeURIComponent(phoneSession.lastCall.id)}`
+      );
     }
   }, [phoneSession.lastCall, phoneSession.state, router]);
 
