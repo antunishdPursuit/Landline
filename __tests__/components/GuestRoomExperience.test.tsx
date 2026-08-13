@@ -82,6 +82,15 @@ describe("GuestRoomExperience", () => {
     expect(mockStartSession).not.toHaveBeenCalled();
   });
 
+  it("opens the staff dashboard from the panel without starting a call", () => {
+    enterBedsideView();
+
+    fireEvent.click(screen.getByRole("button", { name: /open staff dashboard/i }));
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard");
+    expect(mockStartSession).not.toHaveBeenCalled();
+  });
+
   it("ends an active call before returning to the room", async () => {
     mockPhoneState = "in-call";
     enterBedsideView();

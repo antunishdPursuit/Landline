@@ -7,6 +7,7 @@ function renderCloseup(
   phoneState: "idle" | "connecting" | "in-call" | "ended" | "error" = "idle"
 ) {
   const onPhoneAction = jest.fn();
+  const onDashboard = jest.fn();
   const onBack = jest.fn();
   render(
     <BedsideCloseup
@@ -14,10 +15,11 @@ function renderCloseup(
       phoneState={phoneState}
       phoneSource={null}
       onPhoneAction={onPhoneAction}
+      onDashboard={onDashboard}
       onBack={onBack}
     />
   );
-  return { onPhoneAction, onBack };
+  return { onPhoneAction, onDashboard, onBack };
 }
 
 describe("BedsideCloseup", () => {
@@ -34,7 +36,7 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText("1:00 maximum")).toBeInTheDocument();
   });
 
-  it("keeps every non-phone panel control disabled", () => {
+  it("keeps decorative room controls disabled", () => {
     renderCloseup();
 
     for (const label of [
@@ -42,10 +44,18 @@ describe("BedsideCloseup", () => {
       "Reading",
       "Curtains",
       "Temperature",
-      "Privacy",
     ]) {
       expect(screen.getByRole("button", { name: label })).toBeDisabled();
     }
+  });
+
+  it("opens the dashboard without activating the phone", () => {
+    const { onDashboard, onPhoneAction } = renderCloseup();
+
+    fireEvent.click(screen.getByRole("button", { name: /open staff dashboard/i }));
+
+    expect(onDashboard).toHaveBeenCalledTimes(1);
+    expect(onPhoneAction).not.toHaveBeenCalled();
   });
 
   it("mounts the panel on the wall and draws the cord behind the phone body", () => {
@@ -55,6 +65,7 @@ describe("BedsideCloseup", () => {
         phoneState="idle"
         phoneSource={null}
         onPhoneAction={jest.fn()}
+        onDashboard={jest.fn()}
         onBack={jest.fn()}
       />
     );
@@ -90,6 +101,7 @@ describe("BedsideCloseup", () => {
         phoneState="in-call"
         phoneSource="handset"
         onPhoneAction={jest.fn()}
+        onDashboard={jest.fn()}
         onBack={jest.fn()}
       />
     );
@@ -102,6 +114,9 @@ describe("BedsideCloseup", () => {
       screen.getByRole("button", { name: /show hotel details/i })
     ).toBeDisabled();
     expect(container.querySelector(".panel-phone-button")).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /open staff dashboard/i })
+    ).toBeDisabled();
   });
 
   it("shows both test scripts and the connected-call countdown", () => {
@@ -112,6 +127,7 @@ describe("BedsideCloseup", () => {
         phoneSource="handset"
         remainingSeconds={74}
         onPhoneAction={jest.fn()}
+        onDashboard={jest.fn()}
         onBack={jest.fn()}
       />
     );
@@ -151,6 +167,7 @@ describe("BedsideCloseup", () => {
         phoneSource="handset"
         remainingSeconds={5}
         onPhoneAction={jest.fn()}
+        onDashboard={jest.fn()}
         onBack={jest.fn()}
       />
     );
@@ -168,6 +185,7 @@ describe("BedsideCloseup", () => {
         phoneState="in-call"
         phoneSource="panel"
         onPhoneAction={jest.fn()}
+        onDashboard={jest.fn()}
         onBack={jest.fn()}
       />
     );

@@ -84,6 +84,7 @@ export function GuestRoomExperience() {
             phoneSource={phoneSource}
             lastCall={phoneSession.lastCall}
             onPhoneAction={handlePhoneAction}
+            onDashboard={() => router.push("/dashboard")}
             onBack={handleBack}
           />
         </div>

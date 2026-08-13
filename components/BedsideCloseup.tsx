@@ -15,6 +15,7 @@ interface BedsideCloseupProps {
   phoneSource: PhoneSource | null;
   lastCall?: CallLog | null;
   onPhoneAction: (source: PhoneSource) => void;
+  onDashboard: () => void;
   onBack: () => void;
 }
 
@@ -39,7 +40,6 @@ const DISABLED_CONTROLS = [
   "Reading",
   "Curtains",
   "Temperature",
-  "Privacy",
 ];
 
 const DEMO_SCRIPTS = [
@@ -70,6 +70,7 @@ export function BedsideCloseup({
   phoneSource,
   lastCall = null,
   onPhoneAction,
+  onDashboard,
   onBack,
 }: BedsideCloseupProps) {
   const [detailsVisible, setDetailsVisible] = useState(false);
@@ -177,6 +178,7 @@ export function BedsideCloseup({
 
         .bedside-phone-button:focus-visible,
         .panel-screen-button:focus-visible,
+        .panel-dashboard-button:focus-visible,
         .panel-phone-button:focus-visible,
         .bedside-back:focus-visible {
           outline: 3px solid #a8752b;
@@ -401,6 +403,7 @@ export function BedsideCloseup({
         }
 
         .panel-control,
+        .panel-dashboard-button,
         .panel-phone-button {
           min-height: 48px;
           border: 1px solid rgba(255,255,255,0.12);
@@ -422,6 +425,13 @@ export function BedsideCloseup({
           cursor: pointer;
         }
 
+        .panel-dashboard-button {
+          background: #f2ede4;
+          color: #29231d;
+          cursor: pointer;
+        }
+
+        .panel-dashboard-button:disabled,
         .panel-phone-button:disabled {
           cursor: wait;
           opacity: 0.55;
@@ -518,6 +528,7 @@ export function BedsideCloseup({
           }
 
           .panel-control,
+          .panel-dashboard-button,
           .panel-phone-button {
             min-height: 42px;
             font-size: 0.5rem;
@@ -682,6 +693,15 @@ export function BedsideCloseup({
                 {control}
               </button>
             ))}
+            <button
+              type="button"
+              className="panel-dashboard-button"
+              onClick={onDashboard}
+              disabled={sessionActive}
+              aria-label="Open staff dashboard"
+            >
+              Dashboard
+            </button>
             <button
               type="button"
               className="panel-phone-button"

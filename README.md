@@ -31,6 +31,8 @@ authentication. Use **Open in Browser** and continue in Safari or Chrome.
 - Presents a responsive SVG hotel-room view and bedside close-up.
 - Starts the same ElevenLabs flow from the phone or panel phone button.
 - Prevents the phone and panel from starting overlapping calls.
+- Opens the staff dashboard directly from the bedside panel without requiring
+  a call.
 - Routes physical requests to a department-aware staff request board.
 - Uses Tavily for current nearby businesses, hours, events, and transportation.
 - Uses Stay22 for confirmed accommodation searches and booking deeplinks.
