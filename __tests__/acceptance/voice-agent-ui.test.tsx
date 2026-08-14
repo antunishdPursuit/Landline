@@ -62,7 +62,7 @@ function setupFailFetch(status = 500) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  localStorage.clear();
+  sessionStorage.clear();
   mockStartSession.mockResolvedValue({
     endSession: mockConversationEnd,
     sendUserMessage: mockSendUserMessage,

@@ -31,7 +31,7 @@ function makeTicket(overrides: Partial<GuestRequest> = {}): GuestRequest {
 }
 
 beforeEach(() => {
-  localStorage.clear()
+  sessionStorage.clear()
 })
 
 describe('demo store', () => {
@@ -43,11 +43,11 @@ describe('demo store', () => {
     expect(first.version).toBe(2)
     expect(first.tickets.length).toBeGreaterThan(0)
     expect(first.call_logs.length).toBeGreaterThan(0)
-    expect(isDemoState(JSON.parse(localStorage.getItem(DEMO_STORE_STORAGE_KEY)!))).toBe(true)
+    expect(isDemoState(JSON.parse(sessionStorage.getItem(DEMO_STORE_STORAGE_KEY)!))).toBe(true)
   })
 
   it('replaces corrupt storage with safe seed data', () => {
-    localStorage.setItem(DEMO_STORE_STORAGE_KEY, '{not-json')
+    sessionStorage.setItem(DEMO_STORE_STORAGE_KEY, '{not-json')
 
     const recovered = readDemoState()
 

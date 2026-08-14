@@ -1,39 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { getCallOutcome } from '@/lib/call-outcome'
 import type { CallLog } from '@/lib/types'
 import { timeAgo } from '@/lib/format'
 import { CallOutcomeBadge, LanguageBadge, NeedsHumanBadge } from './Badges'
 
-const END_REASON_PRESENTATION = {
-  guest_ended: {
-    label: 'Guest ended',
-    className: 'border-slate-200 bg-slate-100 text-slate-700',
-  },
-  agent_ended: {
-    label: 'Agent ended',
-    className: 'border-blue-200 bg-blue-50 text-blue-700',
-  },
-  demo_time_limit: {
-    label: 'Demo limit',
-    className: 'border-amber-200 bg-amber-50 text-amber-800',
-  },
-  silence_timeout: {
-    label: 'Silence timeout',
-    className: 'border-amber-200 bg-amber-50 text-amber-800',
-  },
-  connection_lost: {
-    label: 'Connection lost',
-    className: 'border-rose-200 bg-rose-50 text-rose-700',
-  },
-  client_error: {
-    label: 'Call error',
-    className: 'border-rose-200 bg-rose-50 text-rose-700',
-  },
-  unknown: {
-    label: 'End reason unavailable',
-    className: 'border-slate-200 bg-white text-slate-500',
-  },
+const END_REASON_CLASSES = {
+  neutral: 'border-slate-200 bg-slate-100 text-slate-700',
+  warning: 'border-amber-200 bg-amber-50 text-amber-800',
+  error: 'border-rose-200 bg-rose-50 text-rose-700',
 } as const
 
 function formatDuration(seconds: number): string {
@@ -52,7 +28,7 @@ export function CallLogCard({
   defaultExpanded?: boolean
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded)
-  const endReason = END_REASON_PRESENTATION[call.end_reason ?? 'unknown']
+  const endReason = getCallOutcome(call)
 
   return (
     <div
@@ -78,7 +54,7 @@ export function CallLogCard({
         <LanguageBadge code={call.language_detected} />
         {call.requires_human && <NeedsHumanBadge />}
         <span
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${endReason.className}`}
+          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${END_REASON_CLASSES[endReason.tone]}`}
         >
           {endReason.label}
         </span>

@@ -45,7 +45,7 @@ const CALL_END_SOURCES = new Set<CallEndSource>([
 ])
 
 function getBrowserStorage(): Storage | null {
-  return typeof window === 'undefined' ? null : window.localStorage
+  return typeof window === 'undefined' ? null : window.sessionStorage
 }
 
 function isString(value: unknown): value is string {
