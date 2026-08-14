@@ -153,7 +153,9 @@ describe("BedsideCloseup", () => {
     expect(
       screen.getByText(/one italian restaurant near the hotel/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/another hotel near nomad/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/another hotel near 25 west 28th street/i)
+    ).toBeInTheDocument();
     expect(screen.getByText(/yes, that’s correct/i)).toBeInTheDocument();
     expect(screen.getByText(/where can i book it/i)).toBeInTheDocument();
     expect(screen.getByText(/audio is not recorded/i)).toBeInTheDocument();

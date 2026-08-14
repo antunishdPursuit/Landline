@@ -54,7 +54,7 @@ const DEMO_SCRIPTS = [
   {
     title: "Call 2 · Another hotel",
     prompts: [
-      "I need another hotel near NoMad. Check in tomorrow for two nights: two adults, no children, one room.",
+      "I need another hotel near 25 West 28th Street, New York, NY 10001. Check in tomorrow for two nights: two adults, no children, one room.",
       "When the agent repeats the search, say: Yes, that’s correct.",
       "Where can I book it?",
       "That’s all. Goodbye.",
