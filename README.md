@@ -8,19 +8,21 @@ resulting request or transcript in a Clerk-protected staff dashboard.
 
 The agent can route physical hotel requests, use Tavily for current local
 information, and use Stay22 for accommodation options. The demo uses
-browser-local storage instead of a shared production database.
+tab-scoped browser storage instead of a shared production database.
 
 ## Demo Flow
 
 1. Open Landline in current desktop Chrome or Safari, or mobile Safari.
-2. Approach the bedside phone and room-control panel.
-3. Select the phone or the panel's phone button.
+2. Follow the **Call room service. Pick one.** prompt to the bedside view.
+3. Select the phone or the panel's Phone button.
 4. Follow one of the displayed test scripts. The agent identifies the
    experience as a demo before giving the hotel and room greeting.
 5. Complete the call within 60 seconds. The agent receives a closing
    instruction after 55 seconds.
-6. Sign in with the dedicated demo credentials when prompted.
-7. Review the automatically opened Agent Calls entry, its browser-local
+6. Review the completion message over the phone and panel, then select
+   **Continue**.
+7. Sign in with the dedicated demo credentials when prompted.
+8. Review the automatically opened Agent Calls entry, its tab-scoped
    transcript, and any ending issue.
 
 Slack and other embedded browsers can block the cookies Clerk needs for
@@ -29,6 +31,7 @@ authentication. Use **Open in Browser** and continue in Safari or Chrome.
 ## What Landline Does
 
 - Presents a responsive SVG hotel-room view and bedside close-up.
+- Guides guests to the synchronized phone and panel call controls.
 - Starts the same ElevenLabs flow from the phone or panel phone button.
 - Prevents the phone and panel from starting overlapping calls.
 - Opens the staff dashboard directly from the bedside panel without requiring
@@ -36,7 +39,8 @@ authentication. Use **Open in Browser** and continue in Safari or Chrome.
 - Routes physical requests to a department-aware staff request board.
 - Uses Tavily for current nearby businesses, hours, events, and transportation.
 - Uses Stay22 for confirmed accommodation searches and booking deeplinks.
-- Records browser-local call metadata, transcripts, and ending issues without
+- Explains completed calls and failed starts before authentication.
+- Records tab-scoped call metadata, transcripts, and ending issues without
   storing call audio in Landline.
 - Opens the matching transcript after a completed call.
 - Protects the staff dashboard with Clerk roles.
@@ -60,14 +64,14 @@ Guest browser ──signed session──▶ ElevenLabs agent
       │
       └──────────────┬───────────────────────────────────────────┘
                      ▼
-             browser demo state
+            tab-scoped demo state
                │             │
                ▼             ▼
        vendor results     Clerk-gated dashboard
 ```
 
 There is no Supabase database, Python service, pgvector store, or production
-realtime backend. The browser store contains the current browser's tickets,
+realtime backend. The session store contains the current tab's tickets,
 calls, assignments, statuses, and returned vendor metadata.
 
 ## Technology
@@ -80,7 +84,7 @@ calls, assignments, statuses, and returned vendor metadata.
 | Voice agent | ElevenLabs Agents |
 | Current local information | Tavily |
 | Accommodation search | Stay22 Direct Travel API |
-| Demo persistence | Versioned browser-local storage |
+| Demo persistence | Versioned browser session storage |
 | Hosting | Vercel |
 | Testing | Jest and Testing Library |
 
@@ -214,11 +218,11 @@ configuration and must be tested separately from the automated suite.
 ## Current Limits
 
 - Landline is a controlled demo, not a live hotel service.
-- Demo state does not synchronize between browsers or devices.
+- Demo state does not synchronize between tabs, browsers, or devices.
 - A shared demo login does not create shared call or request data.
-- Call metadata and transcripts remain in the current browser. Landline does
-  not store call audio; provider transcript retention follows the ElevenLabs
-  account configuration.
+- Call metadata and transcripts remain in the current tab and are removed when
+  that tab closes. Landline does not store call audio; provider transcript
+  retention follows the ElevenLabs account configuration.
 - Calls have a 60-second maximum and no voice fallback when ElevenLabs is
   unavailable.
 - Staff presence is representative demo content.
