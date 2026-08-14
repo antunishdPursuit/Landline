@@ -589,7 +589,7 @@ export function BedsideCloseup({
       `}</style>
 
       {phoneState === "idle" && (
-        <p className="bedside-call-cue">Call room service. Pick one.</p>
+        <p className="bedside-call-cue">Pick one.</p>
       )}
 
       <button

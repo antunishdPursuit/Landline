@@ -97,7 +97,7 @@ describe("BedsideCloseup", () => {
   it("guides the guest to either synchronized room-service control", () => {
     const { container } = renderCloseup();
 
-    expect(screen.getByText("Call room service. Pick one.")).toBeInTheDocument();
+    expect(screen.getByText("Pick one.")).toBeInTheDocument();
     expect(
       container.querySelector('.bedside-call-indicator[data-ready="true"]')
     ).toBeInTheDocument();

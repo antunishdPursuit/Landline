@@ -13,8 +13,8 @@ tab-scoped browser storage instead of a shared production database.
 ## Demo Flow
 
 1. Open Landline in current desktop Chrome or Safari, or mobile Safari.
-2. Follow the **Call room service. Pick one.** prompt to the bedside view.
-3. Select the phone or the panel's Phone button.
+2. Follow the **Call room service.** prompt to the bedside view.
+3. At **Pick one.**, select the phone or the panel's Phone button.
 4. Follow one of the displayed test scripts. The agent identifies the
    experience as a demo before giving the hotel and room greeting.
 5. Complete the call within 60 seconds. The agent receives a closing

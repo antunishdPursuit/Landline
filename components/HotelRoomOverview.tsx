@@ -405,7 +405,7 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
           onClick={onApproach}
           aria-label="Call room service. Pick one: the bedside phone or panel"
         >
-          <span className="landline-call-cue">Call room service. Pick one.</span>
+          <span className="landline-call-cue">Call room service.</span>
         </button>
       )}
 

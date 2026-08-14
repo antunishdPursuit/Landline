@@ -68,7 +68,7 @@ describe("HotelRoomOverview", () => {
     );
 
     expect(onApproach).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("Call room service. Pick one.")).toBeInTheDocument();
+    expect(screen.getByText("Call room service.")).toBeInTheDocument();
   });
 
 });
