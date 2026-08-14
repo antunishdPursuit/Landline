@@ -4,7 +4,9 @@ import SignInPage from '@/app/sign-in/[[...sign-in]]/page'
 import { isEmbeddedBrowser, SignInExperience } from '@/components/SignInExperience'
 
 jest.mock('@clerk/nextjs', () => ({
-  SignIn: () => <div>Clerk sign in</div>,
+  SignIn: ({ forceRedirectUrl }: { forceRedirectUrl: string }) => (
+    <div data-redirect={forceRedirectUrl}>Clerk sign in</div>
+  ),
 }))
 
 describe('SignInPage', () => {
@@ -19,6 +21,7 @@ describe('SignInPage', () => {
       configurable: true,
       value: originalUserAgent,
     })
+    window.history.replaceState({}, '', '/sign-in')
   })
 
   it('shows configured demo credentials beside Clerk sign in', () => {
@@ -39,6 +42,32 @@ describe('SignInPage', () => {
     render(<SignInPage />)
 
     expect(screen.queryByText('Demo manager access')).not.toBeInTheDocument()
+  })
+
+  it('returns a signed-in demo user to the selected call', () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/sign-in?next=%2Fdashboard%2Fcalls%3Fcall%3Dcall_1208'
+    )
+
+    render(<SignInExperience />)
+
+    expect(screen.getByText('Clerk sign in')).toHaveAttribute(
+      'data-redirect',
+      '/dashboard/calls?call=call_1208'
+    )
+  })
+
+  it('rejects an external post-sign-in destination', () => {
+    window.history.replaceState({}, '', '/sign-in?next=https%3A%2F%2Fevil.example')
+
+    render(<SignInExperience />)
+
+    expect(screen.getByText('Clerk sign in')).toHaveAttribute(
+      'data-redirect',
+      '/dashboard'
+    )
   })
 
   it('recognizes Slack and iOS webviews without blocking full browsers', () => {

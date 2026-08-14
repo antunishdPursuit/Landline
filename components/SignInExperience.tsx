@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { SignIn } from "@clerk/nextjs";
+import { getSafeDashboardRedirect } from "@/lib/sign-in-redirect";
 
 export function isEmbeddedBrowser(userAgent: string): boolean {
   const knownEmbeddedBrowser =
@@ -28,11 +29,26 @@ function getServerBrowserStatus(): "checking" {
   return "checking";
 }
 
+function getBrowserRedirect(): string {
+  return getSafeDashboardRedirect(
+    new URLSearchParams(window.location.search).get("next")
+  );
+}
+
+function getServerRedirect(): "/dashboard" {
+  return "/dashboard";
+}
+
 export function SignInExperience() {
   const browserStatus = useSyncExternalStore(
     subscribeToBrowserStatus,
     getBrowserStatus,
     getServerBrowserStatus
+  );
+  const redirectUrl = useSyncExternalStore(
+    subscribeToBrowserStatus,
+    getBrowserRedirect,
+    getServerRedirect
   );
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
     "idle"
@@ -93,5 +109,11 @@ export function SignInExperience() {
     );
   }
 
-  return <SignIn path="/sign-in" routing="path" forceRedirectUrl="/dashboard" />;
+  return (
+    <SignIn
+      path="/sign-in"
+      routing="path"
+      forceRedirectUrl={redirectUrl}
+    />
+  );
 }

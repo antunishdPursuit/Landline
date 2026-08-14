@@ -3,8 +3,13 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
+    const signInUrl = new URL("/sign-in", req.url);
+    signInUrl.searchParams.set(
+      "next",
+      `${req.nextUrl.pathname}${req.nextUrl.search}`
+    );
     await auth.protect({
-      unauthenticatedUrl: new URL("/sign-in", req.url).toString(),
+      unauthenticatedUrl: signInUrl.toString(),
     });
   }
 });

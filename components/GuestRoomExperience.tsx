@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BedsideCloseup,
   type PhoneSource,
 } from "@/components/BedsideCloseup";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
+import { DemoCallModal } from "@/components/DemoCallModal";
 import { usePhoneSession } from "@/hooks/usePhoneSession";
 import { toAgentDynamicVariables } from "@/lib/agent-dynamic-variables";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
@@ -18,15 +19,22 @@ export function GuestRoomExperience() {
   const router = useRouter();
   const [view, setView] = useState<GuestView>("room");
   const [phoneSource, setPhoneSource] = useState<PhoneSource | null>(null);
+  const bedsideSceneRef = useRef<HTMLDivElement>(null);
   const phoneSession = usePhoneSession(AGENT_DYNAMIC_VARIABLES);
 
+  const completedCall =
+    phoneSession.state === "ended" ? phoneSession.lastCall : null;
+  const failureMessage =
+    phoneSession.state === "error" ? phoneSession.errorMessage : null;
+  const resultVisible = completedCall !== null || failureMessage !== null;
+
   useEffect(() => {
-    if (phoneSession.state === "ended" && phoneSession.lastCall) {
-      router.push(
-        `/dashboard/calls?call=${encodeURIComponent(phoneSession.lastCall.id)}`
-      );
-    }
-  }, [phoneSession.lastCall, phoneSession.state, router]);
+    const scene = bedsideSceneRef.current;
+    if (!scene) return;
+
+    if (resultVisible) scene.setAttribute("inert", "");
+    else scene.removeAttribute("inert");
+  }, [resultVisible]);
 
   const handlePhoneAction = useCallback((source: PhoneSource) => {
     if (phoneSession.state === "connecting") return;
@@ -75,7 +83,12 @@ export function GuestRoomExperience() {
           <HotelRoomOverview onApproach={() => setView("bedside")} />
         </div>
       ) : (
-        <div className="guest-view-enter">
+        <>
+        <div
+          ref={bedsideSceneRef}
+          className="guest-view-enter"
+          aria-hidden={resultVisible}
+        >
           <BedsideCloseup
             config={RITZ_NOMAD_CONFIG}
             phoneState={phoneSession.state}
@@ -88,6 +101,18 @@ export function GuestRoomExperience() {
             onBack={handleBack}
           />
         </div>
+        <DemoCallModal
+          call={completedCall}
+          failureMessage={failureMessage}
+          onContinue={() => {
+            if (!completedCall) return;
+            router.push(
+              `/dashboard/calls?call=${encodeURIComponent(completedCall.id)}`
+            );
+          }}
+          onCloseFailure={phoneSession.dismissError}
+        />
+        </>
       )}
     </div>
   );

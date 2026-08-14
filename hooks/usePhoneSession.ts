@@ -32,6 +32,7 @@ export interface UsePhoneSessionReturn {
   lastCall: CallLog | null;
   startSession: () => Promise<void>;
   endSession: () => Promise<void>;
+  dismissError: () => void;
 }
 
 export const DEMO_CALL_LIMIT_SECONDS = 60;
@@ -318,6 +319,12 @@ export function usePhoneSession(
     setState("ended");
   }, [finalizeCall]);
 
+  const dismissError = useCallback(() => {
+    setErrorMessage(null);
+    setRemainingSeconds(DEMO_CALL_LIMIT_SECONDS);
+    setState((current) => (current === "error" ? "idle" : current));
+  }, []);
+
   return {
     state,
     remainingSeconds,
@@ -325,5 +332,6 @@ export function usePhoneSession(
     lastCall,
     startSession,
     endSession,
+    dismissError,
   };
 }
