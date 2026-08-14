@@ -57,17 +57,38 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
           cursor: pointer;
         }
 
-        .landline-approach-target::after {
-          content: '';
+        .landline-call-cue {
           position: absolute;
-          left: 25%;
-          top: 15%;
-          width: 1rem;
-          height: 1rem;
-          border: 2px solid rgba(235, 184, 104, 0.9);
+          left: 50%;
+          top: 4%;
+          display: inline-flex;
+          min-width: max-content;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.2rem;
+          padding: 0.65rem 0.9rem 0.45rem;
+          border: 1px solid rgba(126, 86, 43, 0.34);
           border-radius: 999px;
-          box-shadow: 0 0 0 0 rgba(235, 184, 104, 0.35);
-          animation: landline-device-pulse 2.4s ease-out infinite;
+          background: rgba(255, 250, 242, 0.92);
+          color: #4b3526;
+          box-shadow: 0 10px 24px rgba(67, 45, 31, 0.18);
+          font: 700 clamp(0.6rem, 1vw, 0.74rem)/1.1 var(--font-dm-sans), system-ui, sans-serif;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          transform: translateX(-50%);
+          backdrop-filter: blur(8px);
+        }
+
+        .landline-call-cue::after {
+          content: '↙   ↘';
+          color: #b67936;
+          font-size: 1rem;
+          letter-spacing: 0.5rem;
+          line-height: 0.9;
+        }
+
+        .landline-call-indicator {
+          animation: landline-device-pulse 1.45s ease-in-out infinite;
         }
 
         .landline-approach-target:focus-visible {
@@ -83,21 +104,21 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
             height: 56%;
           }
 
-          .landline-approach-target::after {
-            left: 42%;
-            top: 24%;
+          .landline-call-cue {
+            top: 1%;
           }
         }
 
         @keyframes landline-device-pulse {
-          70%, 100% {
-            box-shadow: 0 0 0 14px rgba(235, 184, 104, 0);
-          }
+          0%, 100% { opacity: 0.62; filter: drop-shadow(0 0 1px #f0b45d); }
+          50% { opacity: 1; filter: drop-shadow(0 0 8px #ffd38a); }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .landline-approach-target::after {
+          .landline-call-indicator {
             animation: none;
+            opacity: 1;
+            filter: drop-shadow(0 0 5px #ffd38a);
           }
         }
       `}</style>
@@ -198,6 +219,7 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
           <rect x="21" y="404" width="52" height="33" rx="4" fill="#b77d37" />
           <path d="M29 446h11M48 446h11M67 446h2" stroke="#efc47c" strokeWidth="4" strokeLinecap="round" />
           <path d="M34 414c7-6 15-6 22 0M39 420c4-3 8-3 12 0" fill="none" stroke="#f7dca8" strokeWidth="3" strokeLinecap="round" />
+          <circle className="landline-call-indicator" cx="70" cy="447" r="4" fill="#ffd087" />
         </g>
 
         {/* Oversized phone remains recognizable and thumb-adjacent. */}
@@ -209,7 +231,7 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         >
           <path d="M76 443h100l14 44H62Z" fill="#202426" stroke="#3e4345" strokeWidth="4" />
           <rect x="92" y="455" width="51" height="20" rx="3" fill="#777168" />
-          <circle cx="159" cy="462" r="5" fill="#dc9c4c" />
+          <circle className="landline-call-indicator" cx="159" cy="462" r="5" fill="#dc9c4c" />
           <path d="M72 425c6-18 19-27 35-27h39c17 0 31 9 37 27l-15 14c-9-8-18-12-29-12h-25c-11 0-20 4-29 12Z" fill="#15191b" stroke="#373c3f" strokeWidth="4" />
           <path d="M181 480c21 7 23 23 10 35-10 9-11 17-5 26" fill="none" stroke="#222628" strokeWidth="5" strokeLinecap="round" />
         </g>
@@ -341,6 +363,7 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
           <path d="M104 434h9M120 434h9M136 434h2" stroke="#e5bb77" strokeWidth="3" strokeLinecap="round" />
           <path d="M113 410c4-4 9-4 13 0" fill="none" stroke="#f4d59e" strokeWidth="2" strokeLinecap="round" />
           <path d="M115 414c3-2 6-2 9 0" fill="none" stroke="#f4d59e" strokeWidth="2" strokeLinecap="round" />
+          <circle className="landline-call-indicator" cx="139" cy="435" r="3" fill="#ffd087" />
         </g>
 
         {/* Hotel phone */}
@@ -352,7 +375,7 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
         >
           <path d="M166 428h96l11 36H154Z" fill="#202426" stroke="#3e4345" strokeWidth="3" />
           <rect x="180" y="437" width="49" height="18" rx="3" fill="#777168" />
-          <circle cx="244" cy="444" r="3.5" fill="#dc9c4c" />
+          <circle className="landline-call-indicator" cx="244" cy="444" r="3.5" fill="#dc9c4c" />
           <path d="M168 415c4-15 16-22 30-22h39c14 0 25 7 30 22l-12 11c-8-7-16-10-25-10h-26c-9 0-17 3-25 10Z" fill="#15191b" stroke="#373c3f" strokeWidth="3" />
           <path d="M263 459c17 5 19 17 8 27-8 7-9 13-4 20" fill="none" stroke="#222628" strokeWidth="4" strokeLinecap="round" />
         </g>
@@ -380,8 +403,10 @@ export function HotelRoomOverview({ onApproach }: HotelRoomOverviewProps) {
           type="button"
           className="landline-approach-target"
           onClick={onApproach}
-          aria-label="Approach the bedside phone and control panel"
-        />
+          aria-label="Call room service. Pick one: the bedside phone or panel"
+        >
+          <span className="landline-call-cue">Call room service. Pick one.</span>
+        </button>
       )}
 
     </figure>

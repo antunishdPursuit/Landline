@@ -9,7 +9,7 @@ function renderCloseup(
   const onPhoneAction = jest.fn();
   const onDashboard = jest.fn();
   const onBack = jest.fn();
-  render(
+  const { container } = render(
     <BedsideCloseup
       config={RITZ_NOMAD_CONFIG}
       phoneState={phoneState}
@@ -19,7 +19,7 @@ function renderCloseup(
       onBack={onBack}
     />
   );
-  return { onPhoneAction, onDashboard, onBack };
+  return { container, onPhoneAction, onDashboard, onBack };
 }
 
 describe("BedsideCloseup", () => {
@@ -94,6 +94,21 @@ describe("BedsideCloseup", () => {
     expect(onPhoneAction).toHaveBeenNthCalledWith(2, "panel");
   });
 
+  it("guides the guest to either synchronized room-service control", () => {
+    const { container } = renderCloseup();
+
+    expect(screen.getByText("Call room service. Pick one.")).toBeInTheDocument();
+    expect(
+      container.querySelector('.bedside-call-indicator[data-ready="true"]')
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('.panel-phone-button[data-ready="true"]')
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open staff dashboard/i })).toHaveTextContent(
+      "Staff dashboard"
+    );
+  });
+
   it("locks the panel during a handset call", () => {
     const { container } = render(
       <BedsideCloseup
@@ -139,14 +154,8 @@ describe("BedsideCloseup", () => {
     expect(screen.getByText(/another hotel near nomad/i)).toBeInTheDocument();
     expect(screen.getByText(/yes, that’s correct/i)).toBeInTheDocument();
     expect(screen.getByText(/where can i book it/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /a transcript and any call issues are saved locally/i
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/does not place real hotel requests or reservations/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/audio is not recorded/i)).toBeInTheDocument();
+    expect(screen.getByText(/a transcript is saved in this tab/i)).toBeInTheDocument();
     expect(screen.getAllByText(/1:14/)).toHaveLength(3);
     expect(container.querySelector(".bedside-demo-hud")).toContainElement(
       container.querySelector(".bedside-phone-status")

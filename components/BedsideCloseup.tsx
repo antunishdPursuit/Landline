@@ -116,6 +116,25 @@ export function BedsideCloseup({
           background: rgba(76, 52, 38, 0.48);
         }
 
+        .bedside-call-cue {
+          position: absolute;
+          z-index: 7;
+          top: 1.25rem;
+          left: 50%;
+          margin: 0;
+          padding: 0.7rem 1rem;
+          border: 1px solid rgba(126, 86, 43, 0.34);
+          border-radius: 999px;
+          background: rgba(255, 250, 242, 0.9);
+          color: #4b3526;
+          box-shadow: 0 10px 24px rgba(67, 45, 31, 0.16);
+          font: 700 clamp(0.62rem, 1vw, 0.76rem)/1 var(--font-dm-sans), system-ui, sans-serif;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          transform: translateX(-50%);
+          backdrop-filter: blur(8px);
+        }
+
         .bedside-back {
           position: absolute;
           z-index: 5;
@@ -426,9 +445,23 @@ export function BedsideCloseup({
         }
 
         .panel-dashboard-button {
-          background: #f2ede4;
-          color: #29231d;
+          background: #343637;
+          color: #d7d1c9;
           cursor: pointer;
+        }
+
+        .bedside-call-indicator[data-ready="true"],
+        .panel-phone-button[data-ready="true"] {
+          animation: bedside-call-pulse 1.45s ease-in-out infinite;
+        }
+
+        @keyframes bedside-call-pulse {
+          0%, 100% {
+            filter: drop-shadow(0 0 1px rgba(240, 180, 93, 0.5));
+          }
+          50% {
+            filter: drop-shadow(0 0 9px #ffd38a);
+          }
         }
 
         .panel-dashboard-button:disabled,
@@ -444,6 +477,13 @@ export function BedsideCloseup({
             gap: 0.25rem;
             width: 92vw;
             padding: 4rem 0 0.75rem;
+          }
+
+          .bedside-call-cue {
+            top: 1rem;
+            max-width: 48vw;
+            padding: 0.6rem 0.8rem;
+            text-align: center;
           }
 
           .bedside-phone-zone {
@@ -539,8 +579,18 @@ export function BedsideCloseup({
           .bedside-phone-art {
             transition: none;
           }
+
+          .bedside-call-indicator[data-ready="true"],
+          .panel-phone-button[data-ready="true"] {
+            animation: none;
+            filter: drop-shadow(0 0 5px #ffd38a);
+          }
         }
       `}</style>
+
+      {phoneState === "idle" && (
+        <p className="bedside-call-cue">Call room service. Pick one.</p>
+      )}
 
       <button
         type="button"
@@ -606,7 +656,14 @@ export function BedsideCloseup({
                     />
                   ))
                 )}
-                <circle cx="520" cy="211" r="8" fill={phoneState === "error" ? "#a95555" : "#d89a4b"} />
+                <circle
+                  className="bedside-call-indicator"
+                  data-ready={phoneState === "idle"}
+                  cx="520"
+                  cy="211"
+                  r="8"
+                  fill={phoneState === "error" ? "#a95555" : "#d89a4b"}
+                />
                 <path d="M109 138c18-63 67-91 128-91h151c61 0 111 28 129 91l-49 54c-35-27-69-39-112-39h-88c-43 0-77 12-112 39Z" fill="#111516" stroke="#3e4446" strokeWidth="9" />
                 <path d="M150 131c23-34 56-48 100-48h125c44 0 78 14 101 48" fill="none" stroke="#262b2d" strokeWidth="16" strokeLinecap="round" />
               </g>
@@ -700,7 +757,7 @@ export function BedsideCloseup({
               disabled={sessionActive}
               aria-label="Open staff dashboard"
             >
-              Dashboard
+              Staff dashboard
             </button>
             <button
               type="button"
@@ -708,6 +765,7 @@ export function BedsideCloseup({
               onClick={() => onPhoneAction("panel")}
               disabled={panelPhoneDisabled}
               aria-label={PHONE_LABEL[phoneState]}
+              data-ready={phoneState === "idle"}
             >
               {phoneState === "in-call" ? "End call" : "Phone"}
             </button>
@@ -766,10 +824,7 @@ export function BedsideCloseup({
                 </section>
               ))}
               <p className="bedside-test-guide-note">
-                A transcript and any call issues are saved locally. After the
-                call, the dashboard will show the transcript and details about
-                any issues that occurred. Landline is for demonstration only;
-                it does not place real hotel requests or reservations.
+                Audio is not recorded. A transcript is saved in this tab.
               </p>
             </div>
         </aside>

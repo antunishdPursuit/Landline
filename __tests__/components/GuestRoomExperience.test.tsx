@@ -35,7 +35,7 @@ function enterBedsideView() {
   render(<GuestRoomExperience />);
   fireEvent.click(
     screen.getByRole("button", {
-      name: /approach the bedside phone and control panel/i,
+      name: /call room service.*pick one/i,
     })
   );
 }
@@ -57,7 +57,7 @@ describe("GuestRoomExperience", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", {
-        name: /approach the bedside phone and control panel/i,
+        name: /call room service.*pick one/i,
       })
     ).not.toBeInTheDocument();
   });
@@ -107,7 +107,7 @@ describe("GuestRoomExperience", () => {
     await waitFor(() =>
       expect(
         screen.getByRole("button", {
-          name: /approach the bedside phone and control panel/i,
+          name: /call room service.*pick one/i,
         })
       ).toBeInTheDocument()
     );

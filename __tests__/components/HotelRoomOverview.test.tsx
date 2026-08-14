@@ -26,6 +26,7 @@ describe("HotelRoomOverview", () => {
     expect(
       container.querySelector('[data-scene-object="mobile-bedside-panel"]')
     ).toBeInTheDocument();
+    expect(container.querySelectorAll(".landline-call-indicator")).toHaveLength(4);
   });
 
   it("keeps the phone left of the panel in both responsive room scenes", () => {
@@ -62,11 +63,12 @@ describe("HotelRoomOverview", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: /approach the bedside phone and control panel/i,
+        name: /call room service.*pick one/i,
       })
     );
 
     expect(onApproach).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Call room service. Pick one.")).toBeInTheDocument();
   });
 
 });
