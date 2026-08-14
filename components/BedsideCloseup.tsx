@@ -47,7 +47,7 @@ const DEMO_SCRIPTS = [
     title: "Call 1 · Service and nearby",
     prompts: [
       "Please send two extra towels to room 1208.",
-      "What Italian restaurant within a 10-minute walk is open tonight? Give me one option and its closing time.",
+      "Can you recommend one Italian restaurant near the hotel and give me its address?",
       "That’s all. Goodbye.",
     ],
   },
