@@ -78,6 +78,35 @@ describe('ElevenLabs client tools', () => {
     expect(requestBody.intent).toBe('defer_to_operator')
   })
 
+  it('returns the room restriction without storing a ticket', async () => {
+    const fetcher = jest.fn().mockResolvedValue(
+      response(false, {
+        status: 'room_restricted',
+        allowed_room: '1208',
+        message: 'I can only submit requests for room 1208.',
+      })
+    )
+    const saveTicket = jest.fn()
+    const onActivity = jest.fn()
+    const tools = createVoiceClientTools({ fetcher, saveTicket, onActivity })
+
+    const result = JSON.parse(
+      await tools.log_request({
+        intent: 'physical_request',
+        room_number: '1210',
+        summary: 'Send two towels',
+      })
+    )
+
+    expect(result).toEqual({
+      status: 'room_restricted',
+      allowed_room: '1208',
+      message: 'I can only submit requests for room 1208.',
+    })
+    expect(saveTicket).not.toHaveBeenCalled()
+    expect(onActivity).not.toHaveBeenCalled()
+  })
+
   it('returns Tavily evidence and stores its source links', async () => {
     const fetcher = jest.fn().mockResolvedValue(
       response(true, {

@@ -79,6 +79,21 @@ export function createVoiceClientTools({
       toolToken
     )
 
+    if (
+      isRecord(result.body) &&
+      result.body.status === 'room_restricted' &&
+      typeof result.body.allowed_room === 'string'
+    ) {
+      return toResult({
+        status: 'room_restricted',
+        allowed_room: result.body.allowed_room,
+        message:
+          typeof result.body.message === 'string'
+            ? result.body.message
+            : `Requests are limited to room ${result.body.allowed_room}.`,
+      })
+    }
+
     if (result.ok && isRecord(result.body)) {
       if (result.body.status === 'no_ticket') {
         return toResult(result.body)

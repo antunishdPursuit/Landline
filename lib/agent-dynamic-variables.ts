@@ -1,10 +1,11 @@
 import type { AgentConfig } from "@/types/agent";
+import { DEMO_ROOM_NUMBER } from "@/lib/demo-room";
 
 export function toAgentDynamicVariables(
   config: AgentConfig
 ): Record<string, string | number | boolean> {
   const propertyName = config.name || "Unnamed property";
-  const roomNumber = "1208";
+  const roomNumber = DEMO_ROOM_NUMBER;
 
   return {
     property_name: propertyName,

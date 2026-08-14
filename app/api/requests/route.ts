@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { classifyRequest } from "@/lib/classifier";
+import { DEMO_ROOM_NUMBER } from "@/lib/demo-room";
 import { requestHasToolAccess } from "@/lib/tool-access-token";
 
 type RequestBody = {
@@ -82,6 +83,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         requires_human,
       },
       { status: 200 }
+    );
+  }
+
+  if (roomNumber !== DEMO_ROOM_NUMBER) {
+    return NextResponse.json(
+      {
+        status: "room_restricted",
+        allowed_room: DEMO_ROOM_NUMBER,
+        message: `I can only submit requests for room ${DEMO_ROOM_NUMBER}.`,
+      },
+      { status: 422 }
     );
   }
 

@@ -72,7 +72,7 @@ describe("POST /api/requests", () => {
     const response = await POST(
       makeRequest({
         intent: "physical_request",
-        room_number: " 202 ",
+        room_number: " 1208 ",
         summary: " I need more towels ",
         urgency: "high",
         language_detected: "es",
@@ -84,7 +84,7 @@ describe("POST /api/requests", () => {
     expect(response.status).toBe(200);
     expect(body.status).toBe("ready");
     expect(body.ticket).toMatchObject({
-      room_number: "202",
+      room_number: "1208",
       intent: "physical_request",
       department: "housekeeping",
       summary: "I need more towels",
@@ -98,11 +98,28 @@ describe("POST /api/requests", () => {
     expect(body.ticket.created_at).toEqual(body.ticket.updated_at);
   });
 
+  it("rejects a request for another room without creating a ticket", async () => {
+    const response = await POST(
+      makeRequest({
+        intent: "physical_request",
+        room_number: "1210",
+        summary: "Send two towels",
+      })
+    );
+
+    expect(response.status).toBe(422);
+    await expect(response.json()).resolves.toEqual({
+      status: "room_restricted",
+      allowed_room: "1208",
+      message: "I can only submit requests for room 1208.",
+    });
+  });
+
   it("forces a human deferral to the front desk", async () => {
     const response = await POST(
       makeRequest({
         intent: "defer_to_operator",
-        room_number: "505",
+        room_number: "1208",
         summary: "I need to speak with a manager",
         requires_human: false,
       })
@@ -119,7 +136,7 @@ describe("POST /api/requests", () => {
     const response = await POST(
       makeRequest({
         intent: "physical_request",
-        room_number: "606",
+        room_number: "1208",
         summary: "Need extra blankets",
         urgency: "critical",
       })
