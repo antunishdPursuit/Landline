@@ -2,6 +2,8 @@
 
 [Try Landline live](https://landline-eta.vercel.app)
 
+[Watch the Landline demo on YouTube](https://youtu.be/BWhnnXPAScE)
+
 Landline is an in-room hotel concierge demo. A guest approaches a bedside
 phone and control panel, speaks with an ElevenLabs agent, and then reviews the
 resulting request or transcript in a Clerk-protected staff dashboard.
