@@ -7,6 +7,9 @@ import { authorizePaidRequest } from '@/lib/paid-service-access'
 // Use a disposable, empty loopback Redis instance; never a production store.
 const port = Number(process.env.LANDLINE_TEST_REDIS_PORT)
 const integration = Number.isInteger(port) && port > 0 && port <= 65535 ? describe : describe.skip
+if (process.env.CI === 'true' && integration === describe.skip) {
+  throw new Error('CI requires a disposable Redis service and LANDLINE_TEST_REDIS_PORT')
+}
 
 function command(args: string[]): Promise<number | string> {
   return new Promise((resolve, reject) => {
