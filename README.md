@@ -201,23 +201,39 @@ The public demo runs on Vercel with Clerk development credentials and synthetic
 hotel data. Add the variables from `.env.example` to the Vercel project before
 deploying.
 
-Configure a Vercel WAF rate-limit rule for
+Before enabling paid routes, verify a Vercel WAF rate-limit rule for
 `GET /api/elevenlabs/signed-url`: allow two requests per IP address in a fixed
 10-minute window and return `429` for the third request. Landline does not store
 or count IP addresses.
 
 ## Verification
 
+Use Node 22 and npm 11.19.1. CI pins npm to match the override-aware lockfile
+resolver used for local verification.
+
 ```bash
 npm run lint
-npx tsc --noEmit --noUnusedLocals --noUnusedParameters --incremental false
+npm run typecheck
 npm test
 npm run build
-npm audit --omit=dev
+npm audit --audit-level=high
 ```
 
 Provider-dependent ElevenLabs, Tavily, and Stay22 behavior requires valid
 configuration and must be tested separately from the automated suite.
+
+CI uses a disposable Redis service for concurrent quota tests, along with
+synthetic authentication and mocked providers. To run those tests locally,
+set `LANDLINE_TEST_REDIS_PORT` to a dedicated empty Redis instance on
+`127.0.0.1`. The tests clear that instance's database; never point them at a
+shared or production store. Without that variable, the Redis tests are skipped
+locally. CI requires them and fails if its test-store configuration is absent.
+
+Tool capabilities expire after three minutes and are tied to the signed-in
+user and the provider-issued conversation ID. Signed conversation URLs are
+requested for single use. The conversation-details endpoint accepts only the
+conversation recorded in that capability. JSON bodies are capped at 8 KiB
+with a five-second read deadline; API responses must not be cached.
 
 ## Current Limits
 
@@ -227,7 +243,8 @@ configuration and must be tested separately from the automated suite.
 - Call metadata and transcripts remain in the current tab and are removed when
   that tab closes. Landline does not store call audio; provider transcript
   retention follows the ElevenLabs account configuration.
-- Calls have a 60-second maximum and no voice fallback when ElevenLabs is
+- The browser ends demo calls after 60 seconds. This is not a provider-enforced
+  spending or duration control. There is no voice fallback when ElevenLabs is
   unavailable.
 - Staff presence is representative demo content.
 - Tavily results can contain a generated claim that is not fully supported by
@@ -249,3 +266,14 @@ the request before contacting a provider. See `.env.example` for the settings.
 Quotas count admitted requests, not provider dollars or conversation duration.
 Keep paid services paused until provider spending and server-side conversation
 duration settings have also been verified. No in-memory quota fallback is used.
+
+For an emergency pause, remove `LANDLINE_PAID_SERVICES_ENABLED` or set it to
+`false` in the Vercel production environment and redeploy. Verify that
+`/api/elevenlabs/signed-url` returns `503` without issuing a provider session.
+Keep the flag paused during rollback; choose a previously verified deployment
+that contains the paid-service gate, rather than a pre-gate release.
+
+The baseline response policy blocks framing, plugins and cross-origin forms;
+it does not provide a complete script-restricting Content Security Policy.
+Clerk production configuration, provider limits and retention settings must
+be verified before using real guest information or enabling paid features.

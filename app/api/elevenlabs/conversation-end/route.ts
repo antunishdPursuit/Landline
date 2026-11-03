@@ -2,24 +2,22 @@ import { authorizePaidRequest } from '@/lib/paid-service-access'
 import { NextRequest, NextResponse } from 'next/server'
 import { getConversationTerminationReason } from '@/lib/elevenlabs'
 import { requestHasToolAccess } from '@/lib/tool-access-token'
+import { readJsonObject } from '@/lib/request-json'
 
 const CONVERSATION_ID_PATTERN = /^[A-Za-z0-9_-]{1,160}$/
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 
-  if (!requestHasToolAccess(request)) {
+  if (!(await requestHasToolAccess(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const denied = await authorizePaidRequest()
   if (denied) return denied
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-  }
+  const parsed = await readJsonObject(request)
+  if (parsed.response) return parsed.response
+  const body = parsed.body
 
   const conversationId =
     body && typeof body === 'object' && 'conversationId' in body
@@ -37,6 +35,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
+    if (!(await requestHasToolAccess(request, conversationId))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const terminationReason =
       await getConversationTerminationReason(conversationId)
     return NextResponse.json({ terminationReason }, { status: 200 })

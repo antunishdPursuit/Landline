@@ -1,5 +1,5 @@
 /** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn() }))
+jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/elevenlabs/signed-url/route'
 import { POST as endConversation } from '@/app/api/elevenlabs/conversation-end/route'
@@ -15,10 +15,10 @@ test('every provider route is paused before parsing or contacting a provider', a
   delete process.env.LANDLINE_PAID_SERVICES_ENABLED
   global.fetch = jest.fn()
   try {
-    expect((await GET()).status).toBe(503)
+    expect((await GET(new Request('https://landline.example/api/elevenlabs/signed-url'))).status).toBe(503)
     for (const handler of [endConversation, concierge, stays]) {
       const request = new NextRequest('http://localhost/api/example', {
-        method: 'POST', body: 'invalid json', headers: { 'X-Landline-Tool-Token': createToolAccessToken() },
+        method: 'POST', body: 'invalid json', headers: { 'X-Landline-Tool-Token': createToolAccessToken('test-user', 'conv_123') },
       })
       expect((await handler(request)).status).toBe(503)
       expect(request.bodyUsed).toBe(false)

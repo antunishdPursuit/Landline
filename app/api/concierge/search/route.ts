@@ -6,6 +6,7 @@ import {
   TavilyUpstreamError,
 } from '@/lib/tavily'
 import { requestHasToolAccess } from '@/lib/tool-access-token'
+import { readJsonObject } from '@/lib/request-json'
 
 type SearchBody = {
   query?: unknown
@@ -14,19 +15,16 @@ type SearchBody = {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 
-  if (!requestHasToolAccess(request)) {
+  if (!(await requestHasToolAccess(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const denied = await authorizePaidRequest()
   if (denied) return denied
 
-  let body: SearchBody
-  try {
-    body = (await request.json()) as SearchBody
-  } catch {
-    return NextResponse.json({ error: 'A search query is required' }, { status: 400 })
-  }
+  const parsed = await readJsonObject(request)
+  if (parsed.response) return parsed.response
+  const body: SearchBody = parsed.body
 
   if (typeof body.query !== 'string' || body.query.trim() === '') {
     return NextResponse.json({ error: 'A search query is required' }, { status: 400 })
@@ -36,7 +34,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   if (
     body.location !== undefined &&
-    (typeof body.location !== 'string' || body.location.trim() === '')
+    (typeof body.location !== 'string' || body.location.trim() === '' || body.location.length > 200)
   ) {
     return NextResponse.json({ error: 'Location must be a non-empty string' }, { status: 400 })
   }

@@ -20,7 +20,6 @@ const config = {
     "^server-only$": "<rootDir>/__mocks__/server-only.js",
   },
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.test.tsx"],
-  passWithNoTests: true,
 };
 
 module.exports = config;

@@ -1,6 +1,7 @@
 import 'server-only'
 
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import { auth } from '@clerk/nextjs/server'
 
 const TOKEN_TTL_SECONDS = 180
 const TOKEN_AUDIENCE = 'landline-client-tools'
@@ -10,6 +11,8 @@ type ToolTokenPayload = {
   expires_at: number
   issued_at: number
   nonce: string
+  subject: string
+  conversation_id: string
 }
 
 function signingKey(): Buffer {
@@ -28,22 +31,26 @@ function signature(encodedPayload: string): Buffer {
   return createHmac('sha256', signingKey()).update(encodedPayload).digest()
 }
 
-export function createToolAccessToken(now = Date.now()): string {
+export function createToolAccessToken(userId: string, conversationId: string, now = Date.now()): string {
+  if (!userId || !/^[A-Za-z0-9_-]{1,160}$/.test(conversationId)) throw new Error('Invalid session scope')
   const issuedAt = Math.floor(now / 1000)
   const payload: ToolTokenPayload = {
     audience: TOKEN_AUDIENCE,
     expires_at: issuedAt + TOKEN_TTL_SECONDS,
     issued_at: issuedAt,
     nonce: randomBytes(16).toString('base64url'),
+    subject: createHash('sha256').update(userId).digest('hex'),
+    conversation_id: conversationId,
   }
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url')
   const encodedSignature = signature(encodedPayload).toString('base64url')
   return `${encodedPayload}.${encodedSignature}`
 }
 
-export function verifyToolAccessToken(token: string, now = Date.now()): boolean {
+function readToken(token: string, now = Date.now()): ToolTokenPayload | null {
+  if (token.length > 2048) return null
   const [encodedPayload, encodedSignature, extra] = token.split('.')
-  if (!encodedPayload || !encodedSignature || extra) return false
+  if (!encodedPayload || !encodedSignature || extra || !/^[A-Za-z0-9_-]+$/.test(encodedPayload) || !/^[A-Za-z0-9_-]+$/.test(encodedSignature)) return null
 
   let providedSignature: Buffer
   let expectedSignature: Buffer
@@ -55,33 +62,45 @@ export function verifyToolAccessToken(token: string, now = Date.now()): boolean 
       Buffer.from(encodedPayload, 'base64url').toString('utf8')
     ) as ToolTokenPayload
   } catch {
-    return false
+    return null
   }
 
   if (
     providedSignature.length !== expectedSignature.length ||
     !timingSafeEqual(providedSignature, expectedSignature)
   ) {
-    return false
+    return null
   }
 
   const nowSeconds = Math.floor(now / 1000)
-  return (
+  const valid = (
+    !!payload && typeof payload === 'object' && !Array.isArray(payload) &&
     payload.audience === TOKEN_AUDIENCE &&
     Number.isInteger(payload.issued_at) &&
     Number.isInteger(payload.expires_at) &&
     typeof payload.nonce === 'string' &&
     payload.nonce.length >= 16 &&
+    typeof payload.subject === 'string' && /^[a-f0-9]{64}$/.test(payload.subject) &&
+    typeof payload.conversation_id === 'string' && /^[A-Za-z0-9_-]{1,160}$/.test(payload.conversation_id) &&
     payload.issued_at <= nowSeconds + 30 &&
     payload.expires_at > nowSeconds &&
     payload.expires_at - payload.issued_at === TOKEN_TTL_SECONDS
   )
+  return valid ? payload : null
 }
 
-export function requestHasToolAccess(request: Request): boolean {
+export function verifyToolAccessToken(token: string, now = Date.now()): boolean {
+  return readToken(token, now) !== null
+}
+
+export async function requestHasToolAccess(request: Request, conversationId?: string): Promise<boolean> {
   const toolToken = request.headers.get('x-landline-tool-token')
-  if (toolToken) return verifyToolAccessToken(toolToken)
   const authorization = request.headers.get('authorization')
-  if (!authorization?.startsWith('Bearer ')) return false
-  return verifyToolAccessToken(authorization.slice('Bearer '.length))
+  const token = toolToken ?? (authorization?.startsWith('Bearer ') ? authorization.slice('Bearer '.length) : '')
+  const payload = readToken(token)
+  if (!payload || (conversationId !== undefined && payload.conversation_id !== conversationId)) return false
+  try {
+    const { userId } = await auth()
+    return !!userId && payload.subject === createHash('sha256').update(userId).digest('hex')
+  } catch { return false }
 }

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { classifyRequest } from "@/lib/classifier";
 import { DEMO_ROOM_NUMBER } from "@/lib/demo-room";
 import { requestHasToolAccess } from "@/lib/tool-access-token";
+import { readJsonObject } from '@/lib/request-json';
 
 type RequestBody = {
   intent?: unknown;
@@ -21,19 +22,13 @@ const VALID_INTENTS = new Set([
 const VALID_URGENCIES = new Set(["low", "medium", "high"]);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  if (!requestHasToolAccess(req)) {
+  if (!(await requestHasToolAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: RequestBody;
-  try {
-    body = (await req.json()) as RequestBody;
-  } catch {
-    return NextResponse.json(
-      { error: "Missing required fields: intent, room_number, summary" },
-      { status: 400 }
-    );
-  }
+  const parsed = await readJsonObject(req);
+  if (parsed.response) return parsed.response;
+  const body: RequestBody = parsed.body;
 
   const missing: string[] = [];
   if (!body.intent || typeof body.intent !== "string" || body.intent.trim() === "") {
@@ -64,6 +59,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const intent = (body.intent as string).trim();
   const roomNumber = (body.room_number as string).trim();
   const summary = (body.summary as string).trim();
+  if (intent.length > 40 || roomNumber.length > 20 || summary.length > 2000 ||
+      (typeof body.language_detected === 'string' && body.language_detected.length > 35)) {
+    return NextResponse.json({ error: 'Request fields are too long' }, { status: 400 });
+  }
 
   if (!VALID_INTENTS.has(intent)) {
     return NextResponse.json({ error: "Unknown intent" }, { status: 422 });
