@@ -2,6 +2,8 @@
 
 jest.mock('server-only', () => ({}), { virtual: true })
 
+jest.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: jest.fn().mockResolvedValue(null) }))
+
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/stays/route'
 import { createToolAccessToken } from '@/lib/tool-access-token'

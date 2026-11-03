@@ -10,6 +10,8 @@
 // Must mock "server-only" before any imports that use it
 jest.mock("server-only", () => ({}), { virtual: true });
 
+jest.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: jest.fn().mockResolvedValue(null) }))
+
 // Provide env vars before any module is imported
 const ORIGINAL_ENV = process.env;
 

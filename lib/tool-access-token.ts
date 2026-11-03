@@ -79,6 +79,8 @@ export function verifyToolAccessToken(token: string, now = Date.now()): boolean 
 }
 
 export function requestHasToolAccess(request: Request): boolean {
+  const toolToken = request.headers.get('x-landline-tool-token')
+  if (toolToken) return verifyToolAccessToken(toolToken)
   const authorization = request.headers.get('authorization')
   if (!authorization?.startsWith('Bearer ')) return false
   return verifyToolAccessToken(authorization.slice('Bearer '.length))

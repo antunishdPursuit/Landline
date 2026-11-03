@@ -23,6 +23,17 @@ afterAll(() => {
 })
 
 describe('tool access tokens', () => {
+  it('accepts the dedicated tool header without replacing session authorization', () => {
+    const token = createToolAccessToken()
+    const request = new Request('https://landline.example/api/stays', {
+      headers: { 'X-Landline-Tool-Token': token },
+    })
+    expect(request.headers.has('authorization')).toBe(false)
+    expect(requestHasToolAccess(request)).toBe(true)
+    expect(requestHasToolAccess(new Request('https://landline.example', {
+      headers: { 'X-Landline-Tool-Token': 'invalid', Authorization: `Bearer ${token}` },
+    }))).toBe(false)
+  })
   it('accepts a freshly issued bearer token', () => {
     const now = Date.parse('2026-08-12T12:00:00.000Z')
     const token = createToolAccessToken(now)

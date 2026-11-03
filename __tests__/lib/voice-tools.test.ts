@@ -45,7 +45,7 @@ describe('ElevenLabs client tools', () => {
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          Authorization: 'Bearer short-lived-token',
+          'X-Landline-Tool-Token': 'short-lived-token',
         }),
       })
     )
@@ -139,7 +139,7 @@ describe('ElevenLabs client tools', () => {
       '/api/concierge/search',
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: 'Bearer short-lived-token',
+          'X-Landline-Tool-Token': 'short-lived-token',
         }),
       })
     )
@@ -215,7 +215,7 @@ describe('ElevenLabs client tools', () => {
       '/api/stays',
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: 'Bearer short-lived-token',
+          'X-Landline-Tool-Token': 'short-lived-token',
         }),
       })
     )

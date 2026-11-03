@@ -39,7 +39,7 @@ async function postJson(
 ): Promise<{ ok: boolean; body: unknown }> {
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-    if (toolToken) headers.Authorization = `Bearer ${toolToken}`
+    if (toolToken) headers['X-Landline-Tool-Token'] = toolToken
     const response = await fetcher(url, {
       method: 'POST',
       headers,

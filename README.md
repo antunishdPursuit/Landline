@@ -240,6 +240,12 @@ configuration and must be tested separately from the automated suite.
 
 ## Status
 
-Landline is feature-complete for its current public-demo scope. Automated
-checks pass, the Vercel deployment is available, and the remaining release work
-is limited to final manual browser, call, and rate-limit checks.
+Paid provider routes are paused by default. Enabling them requires a signed-in
+Clerk user, an explicitly enabled server flag, a Redis-compatible REST quota
+store, and positive global daily, per-user daily and per-user minute limits.
+Missing configuration, authorization failures and quota-store failures deny
+the request before contacting a provider. See `.env.example` for the settings.
+
+Quotas count admitted requests, not provider dollars or conversation duration.
+Keep paid services paused until provider spending and server-side conversation
+duration settings have also been verified. No in-memory quota fallback is used.
