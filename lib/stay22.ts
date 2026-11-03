@@ -63,7 +63,8 @@ function stay22Url(value: unknown): string | null {
 
   try {
     const url = new URL(value)
-    return url.protocol === 'https:' && url.hostname.endsWith('stay22.com')
+    const trustedHost = url.hostname === 'stay22.com' || url.hostname.endsWith('.stay22.com')
+    return url.protocol === 'https:' && trustedHost && !url.username && !url.password
       ? url.toString()
       : null
   } catch {
