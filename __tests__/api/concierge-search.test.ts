@@ -1,4 +1,6 @@
 /** @jest-environment node */
+jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+
 
 jest.mock('server-only', () => ({}), { virtual: true })
 
@@ -12,7 +14,7 @@ const ORIGINAL_ENV = process.env
 
 function makeRequest(body: unknown, authorized = true): NextRequest {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken()}`
+  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken('test-user', 'conv_123')}`
   return new NextRequest('http://localhost/api/concierge/search', {
     method: 'POST',
     headers,

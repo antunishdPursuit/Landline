@@ -8,7 +8,7 @@ const CONVERSATION_ID_PATTERN = /^[A-Za-z0-9_-]{1,160}$/
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 
-  if (!requestHasToolAccess(request)) {
+  if (!(await requestHasToolAccess(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -35,6 +35,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
+    if (!(await requestHasToolAccess(request, conversationId))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const terminationReason =
       await getConversationTerminationReason(conversationId)
     return NextResponse.json({ terminationReason }, { status: 200 })

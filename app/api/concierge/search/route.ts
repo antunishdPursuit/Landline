@@ -15,7 +15,7 @@ type SearchBody = {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 
-  if (!requestHasToolAccess(request)) {
+  if (!(await requestHasToolAccess(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

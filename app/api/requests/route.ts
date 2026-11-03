@@ -22,7 +22,7 @@ const VALID_INTENTS = new Set([
 const VALID_URGENCIES = new Set(["low", "medium", "high"]);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  if (!requestHasToolAccess(req)) {
+  if (!(await requestHasToolAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

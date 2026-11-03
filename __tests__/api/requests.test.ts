@@ -1,4 +1,6 @@
 /** @jest-environment node */
+jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+
 
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/requests/route";
@@ -11,7 +13,7 @@ function makeRequest(body: unknown, authorized = true): NextRequest {
     "Content-Type": "application/json",
   };
   if (authorized) {
-    headers.Authorization = `Bearer ${createToolAccessToken()}`;
+    headers.Authorization = `Bearer ${createToolAccessToken('test-user', 'conv_123')}`;
   }
 
   return new NextRequest("http://localhost/api/requests", {

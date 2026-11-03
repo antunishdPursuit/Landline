@@ -1,4 +1,6 @@
 /** @jest-environment node */
+jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+
 
 jest.mock('server-only', () => ({}), { virtual: true })
 
@@ -12,7 +14,7 @@ const ORIGINAL_ENV = process.env
 
 function makeRequest(conversationId: unknown, authorized = true): NextRequest {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken()}`
+  if (authorized) headers.Authorization = `Bearer ${createToolAccessToken('test-user', 'conv_123')}`
   return new NextRequest('http://localhost/api/elevenlabs/conversation-end', {
     method: 'POST',
     headers,
@@ -34,6 +36,10 @@ afterAll(() => {
 })
 
 describe('POST /api/elevenlabs/conversation-end', () => {
+  it('rejects another conversation before contacting the provider', async () => {
+    expect((await POST(makeRequest('conv_other'))).status).toBe(401)
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
   it('rejects requests without the short-lived session token', async () => {
     const response = await POST(makeRequest('conv_123', false))
 
