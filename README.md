@@ -208,6 +208,9 @@ or count IP addresses.
 
 ## Verification
 
+Use Node 22 and npm 11.19.1. CI pins npm to match the override-aware lockfile
+resolver used for local verification.
+
 ```bash
 npm run lint
 npm run typecheck
