@@ -30,6 +30,8 @@ export async function getSignedUrl(): Promise<string> {
       "xi-api-key": apiKey,
     },
     cache: "no-store",
+    signal: AbortSignal.timeout(8_000),
+    redirect: "error",
   });
 
   if (!response.ok) {
@@ -56,6 +58,8 @@ export async function getConversationTerminationReason(
       method: "GET",
       headers: { "xi-api-key": getApiKey() },
       cache: "no-store",
+      signal: AbortSignal.timeout(8_000),
+      redirect: "error",
     }
   );
 

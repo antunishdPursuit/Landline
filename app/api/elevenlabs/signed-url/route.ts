@@ -1,8 +1,12 @@
+import { authorizePaidRequest } from '@/lib/paid-service-access'
 import { NextResponse } from "next/server";
 import { getSignedUrl } from "@/lib/elevenlabs";
 import { createToolAccessToken } from "@/lib/tool-access-token";
 
 export async function GET(): Promise<NextResponse> {
+  const denied = await authorizePaidRequest()
+  if (denied) return denied
+
   try {
     const url = await getSignedUrl();
     const toolToken = createToolAccessToken();

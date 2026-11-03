@@ -1,3 +1,4 @@
+import { authorizePaidRequest } from '@/lib/paid-service-access'
 import { NextRequest, NextResponse } from 'next/server'
 import {
   searchStay22,
@@ -87,9 +88,13 @@ function validate(body: StayBody): Stay22SearchInput | NextResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+
   if (!requestHasToolAccess(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const denied = await authorizePaidRequest()
+  if (denied) return denied
 
   let body: StayBody
   try {

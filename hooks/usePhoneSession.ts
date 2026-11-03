@@ -70,7 +70,7 @@ export function usePhoneSession(
         const response = await fetch("/api/elevenlabs/conversation-end", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${toolToken}`,
+            'X-Landline-Tool-Token': toolToken,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ conversationId: call.id }),
@@ -200,15 +200,8 @@ export function usePhoneSession(
       const response = await fetch("/api/elevenlabs/signed-url");
       if (!response.ok) {
         if (response.status === 429) {
-          const body = (await response.json().catch(() => null)) as {
-            retry_after_seconds?: number;
-          } | null;
-          const retryMinutes = Math.max(
-            1,
-            Math.ceil((body?.retry_after_seconds ?? 600) / 60)
-          );
           setErrorMessage(
-            `This network has used its two demo calls. Try again in ${retryMinutes} minutes.`
+            'The demo usage limit has been reached. Please try again later.'
           );
         } else {
           setErrorMessage("The concierge is temporarily unavailable. Please try again.");

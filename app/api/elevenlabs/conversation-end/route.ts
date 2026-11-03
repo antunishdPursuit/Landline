@@ -1,3 +1,4 @@
+import { authorizePaidRequest } from '@/lib/paid-service-access'
 import { NextRequest, NextResponse } from 'next/server'
 import { getConversationTerminationReason } from '@/lib/elevenlabs'
 import { requestHasToolAccess } from '@/lib/tool-access-token'
@@ -5,9 +6,13 @@ import { requestHasToolAccess } from '@/lib/tool-access-token'
 const CONVERSATION_ID_PATTERN = /^[A-Za-z0-9_-]{1,160}$/
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+
   if (!requestHasToolAccess(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const denied = await authorizePaidRequest()
+  if (denied) return denied
 
   let body: unknown
   try {

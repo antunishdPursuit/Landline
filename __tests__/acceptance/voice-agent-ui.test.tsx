@@ -224,7 +224,8 @@ describe("voice session lifecycle", () => {
     startCall();
 
     await waitFor(() => expect(screen.getByRole("button", { name: "error" })).toBeInTheDocument());
-    expect(screen.getByText(/two demo calls.*9 minutes/i)).toBeInTheDocument();
+    expect(screen.getByText(/demo usage limit has been reached/i)).toBeInTheDocument();
+    expect(screen.queryByText(/two demo calls|9 minutes/i)).not.toBeInTheDocument();
     expect(mockStartSession).not.toHaveBeenCalled();
   });
 
