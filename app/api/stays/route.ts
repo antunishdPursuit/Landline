@@ -7,6 +7,7 @@ import {
   type Stay22SearchInput,
 } from '@/lib/stay22'
 import { requestHasToolAccess } from '@/lib/tool-access-token'
+import { readJsonObject } from '@/lib/request-json'
 
 type StayBody = {
   address?: unknown
@@ -96,12 +97,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const denied = await authorizePaidRequest()
   if (denied) return denied
 
-  let body: StayBody
-  try {
-    body = (await request.json()) as StayBody
-  } catch {
-    return error('A valid stay search is required')
-  }
+  const parsed = await readJsonObject(request)
+  if (parsed.response) return parsed.response
+  const body: StayBody = parsed.body
 
   const input = validate(body)
   if (input instanceof NextResponse) return input

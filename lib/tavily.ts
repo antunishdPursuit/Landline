@@ -36,7 +36,12 @@ function parseSources(value: unknown): ConciergeSource[] {
       url: typeof item.url === 'string' ? item.url.trim() : '',
       content: typeof item.content === 'string' ? item.content.trim() : '',
     }))
-    .filter((item) => item.title !== '' && item.url.startsWith('http'))
+    .filter((item) => {
+      try {
+        const url = new URL(item.url)
+        return item.title !== '' && url.protocol === 'https:' && !url.username && !url.password
+      } catch { return false }
+    })
     .slice(0, 5)
 }
 
@@ -69,6 +74,8 @@ export async function searchConcierge(
         auto_parameters: false,
       }),
       signal: AbortSignal.timeout(8_000),
+      cache: 'no-store',
+      redirect: 'error',
     })
   } catch {
     throw new TavilyUpstreamError('Tavily request failed')
@@ -80,7 +87,9 @@ export async function searchConcierge(
 
   let payload: TavilySearchResponse
   try {
-    payload = (await response.json()) as TavilySearchResponse
+    const body: unknown = await response.json()
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Invalid response')
+    payload = body as TavilySearchResponse
   } catch {
     throw new TavilyUpstreamError('Tavily returned invalid JSON')
   }
