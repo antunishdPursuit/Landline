@@ -1,10 +1,11 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+/** @vitest-environment node */
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 
 
-jest.mock('server-only', () => ({}), { virtual: true })
+vi.mock('server-only', () => ({}))
 
-jest.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: jest.fn().mockResolvedValue(null) }))
+vi.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: vi.fn().mockResolvedValue(null) }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/elevenlabs/conversation-end/route'
@@ -28,7 +29,7 @@ beforeEach(() => {
     ELEVENLABS_API_KEY: 'test-api-key',
     ELEVENLABS_AGENT_ID: 'test-agent-id',
   }
-  global.fetch = jest.fn()
+  global.fetch = vi.fn()
 })
 
 afterAll(() => {
@@ -48,7 +49,7 @@ describe('POST /api/elevenlabs/conversation-end', () => {
   })
 
   it('returns only the provider termination reason', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         conversation_id: 'conv_123',
@@ -76,7 +77,7 @@ describe('POST /api/elevenlabs/conversation-end', () => {
   })
 
   it.each(['', '../secret', 'conversation id', 123])(
-    'rejects an invalid conversation ID: %p',
+    'rejects an invalid conversation ID: %j',
     async (conversationId) => {
       const response = await POST(makeRequest(conversationId))
 
@@ -86,7 +87,7 @@ describe('POST /api/elevenlabs/conversation-end', () => {
   )
 
   it('hides upstream failures', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 503 } as Response)
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503 } as Response)
 
     const response = await POST(makeRequest('conv_123'))
 

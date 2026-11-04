@@ -96,7 +96,7 @@ calls, assignments, statuses, and returned vendor metadata.
 
 ### Requirements
 
-- Node.js 22.13–22.x; Node 22.23.2 is the tested version
+- Node.js 22.22.2–22.x; Node 22.23.4 is the tested version
 - A Clerk application
 - An ElevenLabs account and configured agent
 - A Tavily API key for live current-information search
@@ -208,7 +208,7 @@ or count IP addresses.
 
 ## Verification
 
-Use Node 22 and npm 11.19.1. CI pins npm to match the override-aware lockfile
+Use Node 22.22.2 or newer within Node 22, and npm 11.19.1. CI pins npm to match the override-aware lockfile
 resolver used for local verification.
 
 ```bash
@@ -217,6 +217,9 @@ npm test
 npm run build
 npm audit --audit-level=high
 ```
+
+The test command runs Vitest once. UI tests use jsdom; API and security tests
+select the Node environment. DOM matchers come from `@testing-library/jest-dom`.
 
 Provider-dependent ElevenLabs, Tavily, and Stay22 behavior requires valid
 configuration and must be tested separately from the automated suite.

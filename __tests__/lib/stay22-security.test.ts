@@ -1,5 +1,6 @@
-/** @jest-environment node */
-jest.mock('server-only', () => ({}), { virtual: true })
+/** @vitest-environment node */
+import { afterAll, beforeEach, expect, it, vi } from "vitest";
+vi.mock('server-only', () => ({}))
 import { searchStay22 } from '@/lib/stay22'
 
 const input = { address: 'Example City', checkin: '2030-01-01', checkout: '2030-01-02', adults: 1, children: 0, rooms: 1 }
@@ -11,7 +12,7 @@ afterAll(() => {
 })
 
 async function search(url: string, link?: string) {
-  const fetcher = jest.fn().mockResolvedValue(new Response(JSON.stringify({
+  const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({
     meta: { currency: 'USD' }, results: [{ id: 'fixture', name: 'Fixture Hotel', url,
       suppliers: link ? { supplier: { link, price: { total: 10 } } } : {} }],
   })))

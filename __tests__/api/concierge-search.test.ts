@@ -1,10 +1,12 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+/** @vitest-environment node */
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 
 
-jest.mock('server-only', () => ({}), { virtual: true })
+vi.mock('server-only', () => ({}))
 
-jest.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: jest.fn().mockResolvedValue(null) }))
+vi.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: vi.fn().mockResolvedValue(null) }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/concierge/search/route'
@@ -29,8 +31,8 @@ beforeEach(() => {
     ELEVENLABS_API_KEY: 'test-api-key',
     ELEVENLABS_AGENT_ID: 'test-agent-id',
   }
-  jest.restoreAllMocks()
-  global.fetch = jest.fn()
+  vi.restoreAllMocks()
+  global.fetch = vi.fn()
 })
 
 afterAll(() => {
@@ -49,7 +51,7 @@ describe('POST /api/concierge/search', () => {
   })
 
   it('returns one source-backed answer with a location-aware query', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         answer: 'The museum is open until 8 PM today.',
@@ -89,7 +91,7 @@ describe('POST /api/concierge/search', () => {
         headers: expect.objectContaining({ Authorization: 'Bearer tvly-test-secret' }),
       })
     )
-    const requestBody = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const requestBody = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(requestBody).toMatchObject({
       search_depth: 'basic',
       max_results: 5,
@@ -101,7 +103,7 @@ describe('POST /api/concierge/search', () => {
   })
 
   it('returns no_answer when Tavily provides no source evidence', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ answer: 'Unsupported answer', results: [] }),
     } as Response)
@@ -141,7 +143,7 @@ describe('POST /api/concierge/search', () => {
   })
 
   it('hides upstream errors and credentials', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 429 } as Response)
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 429 } as Response)
 
     const response = await POST(makeRequest({ query: 'Nearby restaurants' }))
     const body = await response.json()

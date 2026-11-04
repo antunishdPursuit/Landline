@@ -1,11 +1,12 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 
-const mockConversationEnd = jest.fn().mockResolvedValue(undefined);
-const mockSendUserMessage = jest.fn();
-const mockStartSession = jest.fn();
+const mockConversationEnd = vi.fn().mockResolvedValue(undefined);
+const mockSendUserMessage = vi.fn();
+const mockStartSession = vi.fn();
 
-jest.mock("@elevenlabs/client", () => ({
+vi.mock("@elevenlabs/client", () => ({
   Conversation: {
     startSession: (...args: unknown[]) => mockStartSession(...args),
   },
@@ -46,14 +47,14 @@ function startCall() {
 }
 
 function setupHappyFetch() {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ url: SIGNED_URL, toolToken: TOOL_TOKEN }),
   } as unknown as Response);
 }
 
 function setupFailFetch(status = 500) {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: false,
     status,
     json: async () => ({ error: "Internal server error" }),
@@ -61,7 +62,7 @@ function setupFailFetch(status = 500) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   sessionStorage.clear();
   mockStartSession.mockResolvedValue({
     endSession: mockConversationEnd,
@@ -71,7 +72,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 describe("voice session lifecycle", () => {
@@ -123,7 +124,7 @@ describe("voice session lifecycle", () => {
   });
 
   it("uses the provider termination detail after an agent disconnect", async () => {
-    global.fetch = jest.fn().mockImplementation(async (input: RequestInfo | URL) => {
+    global.fetch = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
       if (String(input) === "/api/elevenlabs/signed-url") {
         return {
           ok: true,
@@ -155,7 +156,7 @@ describe("voice session lifecycle", () => {
   });
 
   it("requests one graceful close at 55 seconds and ends at 60 seconds", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     setupHappyFetch();
     startCall();
     await act(async () => {
@@ -164,7 +165,7 @@ describe("voice session lifecycle", () => {
     });
 
     await act(async () => {
-      jest.advanceTimersByTime(55_000);
+      vi.advanceTimersByTime(55_000);
       await Promise.resolve();
     });
     expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
@@ -173,7 +174,7 @@ describe("voice session lifecycle", () => {
     );
 
     await act(async () => {
-      jest.advanceTimersByTime(5_000);
+      vi.advanceTimersByTime(5_000);
       await Promise.resolve();
     });
     expect(mockSendUserMessage).toHaveBeenCalledTimes(1);
@@ -195,7 +196,7 @@ describe("voice session lifecycle", () => {
 
     await waitFor(() => expect(mockStartSession).toHaveBeenCalledTimes(1));
     expect(global.fetch).toHaveBeenCalledWith("/api/elevenlabs/signed-url");
-    expect((global.fetch as jest.Mock).mock.invocationCallOrder[0]).toBeLessThan(
+    expect((global.fetch as Mock).mock.invocationCallOrder[0]).toBeLessThan(
       mockStartSession.mock.invocationCallOrder[0]
     );
     const options = mockStartSession.mock.calls[0][0] as Record<string, unknown>;
@@ -216,7 +217,7 @@ describe("voice session lifecycle", () => {
   });
 
   it("shows Vercel rate-limit guidance without starting ElevenLabs", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 429,
       json: async () => ({ retry_after_seconds: 540 }),
@@ -239,7 +240,7 @@ describe("voice session lifecycle", () => {
   });
 
   it("enters the error state when the signed URL request cannot connect", async () => {
-    global.fetch = jest.fn().mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    global.fetch = vi.fn().mockRejectedValueOnce(new TypeError("Failed to fetch"));
     startCall();
 
     await waitFor(() => expect(screen.getByRole("button", { name: "error" })).toBeInTheDocument());

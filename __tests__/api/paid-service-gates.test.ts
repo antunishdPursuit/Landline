@@ -1,5 +1,6 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+/** @vitest-environment node */
+import { expect, test, vi } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/elevenlabs/signed-url/route'
 import { POST as endConversation } from '@/app/api/elevenlabs/conversation-end/route'
@@ -13,7 +14,7 @@ test('every provider route is paused before parsing or contacting a provider', a
   const originalEnv = process.env
   process.env = { ...originalEnv, ELEVENLABS_API_KEY: 'synthetic-key', ELEVENLABS_AGENT_ID: 'synthetic-agent' }
   delete process.env.LANDLINE_PAID_SERVICES_ENABLED
-  global.fetch = jest.fn()
+  global.fetch = vi.fn()
   try {
     expect((await GET(new Request('https://landline.example/api/elevenlabs/signed-url'))).status).toBe(503)
     for (const handler of [endConversation, concierge, stays]) {
@@ -36,7 +37,7 @@ test('missing capabilities are rejected before shared quota reservations', async
   const originalEnv = process.env
   const originalFetch = global.fetch
   process.env = { ...originalEnv, LANDLINE_PAID_SERVICES_ENABLED: 'true' }
-  global.fetch = jest.fn()
+  global.fetch = vi.fn()
   try {
     for (const handler of [endConversation, concierge, stays]) {
       const response = await handler(new NextRequest('http://localhost/api/example', { method: 'POST', body: '{}' }))

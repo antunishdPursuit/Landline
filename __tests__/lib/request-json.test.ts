@@ -1,4 +1,5 @@
-/** @jest-environment node */
+/** @vitest-environment node */
+import { expect, test, vi } from "vitest";
 import { readJsonObject } from '@/lib/request-json'
 
 function request(body: string, headers: Record<string, string> = {}) {
@@ -22,7 +23,7 @@ test('bounds declared and streamed byte lengths, including multibyte UTF-8', asy
 })
 
 test('cancels an oversized chunked body without trusting Content-Length', async () => {
-  const cancel = jest.fn()
+  const cancel = vi.fn()
   const stream = new ReadableStream({ start(c) { c.enqueue(new Uint8Array(8193)) }, cancel })
   const req = new Request('https://landline.example', {
     method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': '2' },
@@ -33,16 +34,16 @@ test('cancels an oversized chunked body without trusting Content-Length', async 
 })
 
 test('rejects and cancels a stalled stream within the body deadline', async () => {
-  jest.useFakeTimers()
+  vi.useFakeTimers()
   try {
-    const cancel = jest.fn()
+    const cancel = vi.fn()
     const req = new Request('https://landline.example', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: new ReadableStream({ cancel }), duplex: 'half',
     } as RequestInit)
     const pending = readJsonObject(req)
-    await jest.advanceTimersByTimeAsync(5001)
+    await vi.advanceTimersByTimeAsync(5001)
     expect((await pending).response?.status).toBe(400)
     expect(cancel).toHaveBeenCalledTimes(1)
-  } finally { jest.useRealTimers() }
+  } finally { vi.useRealTimers() }
 })

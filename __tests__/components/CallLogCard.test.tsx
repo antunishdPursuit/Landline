@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom'
 import { CallLogCard } from '@/components/CallLogCard'
 import type { CallLog } from '@/lib/types'
 

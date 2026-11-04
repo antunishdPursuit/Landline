@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { classifyRequest } from "@/lib/classifier";
 
 describe("classifyRequest", () => {

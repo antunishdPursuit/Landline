@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom'
 import { useStaffSession } from '@/lib/auth'
 
 let clerkLoaded = true
@@ -10,9 +10,9 @@ let clerkUser: {
   username: string | null
 } | null = null
 
-jest.mock('@clerk/nextjs', () => ({
+vi.mock('@clerk/nextjs', () => ({
   useUser: () => ({ user: clerkUser, isLoaded: clerkLoaded }),
-  useClerk: () => ({ signOut: jest.fn() }),
+  useClerk: () => ({ signOut: vi.fn() }),
 }))
 
 function SessionProbe() {

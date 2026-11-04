@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { seedCallLogs, seedRequests, seedStaffRoster } from '@/lib/mock-data'
 
 describe('deterministic dashboard seed data', () => {
