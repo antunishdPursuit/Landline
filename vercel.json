@@ -3,7 +3,8 @@
   "git": {
     "deploymentEnabled": {
       "test/migrate-to-vitest": false,
-      "main": false
+      "main": false,
+      "chore/update-actions-runtime": false
     }
   }
 }
