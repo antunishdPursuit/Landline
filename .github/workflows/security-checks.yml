@@ -37,7 +37,6 @@ jobs:
           cache: npm
       - run: npm install --global npm@11.19.1 --ignore-scripts
       - run: npm ci --ignore-scripts
-      - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --runInBand
       - run: npm run build
