@@ -1,5 +1,7 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn() }))
+/** @vitest-environment node */
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import type { Mock } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn() }))
 import { createConnection } from 'node:net'
 import { auth } from '@clerk/nextjs/server'
 import { authorizePaidRequest } from '@/lib/paid-service-access'
@@ -40,8 +42,8 @@ integration('atomic quotas against real Redis', () => {
       UPSTASH_REDIS_REST_URL: 'https://quota.example/', UPSTASH_REDIS_REST_TOKEN: 'synthetic-token',
       LANDLINE_GLOBAL_DAILY_REQUESTS: '20', LANDLINE_USER_DAILY_REQUESTS: '5', LANDLINE_USER_MINUTE_REQUESTS: '2',
     }
-    ;(auth as unknown as jest.Mock).mockResolvedValue({ userId: 'quota-user' })
-    global.fetch = jest.fn(async (_url, options) => {
+    ;(auth as unknown as Mock).mockResolvedValue({ userId: 'quota-user' })
+    global.fetch = vi.fn(async (_url, options) => {
       const result = await command(JSON.parse(String(options?.body)))
       return new Response(JSON.stringify({ result }))
     }) as typeof fetch
@@ -52,7 +54,7 @@ integration('atomic quotas against real Redis', () => {
     const responses = await Promise.all(Array.from({ length: 20 }, () => authorizePaidRequest()))
     expect(responses.filter(r => r === null)).toHaveLength(2)
     expect(responses.filter(r => r?.status === 429)).toHaveLength(18)
-    const keys = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body).slice(3, 6)
+    const keys = JSON.parse((fetch as Mock).mock.calls[0][1].body).slice(3, 6)
     for (const key of keys) {
       expect(await command(['INCRBY', key, '0'])).toBe(2)
       expect(await command(['TTL', key])).toBeGreaterThan(0)
@@ -61,16 +63,16 @@ integration('atomic quotas against real Redis', () => {
 
   test('a global cap is shared by different users without partially reserving denied requests', async () => {
     process.env.LANDLINE_GLOBAL_DAILY_REQUESTS = '3'
-    ;(auth as unknown as jest.Mock).mockImplementation(() => Promise.resolve({ userId: `quota-user-${Math.random()}` }))
+    ;(auth as unknown as Mock).mockImplementation(() => Promise.resolve({ userId: `quota-user-${Math.random()}` }))
     const responses = await Promise.all(Array.from({ length: 12 }, () => authorizePaidRequest()))
     expect(responses.filter(r => r === null)).toHaveLength(3)
     expect(responses.filter(r => r?.status === 429)).toHaveLength(9)
-    const key = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body)[3]
+    const key = JSON.parse((fetch as Mock).mock.calls[0][1].body)[3]
     expect(await command(['INCRBY', key, '0'])).toBe(3)
   })
 
   test('Redis errors fail closed without contacting a provider', async () => {
-    global.fetch = jest.fn(async () => {
+    global.fetch = vi.fn(async () => {
       try { await command(['EVAL', 'return redis.error_reply("unavailable")', '0']) }
       catch { return new Response(JSON.stringify({ error: 'store unavailable' })) }
       throw new Error('Expected Redis error')

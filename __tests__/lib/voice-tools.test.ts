@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { createVoiceClientTools } from '@/lib/voice-tools'
 
 function response(ok: boolean, body: unknown): Response {
@@ -20,11 +21,11 @@ describe('ElevenLabs client tools', () => {
       created_at: '2026-08-09T12:00:00.000Z',
       updated_at: '2026-08-09T12:00:00.000Z',
     }
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, { status: 'ready', ticket })
     )
-    const saveTicket = jest.fn()
-    const onActivity = jest.fn()
+    const saveTicket = vi.fn()
+    const onActivity = vi.fn()
     const tools = createVoiceClientTools({
       fetcher,
       saveTicket,
@@ -65,7 +66,7 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('forces staff deferrals through the authoritative classifier path', async () => {
-    const fetcher = jest.fn().mockResolvedValue(response(false, {}))
+    const fetcher = vi.fn().mockResolvedValue(response(false, {}))
     const tools = createVoiceClientTools({ fetcher })
 
     await tools.defer_to_staff({
@@ -79,15 +80,15 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('returns the room restriction without storing a ticket', async () => {
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(false, {
         status: 'room_restricted',
         allowed_room: '1208',
         message: 'I can only submit requests for room 1208.',
       })
     )
-    const saveTicket = jest.fn()
-    const onActivity = jest.fn()
+    const saveTicket = vi.fn()
+    const onActivity = vi.fn()
     const tools = createVoiceClientTools({ fetcher, saveTicket, onActivity })
 
     const result = JSON.parse(
@@ -108,7 +109,7 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('returns Tavily evidence and stores its source links', async () => {
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, {
         status: 'answered',
         answer: 'The museum closes at 8 PM.',
@@ -121,7 +122,7 @@ describe('ElevenLabs client tools', () => {
         ],
       })
     )
-    const saveRecommendation = jest.fn()
+    const saveRecommendation = vi.fn()
     const now = () => new Date('2026-08-09T12:00:00.000Z')
     const tools = createVoiceClientTools({
       fetcher,
@@ -153,7 +154,7 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('instructs the agent to escalate Tavily failures', async () => {
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, { status: 'no_answer', answer: null, sources: [] })
     )
     const tools = createVoiceClientTools({ fetcher })
@@ -177,7 +178,7 @@ describe('ElevenLabs client tools', () => {
       currency: 'USD',
       rating: 8.7,
     }
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, {
         status: 'ready',
         search: {
@@ -192,7 +193,7 @@ describe('ElevenLabs client tools', () => {
         backup_options: [],
       })
     )
-    const saveRecommendation = jest.fn()
+    const saveRecommendation = vi.fn()
     const tools = createVoiceClientTools({
       fetcher,
       saveRecommendation,
@@ -242,14 +243,14 @@ describe('ElevenLabs client tools', () => {
       url: 'https://www.stay22.com/allez/booking/2',
       price_total: 550,
     }
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, {
         status: 'ready',
         recommended_option: recommended,
         backup_options: [backup],
       })
     )
-    const saveRecommendation = jest.fn()
+    const saveRecommendation = vi.fn()
     const tools = createVoiceClientTools({ fetcher, saveRecommendation })
 
     const result = JSON.parse(
@@ -271,14 +272,14 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('lets the agent revise a confirmed search when Stay22 has no results', async () => {
-    const fetcher = jest.fn().mockResolvedValue(
+    const fetcher = vi.fn().mockResolvedValue(
       response(true, {
         status: 'no_results',
         recommended_option: null,
         backup_options: [],
       })
     )
-    const onActivity = jest.fn()
+    const onActivity = vi.fn()
     const tools = createVoiceClientTools({ fetcher, onActivity })
 
     const result = JSON.parse(
@@ -300,7 +301,7 @@ describe('ElevenLabs client tools', () => {
   })
 
   it('never fabricates a Stay22 link after failure', async () => {
-    const fetcher = jest.fn().mockRejectedValue(new Error('offline'))
+    const fetcher = vi.fn().mockRejectedValue(new Error('offline'))
     const tools = createVoiceClientTools({ fetcher })
 
     const result = JSON.parse(

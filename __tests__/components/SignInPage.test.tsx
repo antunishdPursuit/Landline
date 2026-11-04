@@ -1,9 +1,9 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom'
 import SignInPage from '@/app/sign-in/[[...sign-in]]/page'
 import { isEmbeddedBrowser, SignInExperience } from '@/components/SignInExperience'
 
-jest.mock('@clerk/nextjs', () => ({
+vi.mock('@clerk/nextjs', () => ({
   SignIn: ({ forceRedirectUrl }: { forceRedirectUrl: string }) => (
     <div data-redirect={forceRedirectUrl}>Clerk sign in</div>
   ),
@@ -89,7 +89,7 @@ describe('SignInPage', () => {
       configurable: true,
       value: 'Slack/24.08.20 CFNetwork iPhone',
     })
-    const writeText = jest.fn().mockResolvedValue(undefined)
+    const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(window.navigator, 'clipboard', {
       configurable: true,
       value: { writeText },

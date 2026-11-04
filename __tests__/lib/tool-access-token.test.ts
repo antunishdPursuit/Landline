@@ -1,8 +1,9 @@
-/** @jest-environment node */
+/** @vitest-environment node */
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
-
-jest.mock('server-only', () => ({}), { virtual: true })
+vi.mock('server-only', () => ({}))
 
 import { auth } from '@clerk/nextjs/server'
 import { createHmac } from 'node:crypto'
@@ -15,7 +16,7 @@ import {
 const ORIGINAL_ENV = process.env
 
 beforeEach(() => {
-  ;(auth as unknown as jest.Mock).mockResolvedValue({ userId: 'test-user' })
+  ;(auth as unknown as Mock).mockResolvedValue({ userId: 'test-user' })
   process.env = {
     ...ORIGINAL_ENV,
     ELEVENLABS_API_KEY: 'test-api-key',
@@ -33,11 +34,11 @@ describe('tool access tokens', () => {
     const request = new Request('https://landline.example', { headers: { 'X-Landline-Tool-Token': token } })
     expect(await requestHasToolAccess(request, 'conv_123')).toBe(true)
     expect(await requestHasToolAccess(request, 'conv_other')).toBe(false)
-    ;(auth as unknown as jest.Mock).mockResolvedValue({ userId: 'other-user' })
+    ;(auth as unknown as Mock).mockResolvedValue({ userId: 'other-user' })
     expect(await requestHasToolAccess(request)).toBe(false)
-    ;(auth as unknown as jest.Mock).mockResolvedValue({ userId: null })
+    ;(auth as unknown as Mock).mockResolvedValue({ userId: null })
     expect(await requestHasToolAccess(request)).toBe(false)
-    ;(auth as unknown as jest.Mock).mockRejectedValue(new Error('Session unavailable'))
+    ;(auth as unknown as Mock).mockRejectedValue(new Error('Session unavailable'))
     expect(await requestHasToolAccess(request)).toBe(false)
   })
 

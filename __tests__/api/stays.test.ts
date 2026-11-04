@@ -1,10 +1,12 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+/** @vitest-environment node */
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 
 
-jest.mock('server-only', () => ({}), { virtual: true })
+vi.mock('server-only', () => ({}))
 
-jest.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: jest.fn().mockResolvedValue(null) }))
+vi.mock('@/lib/paid-service-access', () => ({ authorizePaidRequest: vi.fn().mockResolvedValue(null) }))
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/stays/route'
@@ -83,7 +85,7 @@ beforeEach(() => {
     ELEVENLABS_API_KEY: 'test-api-key',
     ELEVENLABS_AGENT_ID: 'test-agent-id',
   }
-  global.fetch = jest.fn().mockResolvedValue(
+  global.fetch = vi.fn().mockResolvedValue(
     new Response(JSON.stringify(stay22Response()), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -135,7 +137,7 @@ describe('POST /api/stays', () => {
     )
     expect(body.backup_options).toEqual([])
 
-    const [requestedUrl, requestInit] = (global.fetch as jest.Mock).mock.calls[0]
+    const [requestedUrl, requestInit] = (global.fetch as Mock).mock.calls[0]
     const url = new URL(String(requestedUrl))
     expect(url.origin + url.pathname).toBe(
       'https://api.stay22.com/v2/accommodations'
@@ -173,7 +175,7 @@ describe('POST /api/stays', () => {
         },
       },
     })
-    ;(global.fetch as jest.Mock).mockResolvedValue(
+    ;(global.fetch as Mock).mockResolvedValue(
       new Response(
         JSON.stringify(
           stay22Response([
@@ -227,7 +229,7 @@ describe('POST /api/stays', () => {
         },
       },
     }
-    ;(global.fetch as jest.Mock).mockResolvedValue(
+    ;(global.fetch as Mock).mockResolvedValue(
       new Response(JSON.stringify(stay22Response([currentHotel, alternative])), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -264,7 +266,7 @@ describe('POST /api/stays', () => {
   })
 
   it('returns no_results without inventing accommodation options', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValue(
+    ;(global.fetch as Mock).mockResolvedValue(
       new Response(JSON.stringify(stay22Response([])), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -294,7 +296,7 @@ describe('POST /api/stays', () => {
   })
 
   it('fails safely when Stay22 reaches the demo rate limit', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValue(
+    ;(global.fetch as Mock).mockResolvedValue(
       new Response(JSON.stringify({ code: 'RATE_LIMIT_EXCEEDED' }), {
         status: 429,
         headers: { 'Content-Type': 'application/json' },
@@ -310,7 +312,7 @@ describe('POST /api/stays', () => {
   })
 
   it('rejects malformed upstream data instead of fabricating results', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValue(
+    ;(global.fetch as Mock).mockResolvedValue(
       new Response(JSON.stringify({ results: 'invalid' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

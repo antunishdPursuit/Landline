@@ -1,14 +1,14 @@
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import { BedsideCloseup } from "@/components/BedsideCloseup";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
 function renderCloseup(
   phoneState: "idle" | "connecting" | "in-call" | "ended" | "error" = "idle"
 ) {
-  const onPhoneAction = jest.fn();
-  const onDashboard = jest.fn();
-  const onBack = jest.fn();
+  const onPhoneAction = vi.fn();
+  const onDashboard = vi.fn();
+  const onBack = vi.fn();
   const { container } = render(
     <BedsideCloseup
       config={RITZ_NOMAD_CONFIG}
@@ -64,9 +64,9 @@ describe("BedsideCloseup", () => {
         config={RITZ_NOMAD_CONFIG}
         phoneState="idle"
         phoneSource={null}
-        onPhoneAction={jest.fn()}
-        onDashboard={jest.fn()}
-        onBack={jest.fn()}
+        onPhoneAction={vi.fn()}
+        onDashboard={vi.fn()}
+        onBack={vi.fn()}
       />
     );
     const panel = container.querySelector(".bedside-panel");
@@ -115,9 +115,9 @@ describe("BedsideCloseup", () => {
         config={RITZ_NOMAD_CONFIG}
         phoneState="in-call"
         phoneSource="handset"
-        onPhoneAction={jest.fn()}
-        onDashboard={jest.fn()}
-        onBack={jest.fn()}
+        onPhoneAction={vi.fn()}
+        onDashboard={vi.fn()}
+        onBack={vi.fn()}
       />
     );
 
@@ -141,9 +141,9 @@ describe("BedsideCloseup", () => {
         phoneState="in-call"
         phoneSource="handset"
         remainingSeconds={74}
-        onPhoneAction={jest.fn()}
-        onDashboard={jest.fn()}
-        onBack={jest.fn()}
+        onPhoneAction={vi.fn()}
+        onDashboard={vi.fn()}
+        onBack={vi.fn()}
       />
     );
 
@@ -179,9 +179,9 @@ describe("BedsideCloseup", () => {
         phoneState="in-call"
         phoneSource="handset"
         remainingSeconds={5}
-        onPhoneAction={jest.fn()}
-        onDashboard={jest.fn()}
-        onBack={jest.fn()}
+        onPhoneAction={vi.fn()}
+        onDashboard={vi.fn()}
+        onBack={vi.fn()}
       />
     );
 
@@ -197,9 +197,9 @@ describe("BedsideCloseup", () => {
         config={RITZ_NOMAD_CONFIG}
         phoneState="in-call"
         phoneSource="panel"
-        onPhoneAction={jest.fn()}
-        onDashboard={jest.fn()}
-        onBack={jest.fn()}
+        onPhoneAction={vi.fn()}
+        onDashboard={vi.fn()}
+        onBack={vi.fn()}
       />
     );
 

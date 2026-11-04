@@ -1,23 +1,23 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import type { PhoneSessionState } from "@/hooks/usePhoneSession";
 import type { CallLog } from "@/lib/types";
 import { RITZ_NOMAD_CONFIG } from "@/types/agent";
 
-const mockStartSession = jest.fn().mockResolvedValue(undefined);
-const mockEndSession = jest.fn().mockResolvedValue(undefined);
-const mockDismissError = jest.fn();
-const mockRouterPush = jest.fn();
+const mockStartSession = vi.fn().mockResolvedValue(undefined);
+const mockEndSession = vi.fn().mockResolvedValue(undefined);
+const mockDismissError = vi.fn();
+const mockRouterPush = vi.fn();
 let mockPhoneState: PhoneSessionState = "idle";
 let mockRemainingSeconds = 60;
 let mockLastCall: CallLog | null = null;
 let mockErrorMessage: string | null = null;
 
-jest.mock("next/navigation", () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockRouterPush }),
 }));
 
-jest.mock("@/hooks/usePhoneSession", () => ({
+vi.mock("@/hooks/usePhoneSession", () => ({
   usePhoneSession: () => ({
     state: mockPhoneState,
     remainingSeconds: mockRemainingSeconds,
@@ -42,7 +42,7 @@ function enterBedsideView() {
 
 describe("GuestRoomExperience", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockPhoneState = "idle";
     mockRemainingSeconds = 60;
     mockLastCall = null;

@@ -1,4 +1,5 @@
-/** @jest-environment node */
+/** @vitest-environment node */
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { searchConcierge, TavilyUpstreamError } from '@/lib/tavily'
 const env = process.env
 const originalFetch = global.fetch
@@ -6,7 +7,7 @@ beforeEach(() => { process.env = { ...env, TAVILY_API_KEY: 'synthetic-key' } })
 afterEach(() => { process.env = env; global.fetch = originalFetch })
 
 test('only returns credential-free HTTPS sources and never follows provider redirects', async () => {
-  global.fetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({
+  global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
     answer: 'Test answer', results: [
       { title: 'Valid', url: 'https://example.com/source' },
       { title: 'Unsafe', url: 'javascript:alert(1)' },
@@ -20,6 +21,6 @@ test('only returns credential-free HTTPS sources and never follows provider redi
 })
 
 test.each([null, [], 'text'])('rejects malformed provider objects without exposing response data', async payload => {
-  global.fetch = jest.fn().mockResolvedValue(new Response(JSON.stringify(payload)))
+  global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify(payload)))
   await expect(searchConcierge('test')).rejects.toBeInstanceOf(TavilyUpstreamError)
 })

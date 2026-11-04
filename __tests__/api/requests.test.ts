@@ -1,5 +1,6 @@
-/** @jest-environment node */
-jest.mock('@clerk/nextjs/server', () => ({ auth: jest.fn().mockResolvedValue({ userId: 'test-user' }) }))
+/** @vitest-environment node */
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn().mockResolvedValue({ userId: 'test-user' }) }))
 
 
 import { NextRequest } from "next/server";

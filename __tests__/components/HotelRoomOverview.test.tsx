@@ -1,5 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import { HotelRoomOverview } from "@/components/HotelRoomOverview";
 
 describe("HotelRoomOverview", () => {
@@ -58,7 +58,7 @@ describe("HotelRoomOverview", () => {
   });
 
   it("exposes one bedside approach action when a handler is provided", () => {
-    const onApproach = jest.fn();
+    const onApproach = vi.fn();
     render(<HotelRoomOverview onApproach={onApproach} />);
 
     fireEvent.click(

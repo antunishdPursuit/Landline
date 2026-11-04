@@ -1,8 +1,9 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from '@testing-library/react'
 import { TicketCard } from '@/components/TicketCard'
 import type { GuestRequest } from '@/lib/types'
 
-jest.mock('@/components/Badges', () => ({
+vi.mock('@/components/Badges', () => ({
   DepartmentBadge: () => null,
   LanguageBadge: () => null,
   NeedsHumanBadge: () => null,
@@ -26,19 +27,19 @@ const request: GuestRequest = {
 
 describe('TicketCard', () => {
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('removes a request after confirmation', () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(true)
-    const onRemove = jest.fn()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const onRemove = vi.fn()
 
     render(
       <TicketCard
         request={request}
         justArrived={false}
         currentStaffName="Demo Manager"
-        onAdvanceStatus={jest.fn()}
+        onAdvanceStatus={vi.fn()}
         onRemove={onRemove}
       />
     )
@@ -50,15 +51,15 @@ describe('TicketCard', () => {
   })
 
   it('keeps a request when removal is canceled', () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(false)
-    const onRemove = jest.fn()
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const onRemove = vi.fn()
 
     render(
       <TicketCard
         request={request}
         justArrived={false}
         currentStaffName="Demo Manager"
-        onAdvanceStatus={jest.fn()}
+        onAdvanceStatus={vi.fn()}
         onRemove={onRemove}
       />
     )
